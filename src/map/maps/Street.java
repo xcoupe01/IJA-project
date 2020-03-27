@@ -23,17 +23,20 @@ public class Street implements iStreet{
         this.coords.add(begin);
         this.wholeStreetDrawn = false;
         this.highlightStatus = false;
-    }
-
-
-    // add stop to the street
-    // TODO - need to check if the addition is correct
-    public void addStop(Stop stop){
-        this.stops.add(stop);
-        stop.setStreet(this);
         this.highlightEnd.setFill(Color.RED);
     }
 
+    // add stop to the street
+    public boolean addStop(Stop stop){
+        for(int i = 1; i < this.coords.size(); i++){
+            if(this.coords.get(i - 1).distance(this.coords.get(i)) == (this.coords.get(i-1).distance(stop.getCoord()) + this.coords.get(i).distance(stop.getCoord()))){
+                this.stops.add(stop);
+                stop.setStreet(this);
+                return true;
+            }
+        }
+        return false;
+    }
 
     // adds new coordination for the street, also creates line object to be drawn
     public void addCoord(Coordinate coord){
@@ -166,5 +169,13 @@ public class Street implements iStreet{
         if(!this.wholeStreetDrawn){
             this.draw(mapCanvas);
         }
+    }
+
+    // TODO complete zoom function
+    public void zoomStreet(Pane mapCanvas, int mouseX, int mouseY, int zoom){
+        if(this.wholeStreetDrawn){
+            this.erase(mapCanvas);
+        }
+
     }
 }

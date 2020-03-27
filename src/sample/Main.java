@@ -18,7 +18,7 @@ import javafx.application.Application;
 import java.util.concurrent.atomic.AtomicBoolean;
 import static java.lang.StrictMath.abs;
 
-// TODO make street creatable from window
+// TODO make street stop creatable from window
 
 public class Main extends Application {
 
@@ -31,7 +31,7 @@ public class Main extends Application {
         AtomicBoolean addCoord = new AtomicBoolean(false);
         HBox root = new HBox();
         VBox menu = new VBox();
-        Scene mainScene = new Scene(root, 800, 600);
+        Scene mainScene = new Scene(root, 1000, 600);
         Map m1 = new Map();
         Pane overlay = new Pane();
         ComboBox streetMenu = new ComboBox();
@@ -40,8 +40,8 @@ public class Main extends Application {
         //GraphicsContext gc = canvas.getGraphicsContext2D();
 
         overlay.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        overlay.setMaxWidth(500);
-        overlay.setMinWidth(200);
+        overlay.setMaxWidth(700);
+        overlay.setMinWidth(700);
         overlay.setOnMouseClicked(event -> {
             m1.highlightOffAll(overlay);
             if(addCoord.get()) {
@@ -65,9 +65,12 @@ public class Main extends Application {
                     }
                 } else {
                     if(snapCoord.getX() == 0 && snapCoord.getY() == 0){
-                        m1.addStreet(new Street((String) streetMenu.getValue() , Coordinate.create(((int) event.getX()), ((int) event.getY()))));
+                        Coordinate tmpCoord = Coordinate.create(((int) event.getX()), ((int) event.getY()));
+                        assert tmpCoord != null;
+                        tmpCoord.draw(overlay);
+                        m1.addStreet(new Street((String) streetMenu.getValue(), tmpCoord));
                     } else {
-                        m1.addStreet(new Street((String) streetMenu.getValue() , snapCoord));
+                        m1.addStreet(new Street((String) streetMenu.getValue(), snapCoord));
                     }
                     updateStreetMenu(streetMenu, m1);
                     streetMenu.getSelectionModel().selectLast();
@@ -85,6 +88,17 @@ public class Main extends Application {
                this.dragLocationX = (int) event.getX();
                this.dragLocationY = (int) event.getY();
            }
+        });
+        // TODO continue wit zoom function
+        overlay.setOnScroll(event -> {
+            if(event.getDeltaY() != 0){
+                if(event.getDeltaY() > 0){
+                    if(this.zoomValue <= 95){ this.zoomValue += 5; }
+                } else {
+                    if(this.zoomValue >= 10){ this.zoomValue -= 5; }
+                }
+                System.out.println("zoom detected " + this.zoomValue + " mouse location x:" + event.getX() + " y:" + event.getY());
+            }
         });
 
         Button coordAdd = new Button("Add coordinate");
@@ -161,6 +175,7 @@ public class Main extends Application {
         m1.addStreet(s3);
 
         m1.draw(overlay);
+        m1.loadMapFromFile("testmap1.txt");
         updateStreetMenu(streetMenu, m1);
 
     }

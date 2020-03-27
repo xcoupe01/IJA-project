@@ -6,6 +6,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import map.Imaps.iCoordinate;
 
+import static java.lang.Math.sqrt;
+
 
 public class Coordinate implements iCoordinate{
 
@@ -83,6 +85,12 @@ public class Coordinate implements iCoordinate{
     public void setMoved(){ this.moved = false; }
 
     public boolean getMoved(){ return this.moved; }
+
+    public double distance(Coordinate c){
+        int distX = this.coordX - c.getX();
+        int distY = this.coordY - c.getY();
+        return sqrt( distX*distX + distY*distY );
+    }
 
     @Override
 

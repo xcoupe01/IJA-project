@@ -7,7 +7,7 @@ import map.maps.Street;
 
 public interface iStreet{
 
-    void addStop(Stop stop);
+    boolean addStop(Stop stop);
     void addCoord(Coordinate c);
     java.lang.String getId();
     java.util.List<Coordinate> getCoordinates();

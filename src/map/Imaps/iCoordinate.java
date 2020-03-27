@@ -17,4 +17,5 @@ public interface iCoordinate{
     void moveCoord(Pane mapCanvas, int x, int y);
     void setMoved();
     boolean getMoved();
+    double distance(Coordinate c);
 }

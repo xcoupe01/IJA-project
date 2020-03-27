@@ -22,7 +22,7 @@ public class Stop implements iStop{
         this.stop.setFill(Color.YELLOW.deriveColor(1, 1, 1, 0.7));
         this.stop.relocate(coord.getX() - 3, coord.getY() - 3);
         this.stop.setCursor(cursor("HAND"));
-        this.stop.setOnMouseClicked(t -> System.out.println(name));
+        this.stop.setOnMouseClicked(t -> System.out.println(this.name));
     }
 
     // returns the Coordinates of the stop
