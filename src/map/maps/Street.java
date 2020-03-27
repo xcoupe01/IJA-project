@@ -94,6 +94,7 @@ public class Street implements iStreet{
 
     // erases the Street from given Pane
     public void erase(Pane mapCanvas){
+        this.highlightOff(mapCanvas);
         for(int i = 0; i < this.StreetLines.size(); i++){
             mapCanvas.getChildren().remove(StreetLines.get(i));
             this.drawn.set(i, false);
@@ -138,6 +139,32 @@ public class Street implements iStreet{
             this.highlightOff(mapCanvas);
         } else {
             this.highlightOn(mapCanvas);
+        }
+    }
+
+    public void moveStreet(Pane mapCanvas, int x, int y){
+        if(this.wholeStreetDrawn){
+            this.erase(mapCanvas);
+        }
+        this.begin().moveCoord(mapCanvas, x, y);
+        for(int i = 0; i < this.StreetLines.size(); i++){
+            Coordinate begin = this.coords.get(i);
+            Coordinate end = this.coords.get(i+1);
+            end.moveCoord(mapCanvas, x, y);
+            Line line = new Line(begin.getX(), begin.getY(), end.getX(), end.getY());
+            line.setStrokeWidth(1);
+            line.setStroke(Color.BLACK.deriveColor(1, 1, 1, 0.7));
+            this.StreetLines.set(i, line);
+            Line highlight = new Line(begin.getX(), begin.getY(), end.getX(), end.getY());
+            highlight.setStrokeWidth(3);
+            highlight.setStroke(Color.RED);
+            this.StreetHighlight.set(i, highlight);
+        }
+        for (Stop stop : this.stops) {
+            stop.moveStop(mapCanvas, x, y);
+        }
+        if(!this.wholeStreetDrawn){
+            this.draw(mapCanvas);
         }
     }
 }

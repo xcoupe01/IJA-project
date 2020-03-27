@@ -13,6 +13,7 @@ public class Coordinate implements iCoordinate{
     private int coordY;                             //< the Y part of the Coordinate
     private boolean drawn;                          //< tells if the Coordinate is visible
     private Circle coordinate = new Circle(3);   //< the graphical object of Coordinate
+    private boolean moved;
 
     private Coordinate(int coordX, int coordY){
         this.coordX = coordX;
@@ -40,6 +41,27 @@ public class Coordinate implements iCoordinate{
     // returns the difference on Y axis between two points
     public int diffY(Coordinate c){ return this.coordY - c.getY();}
 
+    // sets X part of coordinate to given number
+    public void setX(int coordX){ this.coordX = coordX; }
+
+    // sets Y part of coordinate to given number
+    public void setY(int coordY){ this.coordY = coordY; }
+
+    // moves coordinate with given numbers
+    public void moveCoord(Pane mapCanvas, int x, int y){
+        if(!this.moved){
+            if(this.drawn){
+                this.erase(mapCanvas);
+            }
+            this.coordX += x;
+            this.coordY += y;
+            if(this.drawn){
+                this.draw(mapCanvas);
+            }
+            this.moved = true;
+        }
+    }
+
     // makes the Coordinate visible on given Pane
     public void draw(Pane mapCanvas){
         if(!drawn) {
@@ -57,6 +79,10 @@ public class Coordinate implements iCoordinate{
         mapCanvas.getChildren().remove(this.coordinate);
         this.drawn = false;
     }
+
+    public void setMoved(){ this.moved = false; }
+
+    public boolean getMoved(){ return this.moved; }
 
     @Override
 

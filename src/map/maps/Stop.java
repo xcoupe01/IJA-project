@@ -46,9 +46,22 @@ public class Stop implements iStop{
     }
 
     public void erase(Pane mapCanvas){
-        mapCanvas.getChildren().remove(this.stop);
-        this.drawn = false;
+        if(this.drawn){
+            mapCanvas.getChildren().remove(this.stop);
+            this.drawn = false;
+        }
     }
-    //TODO erase method
+
+    public void moveStop(Pane mapCanvas, int x, int y){
+        this.coord.setMoved();
+        this.coord.moveCoord(mapCanvas, x, y);
+        if(this.drawn){
+            this.erase(mapCanvas);
+        }
+        this.stop.relocate(coord.getX() - 3, coord.getY() - 3);
+        if(this.drawn){
+            this.draw(mapCanvas);
+        }
+    }
 
 }

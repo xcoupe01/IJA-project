@@ -22,5 +22,6 @@ public interface iStreet{
     void highlightOn(Pane mapCanvas);
     void highlightOff(Pane mapCanvas);
     void highlightToggle(Pane mapCanvas);
+    void moveStreet(Pane mapCanvas, int x, int y);
 
 }
