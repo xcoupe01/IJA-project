@@ -2,6 +2,7 @@ package sample;
 
 
 
+import javafx.scene.Node;
 import javafx.scene.Scene;
 // import javafx.scene.canvas.Canvas;
 // import javafx.scene.canvas.GraphicsContext;
@@ -9,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import map.maps.Coordinate;
 import map.maps.Map;
@@ -125,9 +127,26 @@ public class Main extends Application {
         Button HighlightStreet = new Button("toggle highlight");
         HighlightStreet.setOnAction(event -> m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).highlightToggle(overlay));
 
+
+        //TODO null pointer exception when file not choosed and the action is canceled - both
+        FileChooser fileLoadMap = new FileChooser();
+        FileChooser fileSaveMap = new FileChooser();
+
+        Button loadMap = new Button("load map");
+        loadMap.setOnAction(event -> {
+            m1.loadMapFromFile(fileLoadMap.showOpenDialog(primaryStage).getPath());
+            updateStreetMenu(streetMenu, m1);
+            m1.draw(overlay);
+        });
+
+        //TODO teach file saver to create files - i can only save to existing files
+        Button saveMap = new Button("save map");
+        saveMap.setOnAction(event -> m1.saveMapToFile(fileSaveMap.showOpenDialog(primaryStage).getPath()));
+
+
         // end test
 
-        menu.getChildren().addAll(coordAdd, EraseStreet, HighlightStreet, streetMenu);
+        menu.getChildren().addAll(coordAdd, EraseStreet, HighlightStreet, streetMenu, loadMap, saveMap);
 
         root.getChildren().addAll(overlay, menu);
 
@@ -135,48 +154,7 @@ public class Main extends Application {
         primaryStage.setTitle("IJA project");
         primaryStage.show();
 
-        /* unimportant test field */
-        Coordinate c1 = Coordinate.create(20, 20);
-        Coordinate c2 = Coordinate.create(20, 200);
-        Coordinate c3 = Coordinate.create(320, 200);
-        Coordinate c4 = Coordinate.create(320, 100);
-        Coordinate c5 = Coordinate.create(100, 100);
-        Coordinate c6 = Coordinate.create(20, 100);
-        Coordinate c7 = Coordinate.create(520, 400);
-        Coordinate c8 = Coordinate.create(120, 400);
-        Coordinate c9 = Coordinate.create(120, 350);
-        Coordinate c10 = Coordinate.create(20, 300);
-        Coordinate c11 = Coordinate.create(200, 500);
-        Coordinate c12 = Coordinate.create(200, 250);
-        Coordinate c13 = Coordinate.create(210, 270);
-        Coordinate c14 = Coordinate.create(210, 150);
-        Coordinate c15 = Coordinate.create(400, 150);
-
-        Street s1 = new Street("ulice1", c1);
-        Street s2 = new Street("ulice2", c7);
-        Street s3 = new Street("ulice3", c11);
-        assert c6 != null;
-        Stop st1 = new Stop("Hviezdoslavova", c6);
-        s1.addCoord(c2);
-        s1.addCoord(c3);
-        s1.addCoord(c4);
-        s1.addCoord(c5);
-        s1.addStop(st1);
-        s2.addCoord(c8);
-        s2.addCoord(c9);
-        s2.addCoord(c10);
-        s3.addCoord(c12);
-        s3.addCoord(c13);
-        s3.addCoord(c14);
-        s3.addCoord(c15);
-
-        m1.addStreet(s1);
-        m1.addStreet(s2);
-        m1.addStreet(s3);
-
         m1.draw(overlay);
-        m1.loadMapFromFile("testmap1.txt");
-        updateStreetMenu(streetMenu, m1);
 
     }
 

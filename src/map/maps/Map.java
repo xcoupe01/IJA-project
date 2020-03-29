@@ -3,9 +3,7 @@ package map.maps;
 
 import javafx.scene.layout.Pane;
 import map.Imaps.iMap;
-
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -64,6 +62,7 @@ public class Map implements iMap{
     }
 
     public boolean loadMapFromFile(java.lang.String filePath){
+        //TODO needs check if the coordinates are repeating -- do not create wo same coords
         try {
             Pattern coordinate = Pattern.compile("\\[(\\d+),(\\d+)]");
             Pattern name = Pattern.compile("^\\w+ (\\w+)");
@@ -71,22 +70,26 @@ public class Map implements iMap{
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String line = myReader.nextLine();
-                System.out.println(line);
-                if(line.matches("^STREET \\w+ [\\[\\d+,\\d+\\]]+")){
+                if(line.matches("^STREET \\w+ [\\[\\d+,\\d+\\] ]+")){
                     Matcher matchedCoords = coordinate.matcher(line);
                     Matcher matchedName = name.matcher(line);
-                    this.addStreet(new Street(matchedName.group(0),
-                            Coordinate.create( Integer.parseInt(matchedCoords.group(0)), Integer.parseInt(matchedCoords.group(1)) )));
-                    for(int i = 2; i < matchedCoords.groupCount(); i++){
-                        this.streets.get(this.streets.size() - 1).addCoord( Coordinate.create( Integer.parseInt(matchedCoords.group(i)), Integer.parseInt(matchedCoords.group(i+1)) ) );
-                        i++;
+                    if(matchedName.find() && matchedCoords.find()){
+                        this.addStreet(new Street(matchedName.group(1),
+                                Coordinate.create( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)) )));
+                    }
+                    while(matchedCoords.find()){
+                        this.streets.get(this.streets.size() - 1).addCoord( Coordinate.create( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)) ) );
                     }
                 } else if(line.matches("^STOP \\w+ \\[\\d+,\\d+]$")){
                     Matcher matchedCoords = coordinate.matcher(line);
                     Matcher matchedName = name.matcher(line);
                     if(this.streets.size() > 0){
-                        this.streets.get(this.streets.size() - 1).addStop(new Stop(matchedName.group(0),
-                                Objects.requireNonNull(Coordinate.create(Integer.parseInt(matchedCoords.group(0)), Integer.parseInt(matchedCoords.group(1))))));
+                        if(matchedCoords.find() && matchedName.find()){
+                            if(!this.streets.get(this.streets.size() - 1).addStop(new Stop(matchedName.group(1),
+                                    Objects.requireNonNull(Coordinate.create(Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2))))))){
+                                System.out.println("WARNING - stop cannot be added because of position");
+                            }
+                        }
                     } else {
                         return false;
                     }
@@ -100,12 +103,30 @@ public class Map implements iMap{
             e.printStackTrace();
             return false;
         }
-
         return true;
     }
 
     public void saveMapToFile(java.lang.String filePath){
-
+        try{
+            StringBuilder toSave = new StringBuilder();
+            FileWriter savefile = new FileWriter(filePath, false);
+            BufferedWriter file = new BufferedWriter(savefile);
+            for (Street street : this.streets) {
+                toSave.append("STREET ").append(street.getId()).append(" ");
+                for (int j = 0; j < street.getCoordinates().size(); j++) {
+                    toSave.append("[").append(street.getCoordinates().get(j).getX()).append(",").append(street.getCoordinates().get(j).getY()).append("] ");
+                }
+                toSave.append('\n');
+                for (int j = 0; j < street.getStops().size(); j++) {
+                    toSave.append("STOP ").append(street.getStops().get(j).getName()).append(" [").append(street.getStops().get(j).getCoord().getX()).append(",").append(street.getStops().get(j).getCoord().getY()).append("]\n");
+                }
+            }
+            file.write(String.valueOf(toSave));
+            file.close();
+        }
+        catch (IOException e){
+            System.err.println("ERROR: " + e.getMessage());
+        }
     }
     // TODO make loader and saver from/to file
 
