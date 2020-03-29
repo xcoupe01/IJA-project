@@ -61,24 +61,42 @@ public class Map implements iMap{
         }
     }
 
-    public boolean loadMapFromFile(java.lang.String filePath){
-        //TODO needs check if the coordinates are repeating -- do not create wo same coords
+    public boolean loadMapFromFile(java.lang.String filePath, Pane mapCanvas){
         try {
             Pattern coordinate = Pattern.compile("\\[(\\d+),(\\d+)]");
             Pattern name = Pattern.compile("^\\w+ (\\w+)");
             File myObj = new File(filePath);
             Scanner myReader = new Scanner(myObj);
+            this.streets.clear();
+            mapCanvas.getChildren().clear();
             while (myReader.hasNextLine()) {
                 String line = myReader.nextLine();
                 if(line.matches("^STREET \\w+ [\\[\\d+,\\d+\\] ]+")){
                     Matcher matchedCoords = coordinate.matcher(line);
                     Matcher matchedName = name.matcher(line);
                     if(matchedName.find() && matchedCoords.find()){
-                        this.addStreet(new Street(matchedName.group(1),
-                                Coordinate.create( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)) )));
+                        Coordinate tmpCoord = Coordinate.create( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)));
+                        for (Street street : this.streets) {
+                            for (int i = 0; i < street.getCoordinates().size(); i++) {
+                                assert tmpCoord != null;
+                                if (tmpCoord.equals(street.getCoordinates().get(i))) {
+                                    tmpCoord = street.getCoordinates().get(i);
+                                }
+                            }
+                        }
+                        this.addStreet(new Street(matchedName.group(1), tmpCoord));
                     }
                     while(matchedCoords.find()){
-                        this.streets.get(this.streets.size() - 1).addCoord( Coordinate.create( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)) ) );
+                        Coordinate tmpCoord = Coordinate.create( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)));
+                        for (Street street : this.streets) {
+                            for (int i = 0; i < street.getCoordinates().size(); i++) {
+                                assert tmpCoord != null;
+                                if (tmpCoord.equals(street.getCoordinates().get(i))) {
+                                    tmpCoord = street.getCoordinates().get(i);
+                                }
+                            }
+                        }
+                        this.streets.get(this.streets.size() - 1).addCoord(tmpCoord);
                     }
                 } else if(line.matches("^STOP \\w+ \\[\\d+,\\d+]$")){
                     Matcher matchedCoords = coordinate.matcher(line);
@@ -128,6 +146,4 @@ public class Map implements iMap{
             System.err.println("ERROR: " + e.getMessage());
         }
     }
-    // TODO make loader and saver from/to file
-
 }

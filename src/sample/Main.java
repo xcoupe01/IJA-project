@@ -1,15 +1,14 @@
 package sample;
 
 
-
-import javafx.scene.Node;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 // import javafx.scene.canvas.Canvas;
 // import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import map.maps.Coordinate;
@@ -30,29 +29,42 @@ public class Main extends Application {
 
     public void start(Stage primaryStage) {
 
+        // parameters
+        double menuWidth = 200;
+        int snapAggression = 10;
+
         AtomicBoolean addCoord = new AtomicBoolean(false);
+        AtomicBoolean addStop = new AtomicBoolean(false);
         HBox root = new HBox();
         VBox menu = new VBox();
         Scene mainScene = new Scene(root, 1000, 600);
         Map m1 = new Map();
         Pane overlay = new Pane();
         ComboBox streetMenu = new ComboBox();
+        FileChooser fileChoose = new FileChooser();
 
         //Canvas canvas = new Canvas(300, 300);
         //GraphicsContext gc = canvas.getGraphicsContext2D();
+        menu.setBackground(new Background(new BackgroundFill(Paint.valueOf("GRAY"), null, null)));
 
-        overlay.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        overlay.setMaxWidth(700);
-        overlay.setMinWidth(700);
+
+        // overlay.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
+        overlay.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            overlay.prefWidthProperty().bind(newValue.widthProperty());
+            overlay.prefHeightProperty().bind(newValue.heightProperty());
+        });
+
+
         overlay.setOnMouseClicked(event -> {
             m1.highlightOffAll(overlay);
-            if(addCoord.get()) {
+            if(addCoord.get() && streetMenu.getValue() != "" && streetMenu.getValue() != null) {
                 Coordinate snapCoord = Coordinate.create(0,0);
                 for(int i = 0; i < m1.getStreets().size(); i++){
                     Street tmpStreet = m1.getStreets().get(i);
                     for(int j = 0; j < tmpStreet.getCoordinates().size() ; j++){
                         Coordinate tmpCoord = tmpStreet.getCoordinates().get(j);
-                        if(abs(tmpCoord.getX() - event.getX()) < 10 && abs(tmpCoord.getY() - event.getY()) < 10){
+                        if(abs(tmpCoord.getX() - event.getX()) < snapAggression && abs(tmpCoord.getY() - event.getY()) < snapAggression){
                             snapCoord = tmpCoord;
                             System.out.println("snaping");
                         }
@@ -78,6 +90,8 @@ public class Main extends Application {
                     streetMenu.getSelectionModel().selectLast();
                 }
                 m1.draw(overlay);
+            } else if(addStop.get() && streetMenu.getValue() != "" && streetMenu.getValue() != null){
+                Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
             }
         });
         overlay.setOnMousePressed(event ->{
@@ -91,6 +105,31 @@ public class Main extends Application {
                this.dragLocationY = (int) event.getY();
            }
         });
+        overlay.setOnMouseMoved(event ->{
+            if(addStop.get() && streetMenu.getValue() != "" && streetMenu.getValue() != null){
+                Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
+                Coordinate tmpCoord = null;
+                Coordinate tmpCoord2 = null;
+                int arrayPointer = 0;
+                for(int i = 0; i < m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().size(); i++){
+                    if(tmpCoord == null){
+                       tmpCoord =  m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(i);
+                    } else if(tmpCoord.distance(mouseCoord) < tmpCoord.distance(m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(i))){
+                       tmpCoord =  m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(i);
+                    }
+                    arrayPointer = i;
+                }
+                assert mouseCoord != null;
+                if(mouseCoord.distance(m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(arrayPointer - 1)) <
+                        mouseCoord.distance(m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(arrayPointer + 1))){
+                    tmpCoord2 = m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(arrayPointer - 1);
+                } else {
+                    tmpCoord2 = m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(arrayPointer + 1);
+                }
+                // i have two closest neighbors need to do the rest
+            }
+        });
+
         // TODO continue wit zoom function
         overlay.setOnScroll(event -> {
             if(event.getDeltaY() != 0){
@@ -103,19 +142,28 @@ public class Main extends Application {
             }
         });
 
-        Button coordAdd = new Button("Add coordinate");
+        ToggleButton coordAdd = new ToggleButton("Add coordinate");
+        coordAdd.setPrefWidth(menuWidth);
         coordAdd.setOnAction(event -> {
             if(addCoord.get()){
                 addCoord.set(false);
-                coordAdd.setText("Add coordinates");
             } else {
                 addCoord.set(true);
-                coordAdd.setText("Stop adding coordinates");
             }
         });
 
-        // test of erasing coordinate
-        Button EraseStreet = new Button("toggle street visibility");
+        ToggleButton stopAdd = new ToggleButton("Add stop");
+        stopAdd.setPrefWidth(menuWidth);
+        stopAdd.setOnAction(event -> {
+            if(addStop.get()){
+                addStop.set(false);
+            } else {
+                addStop.set(true);
+            }
+        });
+
+        Button EraseStreet = new Button("Toggle street visibility");
+        EraseStreet.setPrefWidth(menuWidth);
         EraseStreet.setOnAction(event -> {
             if(!m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getDrawn()){
                 m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).draw(overlay);
@@ -124,36 +172,47 @@ public class Main extends Application {
             }
         });
 
-        Button HighlightStreet = new Button("toggle highlight");
+        Button HighlightStreet = new Button("Toggle highlight");
+        HighlightStreet.setPrefWidth(menuWidth);
         HighlightStreet.setOnAction(event -> m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).highlightToggle(overlay));
 
-
-        //TODO null pointer exception when file not choosed and the action is canceled - both
-        FileChooser fileLoadMap = new FileChooser();
-        FileChooser fileSaveMap = new FileChooser();
-
-        Button loadMap = new Button("load map");
+        Button loadMap = new Button("Load map");
+        loadMap.setPrefWidth(menuWidth);
         loadMap.setOnAction(event -> {
-            m1.loadMapFromFile(fileLoadMap.showOpenDialog(primaryStage).getPath());
-            updateStreetMenu(streetMenu, m1);
-            m1.draw(overlay);
+            try {
+                m1.loadMapFromFile(fileChoose.showOpenDialog(primaryStage).getPath(), overlay);
+                updateStreetMenu(streetMenu, m1);
+                m1.draw(overlay);
+            }
+            catch (NullPointerException e){
+                System.out.println("no file choosed");
+            }
         });
 
-        //TODO teach file saver to create files - i can only save to existing files
-        Button saveMap = new Button("save map");
-        saveMap.setOnAction(event -> m1.saveMapToFile(fileSaveMap.showOpenDialog(primaryStage).getPath()));
+        Button saveMap = new Button("Save map");
+        saveMap.setPrefWidth(menuWidth);
+        saveMap.setOnAction(event -> {
+            try{
+                m1.saveMapToFile(fileChoose.showSaveDialog(primaryStage).getPath());
+            }
+            catch (NullPointerException e){
+                System.out.println("no file choosed");
+            }
+        });
 
+        streetMenu.setPrefWidth(menuWidth);
 
-        // end test
-
-        menu.getChildren().addAll(coordAdd, EraseStreet, HighlightStreet, streetMenu, loadMap, saveMap);
-
+        menu.getChildren().addAll(coordAdd, stopAdd, EraseStreet, HighlightStreet, streetMenu, loadMap, saveMap);
+        menu.setMinWidth(menuWidth);
         root.getChildren().addAll(overlay, menu);
-
         primaryStage.setScene(mainScene);
         primaryStage.setTitle("IJA project");
         primaryStage.show();
+        // overlay.setMaxWidth((primaryStage.getWidth()/100) * 80);
+        // overlay.setMinWidth((primaryStage.getWidth()/100) * 80);
 
+        m1.loadMapFromFile("sample.txt", overlay);
+        updateStreetMenu(streetMenu, m1);
         m1.draw(overlay);
 
     }

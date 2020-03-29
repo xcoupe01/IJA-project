@@ -12,6 +12,6 @@ public interface iMap{
     int getMapPointerById(java.lang.String id);
     boolean isStreet(java.lang.String id);
     void highlightOffAll(Pane mapCanvas);
-    boolean loadMapFromFile(java.lang.String filePath);
+    boolean loadMapFromFile(java.lang.String filePath, Pane mapCanvas);
     void saveMapToFile(java.lang.String filePath);
 }
