@@ -6,7 +6,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import map.Imaps.iStreet;
 
-import java.util.ArrayList;
 
 public class Street implements iStreet{
 
@@ -72,7 +71,7 @@ public class Street implements iStreet{
     public java.util.List<Stop> getStops(){ return this.stops; }
 
     // checks if two streets follow each other
-    // TODO rework so it chcecks all coordinates, not just end and begin of the street
+    // TODO rework so it checks all coordinates, not just end and begin of the street
     public boolean follows(Street s){
         return (this.begin().equals(s.begin()) || this.begin().equals(s.end()) || this.end().equals(s.begin()) || this.end().equals(s.end()));
     }
@@ -189,10 +188,8 @@ public class Street implements iStreet{
             int a = B.getY() - A.getY();
             int b = -(B.getX() - A.getX());
             int c = -a * A.getX() - b * A.getY();
-
             Coordinate C = new Coordinate(mouse.getX()-a*(a*mouse.getX()+b*mouse.getY()+c)/(a*a + b*b),
                     mouse.getY()-b*(a*mouse.getX()+b*mouse.getY()+c)/(a*a + b*b));
-
             int epsilon = 1;
             if(A.distance(C) + C.distance(B) - epsilon < A.distance(B)){
                 if(result == null || C.distance(mouse) < result.distance(mouse)){
@@ -209,5 +206,23 @@ public class Street implements iStreet{
             }
         }
         return result;
+    }
+
+    public void removeLastCoord(Pane mapCanvas){
+        if(this.coords.size() > 2){
+            this.coords.get(this.coords.size() - 1).erase(mapCanvas);
+            this.coords.remove(this.coords.size() - 1);
+            this.drawn.remove(this.drawn.size() - 1);
+            this.StreetLines.remove(this.StreetLines.size() - 1);
+            this.StreetHighlight.remove(this.StreetHighlight.size() - 1);
+        }
+        /*
+        for(int i = 0; i < this.stops.size(); i++){
+            if(!this.addStop(this.stops.get(i))){
+                this.stops.remove(i);
+                i --;
+            }
+        }
+        */
     }
 }
