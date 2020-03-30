@@ -75,7 +75,7 @@ public class Map implements iMap{
                     Matcher matchedCoords = coordinate.matcher(line);
                     Matcher matchedName = name.matcher(line);
                     if(matchedName.find() && matchedCoords.find()){
-                        Coordinate tmpCoord = Coordinate.create( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)));
+                        Coordinate tmpCoord = new Coordinate( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)));
                         for (Street street : this.streets) {
                             for (int i = 0; i < street.getCoordinates().size(); i++) {
                                 assert tmpCoord != null;
@@ -87,7 +87,7 @@ public class Map implements iMap{
                         this.addStreet(new Street(matchedName.group(1), tmpCoord));
                     }
                     while(matchedCoords.find()){
-                        Coordinate tmpCoord = Coordinate.create( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)));
+                        Coordinate tmpCoord = new Coordinate( Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2)));
                         for (Street street : this.streets) {
                             for (int i = 0; i < street.getCoordinates().size(); i++) {
                                 assert tmpCoord != null;

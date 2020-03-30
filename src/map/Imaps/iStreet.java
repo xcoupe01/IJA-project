@@ -23,5 +23,6 @@ public interface iStreet{
     void highlightOff(Pane mapCanvas);
     void highlightToggle(Pane mapCanvas);
     void moveStreet(Pane mapCanvas, int x, int y);
+    Coordinate shortestPointToCoord(Coordinate mouse);
 
 }

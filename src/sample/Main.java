@@ -8,7 +8,10 @@ import javafx.scene.Scene;
 // import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import map.maps.Coordinate;
@@ -42,6 +45,15 @@ public class Main extends Application {
         Pane overlay = new Pane();
         ComboBox streetMenu = new ComboBox();
         FileChooser fileChoose = new FileChooser();
+        Rectangle stop = new Rectangle(5, 5);
+        // menu buttons ect
+        ToggleButton coordAdd = new ToggleButton("Add coordinate");
+        ToggleButton stopAdd = new ToggleButton("Add stop");
+        TextField newStopName = new TextField("name of new stop");
+        Button EraseStreet = new Button("Toggle street visibility");
+        Button HighlightStreet = new Button("Toggle highlight");
+        Button loadMap = new Button("Load map");
+        Button saveMap = new Button("Save map");
 
         //Canvas canvas = new Canvas(300, 300);
         //GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -90,8 +102,14 @@ public class Main extends Application {
                     streetMenu.getSelectionModel().selectLast();
                 }
                 m1.draw(overlay);
-            } else if(addStop.get() && streetMenu.getValue() != "" && streetMenu.getValue() != null){
+            } else if(addStop.get() && streetMenu.getValue() != "" && streetMenu.getValue() != null &&
+                    newStopName.getText() != null && newStopName.getText() != ""){
                 Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
+                m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).addStop(new Stop(newStopName.getText(),
+                        m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).shortestPointToCoord(mouseCoord)));
+                stopAdd.fire();
+                overlay.getChildren().remove(stop);
+                m1.draw(overlay);
             }
         });
         overlay.setOnMousePressed(event ->{
@@ -107,29 +125,16 @@ public class Main extends Application {
         });
         overlay.setOnMouseMoved(event ->{
             if(addStop.get() && streetMenu.getValue() != "" && streetMenu.getValue() != null){
+                overlay.getChildren().removeAll(stop);
                 Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
-                Coordinate tmpCoord = null;
-                Coordinate tmpCoord2 = null;
-                int arrayPointer = 0;
-                for(int i = 0; i < m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().size(); i++){
-                    if(tmpCoord == null){
-                       tmpCoord =  m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(i);
-                    } else if(tmpCoord.distance(mouseCoord) < tmpCoord.distance(m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(i))){
-                       tmpCoord =  m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(i);
-                    }
-                    arrayPointer = i;
-                }
-                assert mouseCoord != null;
-                if(mouseCoord.distance(m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(arrayPointer - 1)) <
-                        mouseCoord.distance(m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(arrayPointer + 1))){
-                    tmpCoord2 = m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(arrayPointer - 1);
-                } else {
-                    tmpCoord2 = m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(arrayPointer + 1);
-                }
-                // i have two closest neighbors need to do the rest
+                Coordinate result = m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).shortestPointToCoord(mouseCoord);
+                stop.setStroke(Color.BLACK);
+                stop.setFill(Color.YELLOW.deriveColor(1, 1, 1, 0.7));
+                stop.relocate(result.getX() - 3, result.getY() - 3);
+                overlay.getChildren().addAll(stop);
+
             }
         });
-
         // TODO continue wit zoom function
         overlay.setOnScroll(event -> {
             if(event.getDeltaY() != 0){
@@ -142,7 +147,6 @@ public class Main extends Application {
             }
         });
 
-        ToggleButton coordAdd = new ToggleButton("Add coordinate");
         coordAdd.setPrefWidth(menuWidth);
         coordAdd.setOnAction(event -> {
             if(addCoord.get()){
@@ -152,17 +156,23 @@ public class Main extends Application {
             }
         });
 
-        ToggleButton stopAdd = new ToggleButton("Add stop");
+
         stopAdd.setPrefWidth(menuWidth);
         stopAdd.setOnAction(event -> {
             if(addStop.get()){
                 addStop.set(false);
+                menu.getChildren().clear();
+                menu.getChildren().addAll(coordAdd, stopAdd, EraseStreet, HighlightStreet, streetMenu, loadMap, saveMap);
+                overlay.getChildren().remove(stop);
             } else {
                 addStop.set(true);
+                newStopName.setText("name of new stop");
+                menu.getChildren().clear();
+                menu.getChildren().addAll(coordAdd, stopAdd, newStopName, EraseStreet, HighlightStreet, streetMenu, loadMap, saveMap);
             }
         });
 
-        Button EraseStreet = new Button("Toggle street visibility");
+
         EraseStreet.setPrefWidth(menuWidth);
         EraseStreet.setOnAction(event -> {
             if(!m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).getDrawn()){
@@ -172,11 +182,11 @@ public class Main extends Application {
             }
         });
 
-        Button HighlightStreet = new Button("Toggle highlight");
+
         HighlightStreet.setPrefWidth(menuWidth);
         HighlightStreet.setOnAction(event -> m1.getStreets().get(m1.getMapPointerById((String) streetMenu.getValue())).highlightToggle(overlay));
 
-        Button loadMap = new Button("Load map");
+
         loadMap.setPrefWidth(menuWidth);
         loadMap.setOnAction(event -> {
             try {
@@ -189,7 +199,7 @@ public class Main extends Application {
             }
         });
 
-        Button saveMap = new Button("Save map");
+
         saveMap.setPrefWidth(menuWidth);
         saveMap.setOnAction(event -> {
             try{

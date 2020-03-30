@@ -6,6 +6,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import map.Imaps.iStreet;
 
+import java.util.ArrayList;
+
 public class Street implements iStreet{
 
     private java.util.List<Coordinate> coords = new java.util.ArrayList<>();    //< List of Coordinates
@@ -172,10 +174,40 @@ public class Street implements iStreet{
     }
 
     // TODO complete zoom function
-    public void zoomStreet(Pane mapCanvas, int mouseX, int mouseY, int zoom){
+    public void zoomStreet(Pane mapCanvas, Coordinate mouse, int zoom){
         if(this.wholeStreetDrawn){
             this.erase(mapCanvas);
         }
 
+    }
+
+    public Coordinate shortestPointToCoord(Coordinate mouse){
+        Coordinate result = null;
+        for(int i = 1 ; i < this.coords.size(); i++){
+            Coordinate A = new Coordinate(this.coords.get(i - 1).getX(), this.coords.get(i - 1).getY());
+            Coordinate B = new Coordinate(this.coords.get(i).getX(), this.coords.get(i).getY());
+            int a = B.getY() - A.getY();
+            int b = -(B.getX() - A.getX());
+            int c = -a * A.getX() - b * A.getY();
+
+            Coordinate C = new Coordinate(mouse.getX()-a*(a*mouse.getX()+b*mouse.getY()+c)/(a*a + b*b),
+                    mouse.getY()-b*(a*mouse.getX()+b*mouse.getY()+c)/(a*a + b*b));
+
+            int epsilon = 1;
+            if(A.distance(C) + C.distance(B) - epsilon < A.distance(B)){
+                if(result == null || C.distance(mouse) < result.distance(mouse)){
+                    result = C;
+                }
+            } else if(A.distance(C) > A.distance(B)){
+                if(result == null || B.distance(mouse) < result.distance(mouse)){
+                    result = B;
+                }
+            } else {
+                if(result == null || A.distance(mouse) < result.distance(mouse)){
+                    result = A;
+                }
+            }
+        }
+        return result;
     }
 }

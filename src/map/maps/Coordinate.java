@@ -17,7 +17,7 @@ public class Coordinate implements iCoordinate{
     private Circle coordinate = new Circle(3);   //< the graphical object of Coordinate
     private boolean moved;
 
-    private Coordinate(int coordX, int coordY){
+    public Coordinate(int coordX, int coordY){
         this.coordX = coordX;
         this.coordY = coordY;
         this.drawn = false;
