@@ -13,11 +13,11 @@ public class Street implements iStreet{
     private java.util.List<Stop> stops = new java.util.ArrayList<>();           //< List of Stops
     private java.util.List<Boolean> drawn = new java.util.ArrayList<>();        //< List that tells which parts of Street are visible
     private java.util.List<Line> StreetLines = new java.util.ArrayList<>();     //< List of graphical lines
-    private java.util.List<Line> StreetHighlight = new java.util.ArrayList<>();
+    private java.util.List<Line> StreetHighlight = new java.util.ArrayList<>(); //< List of highlighted lines
     private java.lang.String id;                                                //< Street id (probably name)
-    private boolean wholeStreetDrawn;
-    private boolean highlightStatus;
-    private Circle highlightEnd = new Circle(5);
+    private boolean wholeStreetDrawn;                                           //< tells if the street is visible
+    private boolean highlightStatus;                                            //< tells if the highlight is visible
+    private Circle highlightEnd = new Circle(5);                             //< highlight end point of street
 
     public Street(java.lang.String id, Coordinate begin){
         this.id = id;
@@ -29,9 +29,22 @@ public class Street implements iStreet{
 
     // add stop to the street
     public boolean addStop(Stop stop){
+        int epsilon = 1;
         for(int i = 1; i < this.coords.size(); i++){
-            if(this.coords.get(i - 1).distance(this.coords.get(i)) == (this.coords.get(i-1).distance(stop.getCoord()) + this.coords.get(i).distance(stop.getCoord()))){
+            if(this.coords.get(i - 1).distance(this.coords.get(i)) + epsilon > (this.coords.get(i-1).distance(stop.getCoord()) + this.coords.get(i).distance(stop.getCoord()))){
                 this.stops.add(stop);
+                stop.setStreet(this);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // tells if coordinate is on the street
+    public boolean isStopOnStreet(Stop stop){
+        int epsilon = 1;
+        for(int i = 1; i < this.coords.size(); i++){
+            if(this.coords.get(i - 1).distance(this.coords.get(i)) + epsilon > (this.coords.get(i-1).distance(stop.getCoord()) + this.coords.get(i).distance(stop.getCoord()))){
                 stop.setStreet(this);
                 return true;
             }
@@ -71,9 +84,15 @@ public class Street implements iStreet{
     public java.util.List<Stop> getStops(){ return this.stops; }
 
     // checks if two streets follow each other
-    // TODO rework so it checks all coordinates, not just end and begin of the street
     public boolean follows(Street s){
-        return (this.begin().equals(s.begin()) || this.begin().equals(s.end()) || this.end().equals(s.begin()) || this.end().equals(s.end()));
+        for (Coordinate coord : this.coords) {
+            for (int j = 0; j < s.getCoordinates().size(); j++) {
+                if (coord.equals(s.getCoordinates().get(j))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     // draws the Street to given Pane
@@ -108,10 +127,14 @@ public class Street implements iStreet{
         }
         this.wholeStreetDrawn = false;
     }
+
+    // returns boolean value if the street is visible on mapCanvas
     public boolean getDrawn(){ return this.wholeStreetDrawn; }
 
+    // returns boolean value if the street highlight is visible on mapCanvas
     public boolean getHighlightStatus(){ return this.highlightStatus; }
 
+    // makes highlight visible on mapCanvas
     public void highlightOn(Pane mapCanvas){
         this.erase(mapCanvas);
         if(!this.highlightStatus){
@@ -128,6 +151,7 @@ public class Street implements iStreet{
         this.draw(mapCanvas);
     }
 
+    // makes highlight disappear on mapCanvas
     public void highlightOff(Pane mapCanvas){
         if(this.highlightStatus){
             for (Line line : this.StreetHighlight) {
@@ -138,6 +162,7 @@ public class Street implements iStreet{
         }
     }
 
+    // toggles highlight on mapCanvas
     public void highlightToggle(Pane mapCanvas){
         if(this.highlightStatus){
             this.highlightOff(mapCanvas);
@@ -146,6 +171,7 @@ public class Street implements iStreet{
         }
     }
 
+    // moves whole street with specified values
     public void moveStreet(Pane mapCanvas, int x, int y){
         if(this.wholeStreetDrawn){
             this.erase(mapCanvas);
@@ -172,6 +198,7 @@ public class Street implements iStreet{
         }
     }
 
+    // future zoom function
     // TODO complete zoom function
     public void zoomStreet(Pane mapCanvas, Coordinate mouse, int zoom){
         if(this.wholeStreetDrawn){
@@ -180,6 +207,7 @@ public class Street implements iStreet{
 
     }
 
+    // tell shortest point on street to mouse cursor -- my loved masterpiece
     public Coordinate shortestPointToCoord(Coordinate mouse){
         Coordinate result = null;
         for(int i = 1 ; i < this.coords.size(); i++){
@@ -208,6 +236,7 @@ public class Street implements iStreet{
         return result;
     }
 
+    // removes last coord of street (must remain at least 2 coords) with all stops on this segment
     public void removeLastCoord(Pane mapCanvas){
         if(this.coords.size() > 2){
             this.coords.get(this.coords.size() - 1).erase(mapCanvas);
@@ -216,13 +245,12 @@ public class Street implements iStreet{
             this.StreetLines.remove(this.StreetLines.size() - 1);
             this.StreetHighlight.remove(this.StreetHighlight.size() - 1);
         }
-        /*
         for(int i = 0; i < this.stops.size(); i++){
-            if(!this.addStop(this.stops.get(i))){
+            if(!this.isStopOnStreet(this.stops.get(i))){
+                this.stops.get(i).erase(mapCanvas);
                 this.stops.remove(i);
-                i --;
+                i--;
             }
         }
-        */
     }
 }

@@ -8,6 +8,7 @@ import map.maps.Street;
 public interface iStreet{
 
     boolean addStop(Stop stop);
+    boolean isStopOnStreet(Stop stop);
     void addCoord(Coordinate c);
     java.lang.String getId();
     java.util.List<Coordinate> getCoordinates();

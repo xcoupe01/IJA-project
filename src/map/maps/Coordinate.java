@@ -15,9 +15,9 @@ public class Coordinate implements iCoordinate{
     private int coordY;                             //< the Y part of the Coordinate
     private boolean drawn;                          //< tells if the Coordinate is visible
     private Circle coordinate = new Circle(3);   //< the graphical object of Coordinate
-    private boolean moved;
+    private boolean moved;                          //< tells if the point was already moved
 
-    public Coordinate(int coordX, int coordY){
+    Coordinate(int coordX, int coordY){
         this.coordX = coordX;
         this.coordY = coordY;
         this.drawn = false;
@@ -82,10 +82,13 @@ public class Coordinate implements iCoordinate{
         this.drawn = false;
     }
 
+    // prepares point for moving
     public void setMoved(){ this.moved = false; }
 
+    // tell if the point was moved
     public boolean getMoved(){ return this.moved; }
 
+    // returns distance between this coordinate and c
     public double distance(Coordinate c){
         int distX = this.coordX - c.getX();
         int distY = this.coordY - c.getY();

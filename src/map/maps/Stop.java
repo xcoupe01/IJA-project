@@ -31,7 +31,7 @@ public class Stop implements iStop{
     // returns the name of the stop
     public java.lang.String getName(){ return this.name; }
 
-    // retruns the street to which Stop belongs
+    // returns the street to which Stop belongs
     public Street getStreet(){ return this.street; }
 
     // sets the street to which Stop belongs
@@ -45,6 +45,7 @@ public class Stop implements iStop{
         }
     }
 
+    // erases stop from mapCanvas
     public void erase(Pane mapCanvas){
         if(this.drawn){
             mapCanvas.getChildren().remove(this.stop);
@@ -52,6 +53,7 @@ public class Stop implements iStop{
         }
     }
 
+    // moves stop with specified value
     public void moveStop(Pane mapCanvas, int x, int y){
         this.coord.setMoved();
         this.coord.moveCoord(mapCanvas, x, y);

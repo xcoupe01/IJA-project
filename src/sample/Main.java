@@ -39,6 +39,14 @@ public class Main extends Application {
         FileChooser fileChoose = new FileChooser();
         Rectangle stop = new Rectangle(5, 5);
         Circle highlightPoint = new Circle(5);
+        //main menu
+        HBox menuListChooser = new HBox();
+        ToggleButton mapMenuButton = new ToggleButton("Map");
+        ToggleButton lineMenuButton = new ToggleButton("Lines");
+        ToggleButton overviewButton = new ToggleButton("Main");
+        VBox mapMenu = new VBox();
+        VBox lineMenu = new VBox();
+        VBox overview = new VBox();
         // map menu buttons ect
         ToggleButton coordAdd = new ToggleButton("Add coordinate");
         Button coordRemove = new Button("Remove last coord");
@@ -51,6 +59,66 @@ public class Main extends Application {
         ComboBox streetMenu = new ComboBox();
         Button loadMap = new Button("Load map");
         Button saveMap = new Button("Save map");
+        Label mapMenuLabel = new Label("\n Every time when map is \n edited, all lines data \n are discarded and reset");
+
+
+        mapMenuButton.setPrefWidth(menuWidth/3);
+        lineMenuButton.setPrefWidth(menuWidth/3);
+        overviewButton.setPrefWidth(menuWidth/3);
+
+        mapMenu.getChildren().addAll(menuListChooser, coordAdd, coordRemove, stopAdd,
+                newStopName, stopRemove, removeStreet, EraseStreet, HighlightStreet,
+                streetMenu, loadMap, saveMap, mapMenuLabel);
+
+        mapMenuButton.setOnAction(event -> {
+            if(mapMenuButton.isSelected()){
+                if(lineMenuButton.isSelected()){
+                    lineMenuButton.fire();
+                }
+                if(overviewButton.isSelected()){
+                    overviewButton.fire();
+                }
+                menu.getChildren().clear();
+                menu.getChildren().addAll(menuListChooser, mapMenu);
+            } else {
+                menu.getChildren().clear();
+                menu.getChildren().add(menuListChooser);
+            }
+        });
+
+        lineMenuButton.setOnAction(event -> {
+            if(lineMenuButton.isSelected()){
+                if(mapMenuButton.isSelected()){
+                    mapMenuButton.fire();
+                }
+                if(overviewButton.isSelected()){
+                    overviewButton.fire();
+                }
+                menu.getChildren().clear();
+                menu.getChildren().addAll(menuListChooser, lineMenu);
+            } else {
+                menu.getChildren().clear();
+                menu.getChildren().add(menuListChooser);
+            }
+        });
+
+        overviewButton.setOnAction(event -> {
+            if(overviewButton.isSelected()){
+                if(mapMenuButton.isSelected()){
+                    mapMenuButton.fire();
+                }
+                if(lineMenuButton.isSelected()){
+                    lineMenuButton.fire();
+                }
+                menu.getChildren().clear();
+                menu.getChildren().addAll(menuListChooser, overview);
+            } else {
+                menu.getChildren().clear();
+                menu.getChildren().add(menuListChooser);
+            }
+        });
+
+        menuListChooser.getChildren().addAll(overviewButton, mapMenuButton, lineMenuButton);
 
         //Canvas canvas = new Canvas(300, 300);
         //GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -67,7 +135,7 @@ public class Main extends Application {
                 HighlightStreet.fire();
             }
             mainMap.highlightOffAll(overlay);
-            if(coordAdd.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null) {
+            if(mapMenuButton.isSelected() && coordAdd.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null) {
                 Coordinate snapCoord = Coordinate.create(0,0);
                 for(int i = 0; i < mainMap.getStreets().size(); i++){
                     Street tmpStreet = mainMap.getStreets().get(i);
@@ -99,15 +167,15 @@ public class Main extends Application {
                     streetMenu.getSelectionModel().selectLast();
                 }
                 mainMap.draw(overlay);
-            } else if(stopAdd.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null &&
+            } else if(mapMenuButton.isSelected()&& stopAdd.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null &&
                     newStopName.getText() != null && !newStopName.getText().equals("")){
                 Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
-                System.out.println(mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).addStop(new Stop(newStopName.getText(),
-                        mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).shortestPointToCoord(mouseCoord))));
+                mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).addStop(new Stop(newStopName.getText(),
+                        mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).shortestPointToCoord(mouseCoord)));
                 stopAdd.fire();
                 overlay.getChildren().remove(stop);
                 mainMap.draw(overlay);
-            } else if(stopRemove.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null){
+            } else if(mapMenuButton.isSelected() && stopRemove.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null){
                 Coordinate tmp;
                 Coordinate result = null;
                 Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
@@ -144,7 +212,7 @@ public class Main extends Application {
            }
         });
         overlay.setOnMouseMoved(event ->{
-            if(stopAdd.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null){
+            if(mapMenuButton.isSelected() && stopAdd.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null){
                 overlay.getChildren().removeAll(stop);
                 Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
                 Coordinate result = mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).shortestPointToCoord(mouseCoord);
@@ -153,7 +221,7 @@ public class Main extends Application {
                 stop.relocate(result.getX() - 3, result.getY() - 3);
                 overlay.getChildren().addAll(stop);
 
-            } else if(stopRemove.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null &&
+            } else if(mapMenuButton.isSelected() && stopRemove.isSelected() && streetMenu.getValue() != "" && streetMenu.getValue() != null &&
                     mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getStops().size() > 0){
                 Coordinate tmp;
                 Coordinate result = null;
@@ -167,6 +235,7 @@ public class Main extends Application {
                     }
                 }
                 overlay.getChildren().remove(highlightPoint);
+                assert result != null;
                 highlightPoint.relocate(result.getX() - 5, result.getY() - 5);
                 highlightPoint.setFill(Color.RED);
                 overlay.getChildren().add(highlightPoint);
@@ -303,8 +372,11 @@ public class Main extends Application {
 
         streetMenu.setPrefWidth(menuWidth);
         newStopName.setText("name of new stop");
+        mapMenuLabel.setPrefWidth(menuWidth);
 
-        menu.getChildren().addAll(coordAdd, coordRemove, stopAdd, newStopName, stopRemove, removeStreet, EraseStreet, HighlightStreet, streetMenu, loadMap, saveMap); // map menu
+        menu.getChildren().add(menuListChooser);
+        menu.setSpacing(5);
+        overviewButton.fire();
         menu.setMinWidth(menuWidth);
         root.getChildren().addAll(overlay, menu);
         primaryStage.setScene(mainScene);
@@ -313,7 +385,7 @@ public class Main extends Application {
         // overlay.setMaxWidth((primaryStage.getWidth()/100) * 80);
         // overlay.setMinWidth((primaryStage.getWidth()/100) * 80);
 
-        mainMap.loadMapFromFile("sample.txt", overlay);
+        mainMap.loadMapFromFile("sample2.map", overlay);
         updateStreetMenu(streetMenu, mainMap);
         mainMap.draw(overlay);
     }
