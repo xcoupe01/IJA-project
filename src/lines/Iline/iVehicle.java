@@ -9,4 +9,8 @@ public interface iVehicle{
     void ride(Pane mapCanvas);
     void draw(Pane mapCanvas);
     void erase(Pane mapCanvas);
+    void setWait(int wait);
+    int getWait();
+    void switchOrientation();
+    boolean getOrientation();
 }

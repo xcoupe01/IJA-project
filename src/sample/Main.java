@@ -65,7 +65,7 @@ public class Main extends Application {
 
 
 
-        Route test = new Route(mainMap);
+        //Route test = new Route(mainMap);
 
         mapMenuButton.setPrefWidth(menuWidth/3);
         lineMenuButton.setPrefWidth(menuWidth/3);
@@ -211,7 +211,7 @@ public class Main extends Application {
         overlay.setOnMouseDragged(event ->{
            if(!coordAdd.isSelected() && !stopAdd.isSelected()){
                mainMap.moveMap(overlay, ((int) event.getX() - this.dragLocationX), ((int) event.getY() - this.dragLocationY));
-               test.updateRouteHighlight(overlay);
+               //test.updateRouteHighlight(overlay);
                this.dragLocationX = (int) event.getX();
                this.dragLocationY = (int) event.getY();
            }
@@ -397,7 +397,7 @@ public class Main extends Application {
 
         /*
         test field
-         */
+
 
         test.setColorString("BLUE");
         System.out.println(test.addStop(Coordinate.create(159,142)));
