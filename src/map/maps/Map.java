@@ -146,4 +146,20 @@ public class Map implements iMap{
             System.err.println("ERROR: " + e.getMessage());
         }
     }
+
+    public Coordinate getCoord(Coordinate c){
+        for (Street street : this.streets) {
+            for (int j = 0; j < street.getCoordinates().size(); j++) {
+                if (street.getCoordinates().get(j).equals(c)) {
+                    return street.getCoordinates().get(j);
+                }
+            }
+            for (int j = 0; j < street.getStops().size(); j++) {
+                if (street.getStops().get(j).getCoord().equals(c)) {
+                    return street.getStops().get(j).getCoord();
+                }
+            }
+        }
+        return null;
+    }
 }

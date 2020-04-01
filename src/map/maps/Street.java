@@ -14,6 +14,8 @@ public class Street implements iStreet{
     private java.util.List<Boolean> drawn = new java.util.ArrayList<>();        //< List that tells which parts of Street are visible
     private java.util.List<Line> StreetLines = new java.util.ArrayList<>();     //< List of graphical lines
     private java.util.List<Line> StreetHighlight = new java.util.ArrayList<>(); //< List of highlighted lines
+    private java.util.List<Coordinate> streetRoute = new java.util.ArrayList<>();
+    private java.util.List<java.lang.String> streetRouteType = new java.util.ArrayList<>();
     private java.lang.String id;                                                //< Street id (probably name)
     private boolean wholeStreetDrawn;                                           //< tells if the street is visible
     private boolean highlightStatus;                                            //< tells if the highlight is visible
@@ -25,6 +27,8 @@ public class Street implements iStreet{
         this.wholeStreetDrawn = false;
         this.highlightStatus = false;
         this.highlightEnd.setFill(Color.RED);
+        this.streetRoute.add(begin);
+        this.streetRouteType.add("point");
     }
 
     // add stop to the street
@@ -34,11 +38,22 @@ public class Street implements iStreet{
             if(this.coords.get(i - 1).distance(this.coords.get(i)) + epsilon > (this.coords.get(i-1).distance(stop.getCoord()) + this.coords.get(i).distance(stop.getCoord()))){
                 this.stops.add(stop);
                 stop.setStreet(this);
+                for(int j = 0; j < this.streetRoute.size(); j++){
+                    if(this.streetRoute.get(j).equals(this.coords.get(i))){
+                        this.streetRoute.add(j, stop.getCoord());
+                        this.streetRouteType.add(j, "stop");
+                        break;
+                    }
+                }
                 return true;
             }
         }
         return false;
     }
+
+    public java.util.List<Coordinate> getStreetRoute(){ return this.streetRoute;}
+
+    public java.util.List<java.lang.String> getStreetRouteType(){ return this.streetRouteType;}
 
     // tells if coordinate is on the street
     public boolean isStopOnStreet(Stop stop){
@@ -56,16 +71,18 @@ public class Street implements iStreet{
     public void addCoord(Coordinate coord){
         this.coords.add(coord);
         this.drawn.add(false);
+        this.streetRoute.add(coord);
+        this.streetRouteType.add("point");
         Line line = new Line(this.coords.get(this.coords.size() - 2).getX(), this.coords.get(this.coords.size() - 2).getY(),
                 coord.getX(), coord.getY());
         line.setStrokeWidth(1);
         line.setStroke(Color.BLACK.deriveColor(1, 1, 1, 0.7));
-        StreetLines.add(line);
+        this.StreetLines.add(line);
         Line highlight = new Line(this.coords.get(this.coords.size() - 2).getX(), this.coords.get(this.coords.size() - 2).getY(),
                 coord.getX(), coord.getY());
         highlight.setStrokeWidth(3);
         highlight.setStroke(Color.RED);
-        StreetHighlight.add(highlight);
+        this.StreetHighlight.add(highlight);
     }
 
     // returns street id (name probably)
@@ -250,6 +267,23 @@ public class Street implements iStreet{
                 this.stops.get(i).erase(mapCanvas);
                 this.stops.remove(i);
                 i--;
+            }
+        }
+    }
+
+    public void removeStop(Coordinate c, Pane mapCanvas){
+        for(int i = 0; i < this.stops.size(); i++){
+            if(this.stops.get(i).getCoord().equals(c)){
+                this.stops.get(i).erase(mapCanvas);
+                this.stops.remove(i);
+                break;
+            }
+        }
+        for(int i = 0; i < this.streetRoute.size(); i++){
+            if(this.streetRoute.get(i).equals(c) && this.streetRouteType.get(i).equals("stop")){
+                this.streetRoute.remove(i);
+                this.streetRouteType.remove(i);
+                break;
             }
         }
     }

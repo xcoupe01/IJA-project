@@ -12,6 +12,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import lines.line.Route;
 import map.maps.Coordinate;
 import map.maps.Map;
 import map.maps.Stop;
@@ -60,7 +61,11 @@ public class Main extends Application {
         Button loadMap = new Button("Load map");
         Button saveMap = new Button("Save map");
         Label mapMenuLabel = new Label("\n Every time when map is \n edited, all lines data \n are discarded and reset");
+        // line menu buttons ect
 
+
+
+        Route test = new Route(mainMap);
 
         mapMenuButton.setPrefWidth(menuWidth/3);
         lineMenuButton.setPrefWidth(menuWidth/3);
@@ -190,8 +195,7 @@ public class Main extends Application {
                 for(int i = 0; i < mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getStops().size(); i++){
                     tmp = mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getStops().get(i).getCoord();
                     if(tmp.equals(result)){
-                        mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getStops().get(i).erase(overlay);
-                        mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getStops().remove(i);
+                        mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).removeStop(result, overlay);
                     }
                 }
                 mainMap.moveMap(overlay, 0, 0);
@@ -207,6 +211,7 @@ public class Main extends Application {
         overlay.setOnMouseDragged(event ->{
            if(!coordAdd.isSelected() && !stopAdd.isSelected()){
                mainMap.moveMap(overlay, ((int) event.getX() - this.dragLocationX), ((int) event.getY() - this.dragLocationY));
+               test.updateRouteHighlight(overlay);
                this.dragLocationX = (int) event.getX();
                this.dragLocationY = (int) event.getY();
            }
@@ -388,6 +393,27 @@ public class Main extends Application {
         mainMap.loadMapFromFile("sample2.map", overlay);
         updateStreetMenu(streetMenu, mainMap);
         mainMap.draw(overlay);
+
+
+        /*
+        test field
+         */
+
+        test.setColorString("BLUE");
+        System.out.println(test.addStop(Coordinate.create(159,142)));
+        System.out.println(test.addPoint(Coordinate.create(159,242)));
+        System.out.println(test.addStop(Coordinate.create(231,242)));
+        System.out.println(test.addPoint(Coordinate.create(159,162)));
+        System.out.println(test.addPoint(Coordinate.create(459,142)));
+        System.out.println(test.addPoint(Coordinate.create(459,242)));
+        System.out.println(test.addStop(Coordinate.create(405,277)));
+        test.draw(overlay);
+
+        /*
+
+         */
+
+
     }
 
     private void updateStreetMenu(ComboBox streetMenu, Map map){

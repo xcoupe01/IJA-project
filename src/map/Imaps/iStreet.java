@@ -26,5 +26,8 @@ public interface iStreet{
     void moveStreet(Pane mapCanvas, int x, int y);
     Coordinate shortestPointToCoord(Coordinate mouse);
     void removeLastCoord(Pane mapCanvas);
+    java.util.List<Coordinate> getStreetRoute();
+    java.util.List<java.lang.String> getStreetRouteType();
+    void removeStop(Coordinate c, Pane mapCanvas);
 
 }

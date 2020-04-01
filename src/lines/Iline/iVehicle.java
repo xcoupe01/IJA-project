@@ -1,5 +1,12 @@
 package lines.Iline;
 
-public interface iVehicle{
+import javafx.scene.layout.Pane;
+import map.maps.Coordinate;
 
+public interface iVehicle{
+    boolean reachedTarget();
+    void setTarget(Coordinate target);
+    void ride(Pane mapCanvas);
+    void draw(Pane mapCanvas);
+    void erase(Pane mapCanvas);
 }

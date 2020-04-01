@@ -12,7 +12,7 @@ public class Stop implements iStop{
     private java.lang.String name;                         //< name of the stop
     private Street street;                                 //< Street to which this stop belongs
     private boolean drawn;                                 //< tells if the Stop is visible
-    private Rectangle stop = new Rectangle(5, 5);   //< graphical stop object
+    private Rectangle stop = new Rectangle(6, 6);   //< graphical stop object
 
     public Stop(java.lang.String name, Coordinate coord){
         this.name = name;
