@@ -19,6 +19,7 @@ public class Route implements iRoute {
     public Route(Map map, PTLine line){
         this.line = line;
         this.map = map;
+        line.setRoute(this);
     }
 
     private boolean canAdd(Coordinate c, java.lang.String type){

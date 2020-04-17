@@ -12,12 +12,15 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import lines.line.Route;
+import lines.line.PublicTransport;
 import map.maps.Coordinate;
 import map.maps.Map;
 import map.maps.Stop;
 import map.maps.Street;
 import javafx.application.Application;
+
+import javax.print.attribute.standard.NumberUp;
+
 import static java.lang.StrictMath.abs;
 
 public class Main extends Application {
@@ -36,6 +39,7 @@ public class Main extends Application {
         VBox menu = new VBox();
         Scene mainScene = new Scene(root, 1000, 600);
         Map mainMap = new Map();
+        PublicTransport mainPubTrans = new PublicTransport();
         Pane overlay = new Pane();
         FileChooser fileChoose = new FileChooser();
         Rectangle stop = new Rectangle(5, 5);
@@ -62,10 +66,15 @@ public class Main extends Application {
         Button saveMap = new Button("Save map");
         Label mapMenuLabel = new Label("\n Every time when map is \n edited, all lines data \n are discarded and reset");
         // line menu buttons ect
+        ToggleButton highlightAllLineRoutes = new ToggleButton("Highlight Public Transport");
+        Button loadPublicTransp = new Button("Load Public Transport");
+        Button savePublicTransp = new Button("Save Public Transport");
+        /*
+        test field
+        */
 
-
-
-        //Route test = new Route(mainMap);
+        /*
+        */
 
         mapMenuButton.setPrefWidth(menuWidth/3);
         lineMenuButton.setPrefWidth(menuWidth/3);
@@ -74,6 +83,8 @@ public class Main extends Application {
         mapMenu.getChildren().addAll(menuListChooser, coordAdd, coordRemove, stopAdd,
                 newStopName, stopRemove, removeStreet, EraseStreet, HighlightStreet,
                 streetMenu, loadMap, saveMap, mapMenuLabel);
+
+        lineMenu.getChildren().addAll(highlightAllLineRoutes, loadPublicTransp, savePublicTransp);
 
         mapMenuButton.setOnAction(event -> {
             if(mapMenuButton.isSelected()){
@@ -211,7 +222,7 @@ public class Main extends Application {
         overlay.setOnMouseDragged(event ->{
            if(!coordAdd.isSelected() && !stopAdd.isSelected()){
                mainMap.moveMap(overlay, ((int) event.getX() - this.dragLocationX), ((int) event.getY() - this.dragLocationY));
-               //test.updateRouteHighlight(overlay);
+               mainPubTrans.updatePTPos(overlay);
                this.dragLocationX = (int) event.getX();
                this.dragLocationY = (int) event.getY();
            }
@@ -375,6 +386,29 @@ public class Main extends Application {
             }
         });
 
+        highlightAllLineRoutes.setPrefWidth(menuWidth);
+        highlightAllLineRoutes.setOnAction(event -> {
+            mainPubTrans.toggleHighlight(overlay);
+        });
+
+        loadPublicTransp.setPrefWidth(menuWidth);
+        loadPublicTransp.setOnAction(event -> {
+            try {
+                mainPubTrans.loadPTFromFile(fileChoose.showOpenDialog(primaryStage).getPath(), mainMap);
+            } catch (NullPointerException e){
+                System.out.println("no file choosed");
+            }
+        });
+
+        savePublicTransp.setPrefWidth(menuWidth);
+        savePublicTransp.setOnAction(event -> {
+            try {
+                mainPubTrans.savePTToFile(fileChoose.showSaveDialog(primaryStage).getPath());
+            } catch (NullPointerException e){
+                System.out.println("no file choosed");
+            }
+        });
+
         streetMenu.setPrefWidth(menuWidth);
         newStopName.setText("name of new stop");
         mapMenuLabel.setPrefWidth(menuWidth);
@@ -391,28 +425,12 @@ public class Main extends Application {
         // overlay.setMinWidth((primaryStage.getWidth()/100) * 80);
 
         mainMap.loadMapFromFile("sample2.map", overlay);
+        mainPubTrans.loadPTFromFile("sample2.line", mainMap);
         updateStreetMenu(streetMenu, mainMap);
         mainMap.draw(overlay);
 
-
         /*
-        test field
-
-
-        test.setColorString("BLUE");
-        System.out.println(test.addStop(Coordinate.create(159,142)));
-        System.out.println(test.addPoint(Coordinate.create(159,242)));
-        System.out.println(test.addStop(Coordinate.create(231,242)));
-        System.out.println(test.addPoint(Coordinate.create(159,162)));
-        System.out.println(test.addPoint(Coordinate.create(459,142)));
-        System.out.println(test.addPoint(Coordinate.create(459,242)));
-        System.out.println(test.addStop(Coordinate.create(405,277)));
-        test.draw(overlay);
-
-        /*
-
-         */
-
+        */
 
     }
 

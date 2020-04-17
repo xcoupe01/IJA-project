@@ -2,8 +2,11 @@ package lines.Iline;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import lines.line.Route;
 
 public interface iPTLine{
+    void setRoute(Route toSet);
+    Route getRoute();
     int getLineNumber();
     Color getLineColor();
     void addVehicle();

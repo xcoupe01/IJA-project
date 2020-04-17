@@ -18,6 +18,10 @@ public class PTLine implements iPTLine {
         this.lineRoute = new Route(map, this);
     }
 
+    public void setRoute(Route toSet){ this.lineRoute = toSet;}
+
+    public Route getRoute(){ return this.lineRoute;}
+
     public Color getLineColor(){ return this.lineColor; }
 
     public int getLineNumber(){ return this.lineNumber; }
