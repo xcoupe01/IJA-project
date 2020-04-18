@@ -12,15 +12,13 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import lines.line.PTLine;
 import lines.line.PublicTransport;
 import map.maps.Coordinate;
 import map.maps.Map;
 import map.maps.Stop;
 import map.maps.Street;
 import javafx.application.Application;
-
-import javax.print.attribute.standard.NumberUp;
-
 import static java.lang.StrictMath.abs;
 
 public class Main extends Application {
@@ -69,6 +67,14 @@ public class Main extends Application {
         ToggleButton highlightAllLineRoutes = new ToggleButton("Highlight Public Transport");
         Button loadPublicTransp = new Button("Load Public Transport");
         Button savePublicTransp = new Button("Save Public Transport");
+        ComboBox linesMenu = new ComboBox();
+        ToggleButton addLinePoint = new ToggleButton("Add line route point");
+        Button removeLastLinePoint = new Button("Remove last route point");
+        ToggleButton toggleLineHighlight = new ToggleButton("Highlight Line Route");
+        Button deleteLine = new Button("Delete line");
+        Button addLine = new Button("Add line");
+        ColorPicker newLineColor = new ColorPicker();
+        ToggleButton addVehicle = new ToggleButton("Add vehicle");
         /*
         test field
         */
@@ -80,11 +86,13 @@ public class Main extends Application {
         lineMenuButton.setPrefWidth(menuWidth/3);
         overviewButton.setPrefWidth(menuWidth/3);
 
-        mapMenu.getChildren().addAll(menuListChooser, coordAdd, coordRemove, stopAdd,
-                newStopName, stopRemove, removeStreet, EraseStreet, HighlightStreet,
-                streetMenu, loadMap, saveMap, mapMenuLabel);
+        mapMenu.getChildren().addAll(menuListChooser, streetMenu, coordAdd, coordRemove,
+                stopAdd, newStopName, stopRemove, removeStreet, EraseStreet, HighlightStreet,
+                loadMap, saveMap, mapMenuLabel);
 
-        lineMenu.getChildren().addAll(highlightAllLineRoutes, loadPublicTransp, savePublicTransp);
+        lineMenu.getChildren().addAll(highlightAllLineRoutes, linesMenu, addLinePoint,
+                removeLastLinePoint, addVehicle, toggleLineHighlight, deleteLine, addLine,
+                newLineColor, loadPublicTransp, savePublicTransp);
 
         mapMenuButton.setOnAction(event -> {
             if(mapMenuButton.isSelected()){
@@ -212,6 +220,41 @@ public class Main extends Application {
                 mainMap.moveMap(overlay, 0, 0);
                 stopRemove.fire();
                 overlay.getChildren().remove(highlightPoint);
+            } else if(addLinePoint.isSelected() && lineMenuButton.isSelected()){
+                double distance = 99999999;
+                Coordinate mouseCoord = new Coordinate((int) event.getX(), (int) event.getY());
+                Coordinate tmpCoord = new Coordinate(0, 0);
+                boolean isItPoint = false;
+                for (int i = 0; i < linesMenu.getItems().size(); i++){
+                    if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
+                        for(int j = 0; j < mainMap.getStreets().size(); j++){
+                            for(int k = 0; k < mainMap.getStreets().get(j).getCoordinates().size(); k++){
+                                if(mainPubTrans.getLines().get(i).getRoute().canAdd(mainMap.getStreets().get(j).getCoordinates().get(k), "point")){
+                                    if(mouseCoord.distance(mainMap.getStreets().get(j).getCoordinates().get(k)) < distance){
+                                        distance = mouseCoord.distance(mainMap.getStreets().get(j).getCoordinates().get(k));
+                                        tmpCoord = mainMap.getStreets().get(j).getCoordinates().get(k);
+                                        isItPoint = true;
+                                    }
+                                }
+                            }
+                            for(int k = 0; k < mainMap.getStreets().get(j).getStops().size(); k++){
+                                if(mainPubTrans.getLines().get(i).getRoute().canAdd(mainMap.getStreets().get(j).getStops().get(k).getCoord(), "stop")){
+                                    if(mouseCoord.distance(mainMap.getStreets().get(j).getStops().get(k).getCoord()) < distance){
+                                        distance = mouseCoord.distance(mainMap.getStreets().get(j).getStops().get(k).getCoord());
+                                        tmpCoord = mainMap.getStreets().get(j).getStops().get(k).getCoord();
+                                        isItPoint = false;
+                                    }
+                                }
+                            }
+                        }
+                        if(isItPoint){
+                            mainPubTrans.getLines().get(i).getRoute().addPoint(tmpCoord);
+                        } else {
+                            mainPubTrans.getLines().get(i).getRoute().addStop(tmpCoord);
+                        }
+                        mainPubTrans.updatePTPos(overlay);
+                    }
+                }
             }
         });
         overlay.setOnMousePressed(event ->{
@@ -220,7 +263,7 @@ public class Main extends Application {
         });
         overlay.setOnMouseExited(event -> overlay.getChildren().remove(highlightPoint));
         overlay.setOnMouseDragged(event ->{
-           if(!coordAdd.isSelected() && !stopAdd.isSelected()){
+           if(!coordAdd.isSelected() && !stopAdd.isSelected() && !addLinePoint.isSelected()){
                mainMap.moveMap(overlay, ((int) event.getX() - this.dragLocationX), ((int) event.getY() - this.dragLocationY));
                mainPubTrans.updatePTPos(overlay);
                this.dragLocationX = (int) event.getX();
@@ -254,6 +297,36 @@ public class Main extends Application {
                 assert result != null;
                 highlightPoint.relocate(result.getX() - 5, result.getY() - 5);
                 highlightPoint.setFill(Color.RED);
+                overlay.getChildren().add(highlightPoint);
+            } else if(addLinePoint.isSelected() && lineMenuButton.isSelected()){
+                double distance = 99999999;
+                Coordinate mouseCoord = new Coordinate((int) event.getX(), (int) event.getY());
+                Coordinate tmpCoord = new Coordinate(0, 0);
+                for (int i = 0; i < linesMenu.getItems().size(); i++){
+                    if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
+                        for(int j = 0; j < mainMap.getStreets().size(); j++){
+                            for(int k = 0; k < mainMap.getStreets().get(j).getCoordinates().size(); k++){
+                                if(mainPubTrans.getLines().get(i).getRoute().canAdd(mainMap.getStreets().get(j).getCoordinates().get(k), "point")){
+                                    if(mouseCoord.distance(mainMap.getStreets().get(j).getCoordinates().get(k)) < distance){
+                                        distance = mouseCoord.distance(mainMap.getStreets().get(j).getCoordinates().get(k));
+                                        tmpCoord = mainMap.getStreets().get(j).getCoordinates().get(k);
+                                    }
+                                }
+                            }
+                            for(int k = 0; k < mainMap.getStreets().get(j).getStops().size(); k++){
+                                if(mainPubTrans.getLines().get(i).getRoute().canAdd(mainMap.getStreets().get(j).getStops().get(k).getCoord(), "stop")){
+                                    if(mouseCoord.distance(mainMap.getStreets().get(j).getStops().get(k).getCoord()) < distance){
+                                        distance = mouseCoord.distance(mainMap.getStreets().get(j).getStops().get(k).getCoord());
+                                        tmpCoord = mainMap.getStreets().get(j).getStops().get(k).getCoord();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                highlightPoint.setFill(Paint.valueOf("RED"));
+                highlightPoint.relocate(tmpCoord.getX() - 5, tmpCoord.getY() - 5);
+                overlay.getChildren().remove(highlightPoint);
                 overlay.getChildren().add(highlightPoint);
             }
         });
@@ -387,14 +460,13 @@ public class Main extends Application {
         });
 
         highlightAllLineRoutes.setPrefWidth(menuWidth);
-        highlightAllLineRoutes.setOnAction(event -> {
-            mainPubTrans.toggleHighlight(overlay);
-        });
+        highlightAllLineRoutes.setOnAction(event -> mainPubTrans.toggleHighlight(overlay));
 
         loadPublicTransp.setPrefWidth(menuWidth);
         loadPublicTransp.setOnAction(event -> {
             try {
                 mainPubTrans.loadPTFromFile(fileChoose.showOpenDialog(primaryStage).getPath(), mainMap);
+                updateLinesMenu(linesMenu, mainPubTrans, addLine);
             } catch (NullPointerException e){
                 System.out.println("no file choosed");
             }
@@ -408,6 +480,74 @@ public class Main extends Application {
                 System.out.println("no file choosed");
             }
         });
+
+        addLinePoint.setPrefWidth(menuWidth);
+
+        removeLastLinePoint.setPrefWidth(menuWidth);
+        removeLastLinePoint.setOnAction(event -> {
+            for(int i = 0; i < linesMenu.getItems().size(); i++ ){
+                if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
+                    mainPubTrans.getLines().get(i).getRoute().removeLast(overlay);
+                    mainPubTrans.updatePTPos(overlay);
+                    break;
+                }
+            }
+        });
+
+        toggleLineHighlight.setPrefWidth(menuWidth);
+        toggleLineHighlight.setOnAction(event -> {
+            if(highlightAllLineRoutes.isSelected()){
+                highlightAllLineRoutes.fire();
+                highlightAllLineRoutes.setSelected(false);
+            }
+            for(int i = 0; i < linesMenu.getItems().size(); i++ ){
+                if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
+                    mainPubTrans.getLines().get(i).toggleLineHighlight(overlay);
+                    break;
+                }
+            }
+        });
+
+        deleteLine.setPrefWidth(menuWidth);
+        deleteLine.setOnAction(event -> {
+            for(int i = 0; i < linesMenu.getItems().size(); i++ ){
+                if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
+                    if(toggleLineHighlight.isSelected()){
+                        toggleLineHighlight.fire();
+                        toggleLineHighlight.setSelected(false);
+                    }
+                    mainPubTrans.getLines().remove(i);
+                    updateLinesMenu(linesMenu, mainPubTrans, addLine);
+                    break;
+                }
+            }
+        });
+
+        newLineColor.setPrefWidth(menuWidth);
+
+        addLine.setPrefWidth(menuWidth);
+        addLine.setOnAction(event -> {
+            for(int i = 1; true; i++){
+                boolean found = false;
+                for(int j = 0; j < mainPubTrans.getLines().size(); j++){
+                    if(mainPubTrans.getLines().get(j).getLineNumber() == i){
+                        found = true;
+                    }
+                }
+                if(!found){
+                    mainPubTrans.addLine(new PTLine(i, newLineColor.getValue(), mainMap));
+                    updateLinesMenu(linesMenu, mainPubTrans, addLine);
+                    break;
+                }
+            }
+        });
+
+        addVehicle.setPrefWidth(menuWidth);
+        addVehicle.setOnAction(event -> {
+            
+        });
+
+        linesMenu.setPrefWidth(menuWidth);
 
         streetMenu.setPrefWidth(menuWidth);
         newStopName.setText("name of new stop");
@@ -427,6 +567,7 @@ public class Main extends Application {
         mainMap.loadMapFromFile("sample2.map", overlay);
         mainPubTrans.loadPTFromFile("sample2.line", mainMap);
         updateStreetMenu(streetMenu, mainMap);
+        updateLinesMenu(linesMenu, mainPubTrans, addLine);
         mainMap.draw(overlay);
 
         /*
@@ -441,6 +582,26 @@ public class Main extends Application {
         }
         streetMenu.getSelectionModel().selectFirst();
         streetMenu.setEditable(true);
+    }
+
+    private void updateLinesMenu(ComboBox linesMenu, PublicTransport PT, Button newLineNum){
+        linesMenu.getItems().clear();
+        for(int i = 0; i < PT.getLines().size(); i++){
+            linesMenu.getItems().add(i, "line number ".concat(String.valueOf(PT.getLines().get(i).getLineNumber())));
+        }
+        linesMenu.getSelectionModel().selectFirst();
+        for(int i = 1; true; i++){
+            boolean found = false;
+            for(int j = 0; j < PT.getLines().size(); j++){
+                if(PT.getLines().get(j).getLineNumber() == i){
+                    found = true;
+                }
+            }
+            if(!found){
+                newLineNum.setText("Add new line number ".concat(String.valueOf(i)));
+                break;
+            }
+        }
     }
 
 

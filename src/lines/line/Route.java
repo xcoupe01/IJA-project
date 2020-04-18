@@ -22,7 +22,7 @@ public class Route implements iRoute {
         line.setRoute(this);
     }
 
-    private boolean canAdd(Coordinate c, java.lang.String type){
+    public boolean canAdd(Coordinate c, java.lang.String type){
         if(!(this.coords.size() > 0)){
             return type.equals("stop");
         }
@@ -130,6 +130,15 @@ public class Route implements iRoute {
             for (Line line : this.lineHighlight) {
                 mapCanvas.getChildren().remove(line);
             }
+        }
+    }
+
+    public void removeLast(Pane mapCanvas){
+        if(this.coords.size() > 1){
+            this.coords.remove(this.coords.size() - 1);
+            this.type.remove(this.type.size() - 1);
+            mapCanvas.getChildren().remove(this.lineHighlight.get(this.lineHighlight.size() - 1));
+            this.lineHighlight.remove(this.lineHighlight.size() - 1);
         }
     }
 }

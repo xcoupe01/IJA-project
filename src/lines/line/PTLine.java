@@ -11,6 +11,7 @@ public class PTLine implements iPTLine {
     private java.util.List<Vehicle> lineVehicles = new java.util.ArrayList<>();
     private Color lineColor;
     private int lineNumber;
+    private boolean drawn = false;
 
     public PTLine(int lineNumber,Color myColor, Map map){
         this.lineColor = myColor;
@@ -74,10 +75,24 @@ public class PTLine implements iPTLine {
     }
 
     public void drawLineHighlight(Pane mapCanvas){
-        this.lineRoute.draw(mapCanvas);
+        if(!this.drawn){
+            this.drawn = true;
+            this.lineRoute.draw(mapCanvas);
+        }
     }
 
     public void eraseLineHighlight(Pane mapCanvas){
-        this.lineRoute.erase(mapCanvas);
+        if(drawn){
+            this.drawn = false;
+            this.lineRoute.erase(mapCanvas);
+        }
+    }
+
+    public void toggleLineHighlight(Pane mapCanvas) {
+        if(this.drawn){
+            this.eraseLineHighlight(mapCanvas);
+        } else {
+            this.drawLineHighlight(mapCanvas);
+        }
     }
 }

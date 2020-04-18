@@ -10,4 +10,5 @@ public interface iRoute{
     java.util.List<Coordinate> getRoute();
     java.util.List<java.lang.String> getRouteType();
     void updateRouteHighlight(Pane mapCanvas);
+    void removeLast(Pane mapCanvas);
 }
