@@ -2,56 +2,102 @@ package lines.line;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.*;
 import lines.Iline.iVehicle;
 import map.maps.Coordinate;
 
 public class Vehicle implements iVehicle {
-    private Coordinate coord;
-    private Coordinate target;
     private Circle vehicle = new Circle(3);
     private PTLine line;
+    private Coordinate coord = new Coordinate(0,0);
+    private Coordinate start;
+    private Coordinate target = null;
+    private String targetType;
     private double travelPieceX;
     private double travelPieceY;
+    private double exactCoordX;
+    private double exactCoordY;
+    private boolean forward = true;
+    private int wait = 0;
     private boolean drawn = false;
-    private int wait;
-    private boolean orientation = true;
 
     public Vehicle(PTLine line, Coordinate start){
-        this.coord = new Coordinate(start.getX(), start.getY());
         this.line = line;
         this.vehicle.setStroke(Color.BLACK);
-        this.vehicle.relocate(this.coord.getX() - 1.5 , this.coord.getY() - 1.5 );
+        this.vehicle.setFill(this.line.getLineColor());
+        this.start = start;
+        this.coord.setX(start.getX());
+        this.coord.setY(start.getY());
+        this.exactCoordX = start.getX();
+        this.exactCoordY = start.getY();
+        this.vehicle.relocate(this.coord.getX() - 3, this.coord.getY() - 3);
     }
 
-    public boolean reachedTarget(){ return this.target.equals(this.coord);}
-
-    public void setTarget(Coordinate target){
-        this.target = target;
-        this.travelPieceX = this.coord.diffX(target) / this.coord.distance(this.target);
-        this.travelPieceY = this.coord.diffY(target) / this.coord.distance(this.target);
-    }
-
-    public void ride(Pane mapCanvas){
-        if(this.target != null && this.wait == 0){
-            this.coord.setX(this.coord.getX() + (int) this.travelPieceX);
-            this.coord.setY(this.coord.getY() + (int) this.travelPieceY);
-            mapCanvas.getChildren().remove(this.vehicle);
-            this.vehicle.relocate(this.coord.getX() - 1.5 , this.coord.getY() - 1.5 );
-            if(drawn){
-               mapCanvas.getChildren().add(this.vehicle);
+    public void ride(){
+        if(this.target == null){
+            for(int i = 0; i < this.line.getRoute().getRoute().size(); i++){
+                if(this.coord.equals(this.line.getRoute().getRoute().get(i))){
+                    if(this.forward){
+                        if(i+1 >= this.line.getRoute().getRoute().size()){
+                            this.forward = false;
+                            break;
+                        } else {
+                            this.target = this.line.getRoute().getRoute().get(i+1);
+                            this.targetType = this.line.getRoute().getRouteType().get(i+1);
+                            this.travelPieceX = this.target.diffX(this.start) / this.target.distance(this.start);
+                            this.travelPieceY = this.target.diffY(this.start) / this.target.distance(this.start);
+                            break;
+                        }
+                    } else {
+                        if(i-1 < 0){
+                            this.forward = true;
+                            break;
+                        } else {
+                            this.target = this.line.getRoute().getRoute().get(i-1);
+                            this.targetType = this.line.getRoute().getRouteType().get(i-1);
+                            this.travelPieceX = this.target.diffX(this.start) / this.target.distance(this.start);
+                            this.travelPieceY = this.target.diffY(this.start) / this.target.distance(this.start);
+                            break;
+                        }
+                    }
+                }
             }
-        } else if(this.wait != 0){
+        } else if(this.wait > 0){
             this.wait --;
+        } else if(this.coord.distance(this.target) > 2){
+            this.exactCoordX = this.exactCoordX + travelPieceX;
+            this.exactCoordY = this.exactCoordY + travelPieceY;
+            this.coord.setX((int) this.exactCoordX);
+            this.coord.setY((int) this.exactCoordY);
+            this.vehicle.relocate(this.coord.getX() - 3, this.coord.getY() - 3);
+        } else if(this.coord.distance(this.target) <= 2){
+            this.start = this.target;
+            this.exactCoordX = this.target.getX();
+            this.exactCoordY = this.target.getY();
+            this.coord.setX(this.target.getX());
+            this.coord.setY(this.target.getY());
+            this.vehicle.relocate(this.coord.getX() - 3, this.coord.getY() - 3);
+            this.target = null;
+            if(this.targetType.equals("stop")){
+                this.wait = 10;
+            }
         }
     }
 
-    public void draw(Pane mapCanvas){
-        if(!this.drawn){
+    public void draw(Pane mapCanvas) {
+        if (!this.drawn) {
             this.vehicle.setFill(this.line.getLineColor());
             mapCanvas.getChildren().add(this.vehicle);
             this.drawn = true;
         }
+    }
+
+    public void move(int x, int y){
+        this.exactCoordX = this.exactCoordX + x;
+        this.exactCoordY = this.exactCoordY + y;
+        this.coord.setX((int) this.exactCoordX);
+        this.coord.setY((int) this.exactCoordY);
+        this.vehicle.relocate(this.coord.getX() - 3, this.coord.getY() - 3);
     }
 
     public void erase(Pane mapCanvas){
@@ -61,10 +107,8 @@ public class Vehicle implements iVehicle {
         }
     }
 
-    public void setWait(int wait){ this.wait = wait; }
-    public int getWait(){return this.wait; }
-    public Coordinate getPosition(){return this.coord; }
-    public void switchOrientation(){ this.orientation = !this.orientation; }
-    public boolean getOrientation(){ return this.orientation; }
+    public void setForward(boolean setTo){
+        this.forward = setTo;
+    }
 
 }

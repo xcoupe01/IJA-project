@@ -75,13 +75,8 @@ public class Main extends Application {
         Button addLine = new Button("Add line");
         ColorPicker newLineColor = new ColorPicker();
         ToggleButton addVehicle = new ToggleButton("Add vehicle");
-        /*
-        test field
-        */
-
-        /*
-        */
-
+        Button test = new Button("Test");
+  
         mapMenuButton.setPrefWidth(menuWidth/3);
         lineMenuButton.setPrefWidth(menuWidth/3);
         overviewButton.setPrefWidth(menuWidth/3);
@@ -93,6 +88,8 @@ public class Main extends Application {
         lineMenu.getChildren().addAll(highlightAllLineRoutes, linesMenu, addLinePoint,
                 removeLastLinePoint, addVehicle, toggleLineHighlight, deleteLine, addLine,
                 newLineColor, loadPublicTransp, savePublicTransp);
+
+        overview.getChildren().addAll(test);
 
         mapMenuButton.setOnAction(event -> {
             if(mapMenuButton.isSelected()){
@@ -252,7 +249,7 @@ public class Main extends Application {
                         } else {
                             mainPubTrans.getLines().get(i).getRoute().addStop(tmpCoord);
                         }
-                        mainPubTrans.updatePTPos(overlay);
+                        mainPubTrans.updatePTPos(overlay, 0, 0);
                     }
                 }
             }
@@ -265,7 +262,7 @@ public class Main extends Application {
         overlay.setOnMouseDragged(event ->{
            if(!coordAdd.isSelected() && !stopAdd.isSelected() && !addLinePoint.isSelected()){
                mainMap.moveMap(overlay, ((int) event.getX() - this.dragLocationX), ((int) event.getY() - this.dragLocationY));
-               mainPubTrans.updatePTPos(overlay);
+               mainPubTrans.updatePTPos(overlay, ((int) event.getX() - this.dragLocationX), ((int) event.getY() - this.dragLocationY));
                this.dragLocationX = (int) event.getX();
                this.dragLocationY = (int) event.getY();
            }
@@ -488,7 +485,7 @@ public class Main extends Application {
             for(int i = 0; i < linesMenu.getItems().size(); i++ ){
                 if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
                     mainPubTrans.getLines().get(i).getRoute().removeLast(overlay);
-                    mainPubTrans.updatePTPos(overlay);
+                    mainPubTrans.updatePTPos(overlay, 0, 0);
                     break;
                 }
             }
@@ -544,7 +541,7 @@ public class Main extends Application {
 
         addVehicle.setPrefWidth(menuWidth);
         addVehicle.setOnAction(event -> {
-            
+
         });
 
         linesMenu.setPrefWidth(menuWidth);
@@ -570,8 +567,23 @@ public class Main extends Application {
         updateLinesMenu(linesMenu, mainPubTrans, addLine);
         mainMap.draw(overlay);
 
+        test.setOnAction(event -> {
+            mainPubTrans.run();
+            mainPubTrans.run();
+            mainPubTrans.run();
+            mainPubTrans.run();
+            mainPubTrans.run();
+            mainPubTrans.run();
+        });
         /*
+        test
         */
+
+        for(int i = 0; i < mainPubTrans.getLines().size(); i++){
+            mainPubTrans.getLines().get(i).addVehicle();
+            mainPubTrans.getLines().get(i).drawVehicles(overlay);
+            mainPubTrans.getLines().get(i).rideAllVehicles();
+        }
 
     }
 

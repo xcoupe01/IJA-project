@@ -1,7 +1,6 @@
 package lines.line;
 
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import lines.Iline.iRoute;
 import map.maps.Coordinate;
 import javafx.scene.shape.Line;
@@ -16,7 +15,7 @@ public class Route implements iRoute {
     private boolean drawn = false;
     private Map map;
 
-    public Route(Map map, PTLine line){
+    Route(Map map, PTLine line){
         this.line = line;
         this.map = map;
         line.setRoute(this);

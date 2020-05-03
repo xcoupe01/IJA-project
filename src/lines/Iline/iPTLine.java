@@ -14,7 +14,8 @@ public interface iPTLine{
     void drawLineHighlight(Pane mapCanvas);
     void eraseVehicles(Pane mapCanvas);
     void eraseLineHighlight(Pane mapCanvas);
-    void rideVehicles(Pane mapCanvas);
     void toggleLineHighlight(Pane mapCanvas);
+    void rideAllVehicles();
+    void updateVehicles(int x, int y);
 
 }

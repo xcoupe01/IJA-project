@@ -8,10 +8,11 @@ public interface iPublicTransport{
     void addLine(PTLine line);
     java.util.List<PTLine> getLines();
     void setTimer(int time);
-    void updatePTPos(Pane mapCanvas);
+    void updatePTPos(Pane mapCanvas, int x, int y);
     boolean loadPTFromFile(String filePath, Map mainMap);
     void savePTToFile(String filePath);
     void highlightAllRoutesOn(Pane mapCanvas);
     void highlightAllRoutesOff(Pane mapCanvas);
     void toggleHighlight(Pane mapCanvas);
+    void rideAllVehicles(Pane mapCanvas);
 }

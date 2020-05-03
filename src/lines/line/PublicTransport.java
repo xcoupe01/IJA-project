@@ -5,7 +5,6 @@ import javafx.scene.paint.Color;
 import lines.Iline.iPublicTransport;
 import map.maps.Coordinate;
 import map.maps.Map;
-
 import java.io.*;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -15,6 +14,7 @@ public class PublicTransport implements iPublicTransport {
     private java.util.List<PTLine> lines = new java.util.ArrayList<>();
     private int timer;
     private boolean highlightDrawn = false;
+    private Thread animator = new Thread();
 
     public PublicTransport(){
 
@@ -23,16 +23,10 @@ public class PublicTransport implements iPublicTransport {
     public void addLine(PTLine line){ this.lines.add(line); }
     public java.util.List<PTLine> getLines(){ return this.lines; }
     public void setTimer(int time){ this.timer = time; }
-    public void run(Pane mapCanvas){
-        while(true){
-            for(int i = 0; i < this.lines.size(); i++){
-                this.lines.get(i).rideVehicles(mapCanvas);
-            }
-        }
-    }
-    public void updatePTPos(Pane mapCanvas){
+    public void updatePTPos(Pane mapCanvas, int x, int y){
         for (PTLine line : this.lines) {
             line.getRoute().updateRouteHighlight(mapCanvas);
+            line.updateVehicles(x, y);
         }
     }
     public boolean loadPTFromFile(String filePath, Map mainMap){
@@ -129,5 +123,16 @@ public class PublicTransport implements iPublicTransport {
             highlightDrawn = true;
             this.highlightAllRoutesOn(mapCanvas);
         }
+    }
+
+    public void run(){
+        for (PTLine line : this.lines) {
+            line.rideAllVehicles();
+        }
+
+    }
+
+    public void rideAllVehicles(Pane mapCanvas){
+
     }
 }
