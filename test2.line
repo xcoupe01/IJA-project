@@ -1,0 +1,3 @@
+LINE 1 0x0000ffff [ulice1,1] [ulice1,2] [ulice1,3] [ulice1,4] [ulice4,5] [ulice3,4] [ulice3,3] [ulice3,2] [ulice3,1]
+LINE 2 0x008000ff [ulice1,7] [ulice1,6] [ulice1,5] [ulice1,4]
+LINE 3 0xffff00ff [ulice2,5] [ulice2,6] [ulice4,3] [ulice3,4] [ulice3,5] [ulice3,6] [ulice3,7]

@@ -1,3 +1,11 @@
-LINE 1 BLUE S[159,142] P[159,242] S[231,242] P[459,242] S[405,277] P[349,312] S[344,303] P[339,292] S[339,494]
-LINE 2 GREEN S[283,142] P[459,142] S[459,167] P[459,242] S[525,243] P[595,244] S[594,311]
-LINE 3 YELLOW S[210,368] P[159,342] S[273,325] P[349,312] S[349,218] P[349,192] S[429,192]
+LINE 1 BLUE [ulice1,1] [ulice1,2] [ulice1,3] [ulice1,4] [ulice4,5] [ulice4,4] [ulice3,3] [ulice3,2] [ulice3,1]
+VEHICLE 0 forward
+VEHICLE 3 backward
+VEHICLE 5 backward
+LINE 2 GREEN [ulice1,7] [ulice1,6] [ulice1,5] [ulice1,4] [ulice4,7] [ulice4,8] [ulice4,9]
+VEHICLE 1 forward
+VEHICLE 3 forward
+VEHICLE 5 backward
+LINE 3 YELLOW [ulice2,5] [ulice2,6] [ulice4,3] [ulice4,4] [ulice3,5] [ulice3,6] [ulice3,7]
+VEHICLE 0 backward
+VEHICLE 2 forward

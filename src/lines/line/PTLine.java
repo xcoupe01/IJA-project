@@ -26,8 +26,8 @@ public class PTLine implements iPTLine {
 
     public int getLineNumber(){ return this.lineNumber; }
 
-    public void addVehicle(){
-        Vehicle newVehicle = new Vehicle(this, this.lineRoute.getRoute().get(0));
+    public void addVehicle(int linePoint){
+        Vehicle newVehicle = new Vehicle(this, this.lineRoute.getRoute().get(linePoint));
         this.lineVehicles.add(newVehicle);
     }
 
@@ -39,7 +39,7 @@ public class PTLine implements iPTLine {
 
     public void eraseVehicles(Pane mapCanvas){
         for (Vehicle lineVehicle : this.lineVehicles) {
-            lineVehicle.draw(mapCanvas);
+            lineVehicle.erase(mapCanvas);
         }
     }
 

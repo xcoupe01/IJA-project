@@ -107,8 +107,17 @@ public class Vehicle implements iVehicle {
         }
     }
 
-    public void setForward(boolean setTo){
-        this.forward = setTo;
+    public void setForward(boolean setTo){ this.forward = setTo; }
+
+    public boolean getForward(){ return this.forward; }
+
+    public int getStartPosition(){
+        for(int i = 0; i < this.line.getRoute().getRoute().size(); i++){
+            if(this.start.equals(this.line.getRoute().getRoute().get(i))){
+                return i;
+            }
+        }
+        return 0;
     }
 
 }

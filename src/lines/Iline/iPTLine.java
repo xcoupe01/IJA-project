@@ -9,7 +9,7 @@ public interface iPTLine{
     Route getRoute();
     int getLineNumber();
     Color getLineColor();
-    void addVehicle();
+    void addVehicle(int linePoint);
     void drawVehicles(Pane mapCanvas);
     void drawLineHighlight(Pane mapCanvas);
     void eraseVehicles(Pane mapCanvas);

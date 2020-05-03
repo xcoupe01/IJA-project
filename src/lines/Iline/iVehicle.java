@@ -1,7 +1,6 @@
 package lines.Iline;
 
 import javafx.scene.layout.Pane;
-import map.maps.Coordinate;
 
 public interface iVehicle{
     void draw(Pane mapCanvas);
@@ -9,4 +8,6 @@ public interface iVehicle{
     void ride();
     void move(int x, int y);
     void setForward(boolean setTo);
+    int getStartPosition();
+    boolean getForward();
 }

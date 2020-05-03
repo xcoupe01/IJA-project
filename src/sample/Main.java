@@ -76,7 +76,7 @@ public class Main extends Application {
         ColorPicker newLineColor = new ColorPicker();
         ToggleButton addVehicle = new ToggleButton("Add vehicle");
         Button test = new Button("Test");
-  
+
         mapMenuButton.setPrefWidth(menuWidth/3);
         lineMenuButton.setPrefWidth(menuWidth/3);
         overviewButton.setPrefWidth(menuWidth/3);
@@ -462,7 +462,7 @@ public class Main extends Application {
         loadPublicTransp.setPrefWidth(menuWidth);
         loadPublicTransp.setOnAction(event -> {
             try {
-                mainPubTrans.loadPTFromFile(fileChoose.showOpenDialog(primaryStage).getPath(), mainMap);
+                mainPubTrans.loadPTFromFile(overlay, fileChoose.showOpenDialog(primaryStage).getPath(), mainMap);
                 updateLinesMenu(linesMenu, mainPubTrans, addLine);
             } catch (NullPointerException e){
                 System.out.println("no file choosed");
@@ -472,7 +472,7 @@ public class Main extends Application {
         savePublicTransp.setPrefWidth(menuWidth);
         savePublicTransp.setOnAction(event -> {
             try {
-                mainPubTrans.savePTToFile(fileChoose.showSaveDialog(primaryStage).getPath());
+                mainPubTrans.savePTToFile(fileChoose.showSaveDialog(primaryStage).getPath(), mainMap);
             } catch (NullPointerException e){
                 System.out.println("no file choosed");
             }
@@ -562,7 +562,7 @@ public class Main extends Application {
         // overlay.setMinWidth((primaryStage.getWidth()/100) * 80);
 
         mainMap.loadMapFromFile("sample2.map", overlay);
-        mainPubTrans.loadPTFromFile("sample2.line", mainMap);
+        mainPubTrans.loadPTFromFile(overlay, "sample2.line", mainMap);
         updateStreetMenu(streetMenu, mainMap);
         updateLinesMenu(linesMenu, mainPubTrans, addLine);
         mainMap.draw(overlay);
@@ -577,14 +577,13 @@ public class Main extends Application {
         });
         /*
         test
-        */
 
         for(int i = 0; i < mainPubTrans.getLines().size(); i++){
-            mainPubTrans.getLines().get(i).addVehicle();
+            mainPubTrans.getLines().get(i).addVehicle(2);
             mainPubTrans.getLines().get(i).drawVehicles(overlay);
             mainPubTrans.getLines().get(i).rideAllVehicles();
         }
-
+        */
     }
 
     private void updateStreetMenu(ComboBox streetMenu, Map map){
