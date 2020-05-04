@@ -11,11 +11,13 @@ public class PTLine implements iPTLine {
     private Color lineColor;
     private int lineNumber;
     private boolean drawn = false;
+    private Map mainMap;
 
     public PTLine(int lineNumber,Color myColor, Map map){
         this.lineColor = myColor;
         this.lineNumber = lineNumber;
         this.lineRoute = new Route(map, this);
+        this.mainMap = map;
     }
 
     public void setRoute(Route toSet){ this.lineRoute = toSet;}
@@ -26,8 +28,8 @@ public class PTLine implements iPTLine {
 
     public int getLineNumber(){ return this.lineNumber; }
 
-    public void addVehicle(int linePoint){
-        Vehicle newVehicle = new Vehicle(this, this.lineRoute.getRoute().get(linePoint));
+    public void addVehicle(int linePoint, PublicTransport mainPubTrans){
+        Vehicle newVehicle = new Vehicle(this, this.lineRoute.getRoute().get(linePoint), this.lineVehicles.size() + 1, mainMap, mainPubTrans);
         this.lineVehicles.add(newVehicle);
     }
 
@@ -77,5 +79,5 @@ public class PTLine implements iPTLine {
         }
     }
 
-    public java.util.List<Vehicle> getVehicles(){ return this.lineVehicles;}
+    java.util.List<Vehicle> getVehicles(){ return this.lineVehicles;}
 }

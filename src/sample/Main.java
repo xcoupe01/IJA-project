@@ -76,6 +76,19 @@ public class Main extends Application {
         ColorPicker newLineColor = new ColorPicker();
         ToggleButton addVehicle = new ToggleButton("Add vehicle");
         Button test = new Button("Test");
+        // overview list
+        Pane lineInformationPane = new Pane();
+        ScrollPane lineInformationPaneWrap = new ScrollPane();
+        Label timeDisplay = new Label();
+
+
+        lineInformationPaneWrap.setContent(lineInformationPane);
+        lineInformationPane.setStyle("-fx-background-color: WHITE");
+        lineInformationPaneWrap.fitToHeightProperty().set(true);
+        lineInformationPaneWrap.setPrefWidth(menuWidth);
+        mainPubTrans.setTimeDisplay(timeDisplay);
+        mainPubTrans.updateTimeDisplay();
+
 
         mapMenuButton.setPrefWidth(menuWidth/3);
         lineMenuButton.setPrefWidth(menuWidth/3);
@@ -89,7 +102,10 @@ public class Main extends Application {
                 removeLastLinePoint, addVehicle, toggleLineHighlight, deleteLine, addLine,
                 newLineColor, loadPublicTransp, savePublicTransp);
 
-        overview.getChildren().addAll(test);
+        overview.getChildren().addAll(test, timeDisplay, lineInformationPaneWrap);
+
+        lineInformationPane.setPrefHeight(menuWidth);
+        lineInformationPane.setPrefWidth(10);
 
         mapMenuButton.setOnAction(event -> {
             if(mapMenuButton.isSelected()){
@@ -462,7 +478,7 @@ public class Main extends Application {
         loadPublicTransp.setPrefWidth(menuWidth);
         loadPublicTransp.setOnAction(event -> {
             try {
-                mainPubTrans.loadPTFromFile(overlay, fileChoose.showOpenDialog(primaryStage).getPath(), mainMap);
+                mainPubTrans.loadPTFromFile(overlay, fileChoose.showOpenDialog(primaryStage).getPath(), mainMap, lineInformationPane);
                 updateLinesMenu(linesMenu, mainPubTrans, addLine);
             } catch (NullPointerException e){
                 System.out.println("no file choosed");
@@ -562,7 +578,7 @@ public class Main extends Application {
         // overlay.setMinWidth((primaryStage.getWidth()/100) * 80);
 
         mainMap.loadMapFromFile("sample2.map", overlay);
-        mainPubTrans.loadPTFromFile(overlay, "sample2.line", mainMap);
+        mainPubTrans.loadPTFromFile(overlay, "sample2.line", mainMap, lineInformationPane);
         updateStreetMenu(streetMenu, mainMap);
         updateLinesMenu(linesMenu, mainPubTrans, addLine);
         mainMap.draw(overlay);
@@ -578,11 +594,6 @@ public class Main extends Application {
         /*
         test
 
-        for(int i = 0; i < mainPubTrans.getLines().size(); i++){
-            mainPubTrans.getLines().get(i).addVehicle(2);
-            mainPubTrans.getLines().get(i).drawVehicles(overlay);
-            mainPubTrans.getLines().get(i).rideAllVehicles();
-        }
         */
     }
 

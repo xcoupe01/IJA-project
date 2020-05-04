@@ -1,20 +1,22 @@
 package lines.line;
 
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lines.Iline.iPublicTransport;
 import map.maps.Coordinate;
 import map.maps.Map;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PublicTransport implements iPublicTransport {
     private java.util.List<PTLine> lines = new java.util.ArrayList<>();
-    private int timer;
+    private int timerHours;
+    private int timerMinutes;
     private boolean highlightDrawn = false;
+    private Label timeDisplay = new Label();
     //private Thread animator = new Thread();
 
     public PublicTransport(){
@@ -23,18 +25,23 @@ public class PublicTransport implements iPublicTransport {
 
     public void addLine(PTLine line){ this.lines.add(line); }
     public java.util.List<PTLine> getLines(){ return this.lines; }
-    public void setTimer(int time){ this.timer = time; }
+    public void setTimer(int timeHours, int timeMinutes){
+        this.timerHours = timeHours;
+        this.timerMinutes = timeMinutes;
+    }
+    public int getTimeHours(){ return this.timerHours; }
+    public int getTimeMinutes(){ return this.timerMinutes; }
     public void updatePTPos(Pane mapCanvas, int x, int y){
         for (PTLine line : this.lines) {
             line.getRoute().updateRouteHighlight(mapCanvas);
             line.updateVehicles(x, y);
         }
     }
-    public boolean loadPTFromFile(Pane mapCanvas,String filePath, Map mainMap){
+    public boolean loadPTFromFile(Pane mapCanvas,String filePath, Map mainMap, Pane lineInformationPane){
         try{
             Pattern lineCoordinate = Pattern.compile("\\[(\\w+),(\\d+)]");
             Pattern properties = Pattern.compile("^LINE (\\d+) (\\w+)");
-            Pattern vehicle = Pattern.compile("^VEHICLE (\\d+) (\\w+)$");
+            Pattern vehicle = Pattern.compile("^VEHICLE (\\d+) (\\w+) (\\d+)$");
             File myFile = new File(filePath);
             Scanner myReader = new Scanner(myFile);
             this.eraseAllVehicles(mapCanvas);
@@ -68,14 +75,18 @@ public class PublicTransport implements iPublicTransport {
                     } else {
                         return false;
                     }
-                } else if(line.matches("^VEHICLE \\d+ \\w+$")){
+                } else if(line.matches("^VEHICLE \\d+ \\w+ \\d+$")){
                     Matcher matchedVehicles = vehicle.matcher(line);
                     if(matchedVehicles.find() && this.lines.size() > 0 && this.lines.get(this.lines.size() - 1).getRoute().getRoute().size() > Integer.parseInt(matchedVehicles.group(1))){
-                        this.lines.get(this.lines.size() - 1).addVehicle(Integer.parseInt(matchedVehicles.group(1)));
+                        this.lines.get(this.lines.size() - 1).addVehicle(Integer.parseInt(matchedVehicles.group(1)), this);
+                        this.lines.get(this.lines.size() - 1).getVehicles().get(this.lines.get(this.lines.size() - 1).getVehicles().size() - 1).setInformationPane(lineInformationPane);
                         if(matchedVehicles.group(2).equals("forward")){
                             this.lines.get(this.lines.size() - 1).getVehicles().get(this.lines.get(this.lines.size() - 1).getVehicles().size() - 1).setForward(true);
                         } else if(matchedVehicles.group(2).equals("backward")){
                             this.lines.get(this.lines.size() - 1).getVehicles().get(this.lines.get(this.lines.size() - 1).getVehicles().size() - 1).setForward(false);
+                        }
+                        for(int i = 0; i <= Integer.parseInt(matchedVehicles.group(3)); i++){
+                            this.lines.get(this.lines.size() - 1).getVehicles().get(this.lines.get(this.lines.size() - 1).getVehicles().size() - 1).ride();
                         }
                     } else {
                         return false;
@@ -115,10 +126,11 @@ public class PublicTransport implements iPublicTransport {
                 for (int i = 0; i < line.getVehicles().size(); i++){
                     toSave.append("VEHICLE ").append(line.getVehicles().get(i).getStartPosition());
                     if(line.getVehicles().get(i).getForward()){
-                        toSave.append(" forward\n");
+                        toSave.append(" forward ");
                     } else {
-                        toSave.append(" backward\n");
+                        toSave.append(" backward ");
                     }
+                    toSave.append(line.getVehicles().get(i).getTurns()).append("\n");
                 }
             }
             file.write(String.valueOf(toSave));
@@ -162,10 +174,33 @@ public class PublicTransport implements iPublicTransport {
     }
 
     public void run(){
+        this.timeTick();
+        this.updateTimeDisplay();
         for (PTLine line : this.lines) {
             line.rideAllVehicles();
         }
 
+    }
+
+    public void setTimeDisplay(Label timeDisplay){ this.timeDisplay = timeDisplay; }
+
+    public void updateTimeDisplay(){
+        if(this.timerMinutes < 10){
+            this.timeDisplay.setText("Time : ".concat(String.valueOf(this.timerHours).concat(":0").concat(String.valueOf(this.timerMinutes))));
+        } else {
+            this.timeDisplay.setText("Time : ".concat(String.valueOf(this.timerHours).concat(":").concat(String.valueOf(this.timerMinutes))));
+        }
+    }
+
+    private void timeTick(){
+        this.timerMinutes ++;
+        if(this.timerMinutes == 60){
+            this.timerMinutes = 0;
+            this.timerHours ++;
+        }
+        if(this.timerHours == 24){
+            this.timerHours = 0;
+        }
     }
 
     public void rideAllVehicles(Pane mapCanvas){

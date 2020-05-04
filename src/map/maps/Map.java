@@ -162,4 +162,15 @@ public class Map implements iMap{
         }
         return null;
     }
+
+    public Stop getStopByCoord(Coordinate c){
+        for(int i = 0; i < this.streets.size(); i++){
+            for(int j = 0; j < this.streets.get(i).getStops().size(); j++){
+                if(this.streets.get(i).getStops().get(j).getCoord().equals(c)){
+                    return this.streets.get(i).getStops().get(j);
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -1,11 +1,11 @@
 LINE 1 BLUE [ulice1,1] [ulice1,2] [ulice1,3] [ulice1,4] [ulice4,5] [ulice4,4] [ulice3,3] [ulice3,2] [ulice3,1]
-VEHICLE 0 forward
-VEHICLE 3 backward
-VEHICLE 5 backward
+VEHICLE 0 forward 0
+VEHICLE 3 backward 0
+VEHICLE 5 backward 0
 LINE 2 GREEN [ulice1,7] [ulice1,6] [ulice1,5] [ulice1,4] [ulice4,7] [ulice4,8] [ulice4,9]
-VEHICLE 1 forward
-VEHICLE 3 forward
-VEHICLE 5 backward
+VEHICLE 1 forward 0
+VEHICLE 3 forward 0
+VEHICLE 5 backward 0
 LINE 3 YELLOW [ulice2,5] [ulice2,6] [ulice4,3] [ulice4,4] [ulice3,5] [ulice3,6] [ulice3,7]
-VEHICLE 0 backward
-VEHICLE 2 forward
+VEHICLE 0 backward 0
+VEHICLE 2 forward 0

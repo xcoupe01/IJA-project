@@ -2,6 +2,7 @@ package map.Imaps;
 
 import javafx.scene.layout.Pane;
 import map.maps.Coordinate;
+import map.maps.Stop;
 import map.maps.Street;
 
 public interface iMap{
@@ -16,4 +17,5 @@ public interface iMap{
     boolean loadMapFromFile(java.lang.String filePath, Pane mapCanvas);
     void saveMapToFile(java.lang.String filePath);
     Coordinate getCoord(Coordinate c);
+    Stop getStopByCoord(Coordinate c);
 }

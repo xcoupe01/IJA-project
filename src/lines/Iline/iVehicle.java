@@ -1,6 +1,7 @@
 package lines.Iline;
 
 import javafx.scene.layout.Pane;
+import java.awt.*;
 
 public interface iVehicle{
     void draw(Pane mapCanvas);
@@ -10,4 +11,7 @@ public interface iVehicle{
     void setForward(boolean setTo);
     int getStartPosition();
     boolean getForward();
+    int getTurns();
+    void setInformationPane(Pane informationPane);
+    void drawInformation();
 }
