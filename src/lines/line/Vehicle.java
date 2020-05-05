@@ -93,7 +93,7 @@ public class Vehicle implements iVehicle {
             }
         } else if(this.wait > 0){
             this.wait --;
-        } else if(this.coord.distance(this.target) > 2){
+        } else if(this.coord.distance(this.target) > 1){
             this.turns ++;
             this.exactCoordX = this.exactCoordX + this.travelPieceX;
             this.exactCoordY = this.exactCoordY + this.travelPieceY;
@@ -106,7 +106,7 @@ public class Vehicle implements iVehicle {
                 this.exactInformationCoordY = this.exactInformationCoordY - this.informationTravelPiece;
             }
             this.informationPanelVehicle.relocate(80, this.exactInformationCoordY);
-        } else if(this.coord.distance(this.target) <= 2){
+        } else if(this.coord.distance(this.target) <= 1){
             if(this.forward){
                 this.informationPaneCounter ++;
             } else {
@@ -122,7 +122,7 @@ public class Vehicle implements iVehicle {
             this.vehicle.relocate(this.coord.getX() - 3, this.coord.getY() - 3);
             this.target = null;
             if(this.targetType.equals("stop")){
-                this.wait = 10;
+                this.wait = 20;
             }
         }
     }
@@ -195,7 +195,15 @@ public class Vehicle implements iVehicle {
                 tmpStop.relocate(80, 30 * i + 10);
                 Text tmpStopName = new Text(this.mainMap.getStopByCoord(this.line.getRoute().getRoute().get(i)).getName());
                 tmpStopName.relocate(90, 30 * i + 5);
-                Text tmpStopTime = new Text(String.valueOf(this.mainPubTrans.getTimeHours()).concat(":").concat(String.valueOf(this.mainPubTrans.getTimeMinutes())));
+                Text tmpStopTime = new Text();
+                Timer tmpTimer = new Timer();
+                tmpTimer.set(this.mainPubTrans.getTimer().getSeconds(), this.mainPubTrans.getTimer().getMinutes(), this.mainPubTrans.getTimer().getHours());
+                tmpTimer.addSeconds(this.howMuchTimeTo(i));
+                if(tmpTimer.getMinutes() < 10){
+                    tmpStopTime.setText(String.valueOf(tmpTimer.getHours()).concat(":0").concat(String.valueOf(tmpTimer.getMinutes())));
+                } else {
+                    tmpStopTime.setText(String.valueOf(tmpTimer.getHours()).concat(":").concat(String.valueOf(tmpTimer.getMinutes())));
+                }
                 tmpStopTime.relocate(40, 30 * i + 5);
                 this.informationPane.getChildren().addAll(tmpStop, tmpStopName, tmpStopTime);
             } else {
@@ -203,7 +211,15 @@ public class Vehicle implements iVehicle {
                 tmpPoint.setStroke(Color.BLACK);
                 tmpPoint.setFill(Color.BLACK.deriveColor(1, 1, 1, 0.7));
                 tmpPoint.relocate(80, 30 * i + 10);
-                Text tmpPointTime = new Text(String.valueOf(this.mainPubTrans.getTimeHours()).concat(":").concat(String.valueOf(this.mainPubTrans.getTimeMinutes())));
+                Timer tmpTimer = new Timer();
+                tmpTimer.set(this.mainPubTrans.getTimer().getSeconds(), this.mainPubTrans.getTimer().getMinutes(), this.mainPubTrans.getTimer().getHours());
+                tmpTimer.addSeconds(this.howMuchTimeTo(i));
+                Text tmpPointTime = new Text();
+                if(tmpTimer.getMinutes() < 10){
+                    tmpPointTime.setText(String.valueOf(tmpTimer.getHours()).concat(":0").concat(String.valueOf(tmpTimer.getMinutes())));
+                } else {
+                    tmpPointTime.setText(String.valueOf(tmpTimer.getHours()).concat(":").concat(String.valueOf(tmpTimer.getMinutes())));
+                }
                 tmpPointTime.relocate(40, 30 * i + 5);
                 this.informationPane.getChildren().addAll(tmpPoint, tmpPointTime);
             }
@@ -212,4 +228,75 @@ public class Vehicle implements iVehicle {
         this.informationPane.getChildren().add(this.informationPanelVehicle);
     }
 
+    public int howMuchTimeTo(int pos) {
+        int tmpSeconds = 0;
+        if (this.turns > 0) {
+            for (int j = 0; j < this.turns; j++) {
+                tmpSeconds -= 10;
+            }
+        }
+        double steps;
+        if (pos < this.informationPaneCounter) {
+            for (int j = this.informationPaneCounter; pos < j; j--) {
+                steps = this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j - 1)) /
+                        (this.line.getRoute().getRoute().get(j).diffX(this.line.getRoute().getRoute().get(j - 1)) /
+                                this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j - 1)));
+                if (Double.isInfinite(steps)) {
+                    steps = this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j - 1)) /
+                            (this.line.getRoute().getRoute().get(j).diffY(this.line.getRoute().getRoute().get(j - 1)) /
+                                    this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j - 1)));
+                }
+                if (steps < 0) {
+                    steps = -steps;
+                }
+                if (this.line.getRoute().getRouteType().get(j).equals("stop")) {
+                    steps += 20;
+                }
+                if (this.forward) {
+                    if (steps > 0) {
+                        for (int k = 0; k < steps; k++) {
+                            tmpSeconds -= 10;
+                        }
+                    }
+                } else {
+                    if (steps > 0) {
+                        for (int k = 0; k < steps; k++) {
+                            tmpSeconds += 10;
+                        }
+                    }
+                }
+            }
+        } else if (pos > this.informationPaneCounter) {
+            for (int j = this.informationPaneCounter; pos > j; j++) {
+                steps = this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j + 1)) /
+                        (this.line.getRoute().getRoute().get(j).diffX(this.line.getRoute().getRoute().get(j + 1)) /
+                                this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j + 1)));
+                if (Double.isInfinite(steps)) {
+                    steps = this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j + 1)) /
+                            (this.line.getRoute().getRoute().get(j).diffY(this.line.getRoute().getRoute().get(j + 1)) /
+                                    this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j + 1)));
+                }
+                if (steps < 0) {
+                    steps = -steps;
+                }
+                if (this.line.getRoute().getRouteType().get(j).equals("stop")) {
+                    steps += 20;
+                }
+                if (this.forward) {
+                    if (steps > 0) {
+                        for (int k = 0; k < steps; k++) {
+                            tmpSeconds += 10;
+                        }
+                    }
+                } else {
+                    if (steps > 0) {
+                        for (int k = 0; k < steps; k++) {
+                            tmpSeconds -= 10;
+                        }
+                    }
+                }
+            }
+        }
+        return tmpSeconds;
+    }
 }

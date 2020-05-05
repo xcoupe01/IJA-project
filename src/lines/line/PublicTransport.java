@@ -13,8 +13,7 @@ import java.util.regex.Pattern;
 
 public class PublicTransport implements iPublicTransport {
     private java.util.List<PTLine> lines = new java.util.ArrayList<>();
-    private int timerHours;
-    private int timerMinutes;
+    private Timer mainTimer = new Timer();
     private boolean highlightDrawn = false;
     private Label timeDisplay = new Label();
     //private Thread animator = new Thread();
@@ -25,12 +24,6 @@ public class PublicTransport implements iPublicTransport {
 
     public void addLine(PTLine line){ this.lines.add(line); }
     public java.util.List<PTLine> getLines(){ return this.lines; }
-    public void setTimer(int timeHours, int timeMinutes){
-        this.timerHours = timeHours;
-        this.timerMinutes = timeMinutes;
-    }
-    public int getTimeHours(){ return this.timerHours; }
-    public int getTimeMinutes(){ return this.timerMinutes; }
     public void updatePTPos(Pane mapCanvas, int x, int y){
         for (PTLine line : this.lines) {
             line.getRoute().updateRouteHighlight(mapCanvas);
@@ -174,7 +167,7 @@ public class PublicTransport implements iPublicTransport {
     }
 
     public void run(){
-        this.timeTick();
+        this.mainTimer.addSeconds(10);
         this.updateTimeDisplay();
         for (PTLine line : this.lines) {
             line.rideAllVehicles();
@@ -185,23 +178,14 @@ public class PublicTransport implements iPublicTransport {
     public void setTimeDisplay(Label timeDisplay){ this.timeDisplay = timeDisplay; }
 
     public void updateTimeDisplay(){
-        if(this.timerMinutes < 10){
-            this.timeDisplay.setText("Time : ".concat(String.valueOf(this.timerHours).concat(":0").concat(String.valueOf(this.timerMinutes))));
+        if(this.mainTimer.getMinutes() < 10){
+            this.timeDisplay.setText("Time : ".concat(String.valueOf(this.mainTimer.getHours()).concat(":0").concat(String.valueOf(this.mainTimer.getMinutes()))));
         } else {
-            this.timeDisplay.setText("Time : ".concat(String.valueOf(this.timerHours).concat(":").concat(String.valueOf(this.timerMinutes))));
+            this.timeDisplay.setText("Time : ".concat(String.valueOf(this.mainTimer.getHours()).concat(":").concat(String.valueOf(this.mainTimer.getMinutes()))));
         }
     }
 
-    private void timeTick(){
-        this.timerMinutes ++;
-        if(this.timerMinutes == 60){
-            this.timerMinutes = 0;
-            this.timerHours ++;
-        }
-        if(this.timerHours == 24){
-            this.timerHours = 0;
-        }
-    }
+    public Timer getTimer(){ return this.mainTimer; }
 
     public void rideAllVehicles(Pane mapCanvas){
 
