@@ -3,6 +3,7 @@ package map.maps;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.Pane;
+import lines.line.PublicTransport;
 import map.Imaps.iStop;
 import static javafx.scene.Cursor.cursor;
 
@@ -13,8 +14,10 @@ public class Stop implements iStop{
     private Street street;                                 //< Street to which this stop belongs
     private boolean drawn;                                 //< tells if the Stop is visible
     private Rectangle stop = new Rectangle(6, 6);   //< graphical stop object
+    private PublicTransport mainPubTrans;
+    private Pane informationPane;
 
-    public Stop(java.lang.String name, Coordinate coord){
+    public Stop(java.lang.String name, Coordinate coord, PublicTransport mainPubTrans, Pane informationPane){
         this.name = name;
         this.coord = coord;
         this.drawn = false;
@@ -22,7 +25,12 @@ public class Stop implements iStop{
         this.stop.setFill(Color.YELLOW.deriveColor(1, 1, 1, 0.7));
         this.stop.relocate(coord.getX() - 3, coord.getY() - 3);
         this.stop.setCursor(cursor("HAND"));
-        this.stop.setOnMouseClicked(t -> System.out.println(this.name));
+        this.mainPubTrans = mainPubTrans;
+        this.informationPane = informationPane;
+        this.stop.setOnMouseClicked(t -> {
+            System.out.println(this.name);
+            /*TODO here will be stop information itinerary *mainPubTrans* and *informationPane* will be used*/
+        });
     }
 
     // returns the Coordinates of the stop

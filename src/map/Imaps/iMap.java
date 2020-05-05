@@ -1,6 +1,7 @@
 package map.Imaps;
 
 import javafx.scene.layout.Pane;
+import lines.line.PublicTransport;
 import map.maps.Coordinate;
 import map.maps.Stop;
 import map.maps.Street;
@@ -18,4 +19,6 @@ public interface iMap{
     void saveMapToFile(java.lang.String filePath);
     Coordinate getCoord(Coordinate c);
     Stop getStopByCoord(Coordinate c);
+    void attachPubTrans(PublicTransport mainPubTrans);
+    void attachInformationPane(Pane informationPane);
 }

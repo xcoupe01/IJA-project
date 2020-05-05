@@ -33,6 +33,8 @@ public class Vehicle implements iVehicle {
     private int vehicleNumber;
     private Map mainMap;
     private PublicTransport mainPubTrans;
+    private int turnMeansSec = 10;
+    private int turnsAtStop = 20;
 
     Vehicle(PTLine line, Coordinate start, int vehicleNumber, Map mainMap, PublicTransport mainPubTrans){
         this.line = line;
@@ -122,7 +124,7 @@ public class Vehicle implements iVehicle {
             this.vehicle.relocate(this.coord.getX() - 3, this.coord.getY() - 3);
             this.target = null;
             if(this.targetType.equals("stop")){
-                this.wait = 20;
+                this.wait = this.turnsAtStop;
             }
         }
     }
@@ -231,72 +233,29 @@ public class Vehicle implements iVehicle {
     public int howMuchTimeTo(int pos) {
         int tmpSeconds = 0;
         if (this.turns > 0) {
-            for (int j = 0; j < this.turns; j++) {
-                tmpSeconds -= 10;
+            tmpSeconds -= this.turns * this.turnMeansSec;
+            if((this.forward && pos < this.informationPaneCounter) || (!this.forward && pos > this.informationPaneCounter)){
+                tmpSeconds -= this.turnsAtStop * this.turnMeansSec;
             }
+        } /*else if(this.line.getRoute().getRouteType().get(this.informationPaneCounter).equals("stop")){
+            tmpSeconds -= (20 - this.wait) * this.turnMeansSec;
+        }*/
+        Vehicle tmpVehicle = new Vehicle(this.line, this.line.getRoute().getRoute().get(this.informationPaneCounter), 0, this.mainMap, this.mainPubTrans);
+        if(pos < this.informationPaneCounter){
+            tmpVehicle.setForward(false);
         }
-        double steps;
-        if (pos < this.informationPaneCounter) {
-            for (int j = this.informationPaneCounter; pos < j; j--) {
-                steps = this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j - 1)) /
-                        (this.line.getRoute().getRoute().get(j).diffX(this.line.getRoute().getRoute().get(j - 1)) /
-                                this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j - 1)));
-                if (Double.isInfinite(steps)) {
-                    steps = this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j - 1)) /
-                            (this.line.getRoute().getRoute().get(j).diffY(this.line.getRoute().getRoute().get(j - 1)) /
-                                    this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j - 1)));
-                }
-                if (steps < 0) {
-                    steps = -steps;
-                }
-                if (this.line.getRoute().getRouteType().get(j).equals("stop")) {
-                    steps += 20;
-                }
-                if (this.forward) {
-                    if (steps > 0) {
-                        for (int k = 0; k < steps; k++) {
-                            tmpSeconds -= 10;
-                        }
-                    }
-                } else {
-                    if (steps > 0) {
-                        for (int k = 0; k < steps; k++) {
-                            tmpSeconds += 10;
-                        }
-                    }
-                }
-            }
-        } else if (pos > this.informationPaneCounter) {
-            for (int j = this.informationPaneCounter; pos > j; j++) {
-                steps = this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j + 1)) /
-                        (this.line.getRoute().getRoute().get(j).diffX(this.line.getRoute().getRoute().get(j + 1)) /
-                                this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j + 1)));
-                if (Double.isInfinite(steps)) {
-                    steps = this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j + 1)) /
-                            (this.line.getRoute().getRoute().get(j).diffY(this.line.getRoute().getRoute().get(j + 1)) /
-                                    this.line.getRoute().getRoute().get(j).distance(this.line.getRoute().getRoute().get(j + 1)));
-                }
-                if (steps < 0) {
-                    steps = -steps;
-                }
-                if (this.line.getRoute().getRouteType().get(j).equals("stop")) {
-                    steps += 20;
-                }
-                if (this.forward) {
-                    if (steps > 0) {
-                        for (int k = 0; k < steps; k++) {
-                            tmpSeconds += 10;
-                        }
-                    }
-                } else {
-                    if (steps > 0) {
-                        for (int k = 0; k < steps; k++) {
-                            tmpSeconds -= 10;
-                        }
-                    }
-                }
-            }
+        int steps = 0;
+        while(tmpVehicle.getStartPosition() != pos){
+            steps ++;
+            tmpVehicle.ride();
         }
-        return tmpSeconds;
+        if((this.forward && pos < this.informationPaneCounter) || (!this.forward && pos > this.informationPaneCounter)){
+            steps = - steps;
+        }
+        return (steps * this.turnMeansSec) + tmpSeconds;
     }
+
+    public void setTurnMeansSec(int num){ this.turnMeansSec = num; }
+    public void setTurnsAtStop(int num){ this.turnsAtStop = num; }
+
 }

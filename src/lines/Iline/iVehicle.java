@@ -14,4 +14,6 @@ public interface iVehicle{
     int getTurns();
     void setInformationPane(Pane informationPane);
     void drawInformation();
+    void setTurnMeansSec(int num);
+    void setTurnsAtStop(int num);
 }

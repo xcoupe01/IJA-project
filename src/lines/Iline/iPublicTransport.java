@@ -21,5 +21,7 @@ public interface iPublicTransport{
     void rideAllVehicles(Pane mapCanvas);
     void setTimeDisplay(Label timeDisplay);
     Timer getTimer();
+    void setTickMeansSec(int num);
+    void setTicksAtStop(int num);
     void updateTimeDisplay();
 }

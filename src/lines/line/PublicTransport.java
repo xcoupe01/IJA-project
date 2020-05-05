@@ -17,7 +17,9 @@ public class PublicTransport implements iPublicTransport {
     private boolean highlightDrawn = false;
     private Label timeDisplay = new Label();
     //private Thread animator = new Thread();
-
+    private int tickMeansSec = 10;
+    private int ticksAtStop = 20;
+    //TODO animation thread
     public PublicTransport(){
 
     }
@@ -167,7 +169,7 @@ public class PublicTransport implements iPublicTransport {
     }
 
     public void run(){
-        this.mainTimer.addSeconds(10);
+        this.mainTimer.addSeconds(this.tickMeansSec);
         this.updateTimeDisplay();
         for (PTLine line : this.lines) {
             line.rideAllVehicles();
@@ -187,7 +189,23 @@ public class PublicTransport implements iPublicTransport {
 
     public Timer getTimer(){ return this.mainTimer; }
 
+    public void setTickMeansSec(int num){
+        this.tickMeansSec = num;
+        for (PTLine line : this.lines) {
+            line.setVehiclesTickMeansSec(num);
+        }
+    }
+
+    public void setTicksAtStop(int num){
+        this.ticksAtStop = num;
+        for (PTLine line : this.lines) {
+            line.setVehiclesTicksAtStop(num);
+        }
+    }
+
     public void rideAllVehicles(Pane mapCanvas){
 
     }
+
+    //TODO generate daily timetable
 }

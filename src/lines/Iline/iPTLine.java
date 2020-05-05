@@ -18,5 +18,4 @@ public interface iPTLine{
     void toggleLineHighlight(Pane mapCanvas);
     void rideAllVehicles();
     void updateVehicles(int x, int y);
-
 }

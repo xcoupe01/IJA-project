@@ -38,13 +38,14 @@ public class Timer implements iTimer {
     }
 
     public void addSeconds(int num){
+        int i;
         if(num > 0){
-            for(int i = 0; i < num; i++){
+            for(i = 0; i < num; i++){
                 this.addSecond();
             }
         }
         if(num < 0){
-            for(int i = 0; i > num; i--){
+            for(i = 0; i > num; i--){
                 this.subSecond();
             }
         }

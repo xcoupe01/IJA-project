@@ -2,6 +2,7 @@ package map.maps;
 
 
 import javafx.scene.layout.Pane;
+import lines.line.PublicTransport;
 import map.Imaps.iMap;
 import java.io.*;
 import java.util.Objects;
@@ -12,6 +13,8 @@ import java.util.regex.Pattern;
 public class Map implements iMap{
 
     private java.util.List<Street> streets = new java.util.ArrayList<>();   //< array of all streets in map
+    private PublicTransport mainPubTrans;
+    private Pane informationPane;
 
     // adds given street to map
     public void addStreet(Street street){ this.streets.add(street); }
@@ -104,7 +107,8 @@ public class Map implements iMap{
                     if(this.streets.size() > 0){
                         if(matchedCoords.find() && matchedName.find()){
                             if(!this.streets.get(this.streets.size() - 1).addStop(new Stop(matchedName.group(1),
-                                    Objects.requireNonNull(Coordinate.create(Integer.parseInt(matchedCoords.group(1)), Integer.parseInt(matchedCoords.group(2))))))){
+                                    Objects.requireNonNull(Coordinate.create(Integer.parseInt(matchedCoords.group(1))
+                                            , Integer.parseInt(matchedCoords.group(2)))),this.mainPubTrans, this.informationPane))){
                                 System.out.println("WARNING - stop cannot be added because of position");
                             }
                         }
@@ -164,13 +168,16 @@ public class Map implements iMap{
     }
 
     public Stop getStopByCoord(Coordinate c){
-        for(int i = 0; i < this.streets.size(); i++){
-            for(int j = 0; j < this.streets.get(i).getStops().size(); j++){
-                if(this.streets.get(i).getStops().get(j).getCoord().equals(c)){
-                    return this.streets.get(i).getStops().get(j);
+        for (Street street : this.streets) {
+            for (int j = 0; j < street.getStops().size(); j++) {
+                if (street.getStops().get(j).getCoord().equals(c)) {
+                    return street.getStops().get(j);
                 }
             }
         }
         return null;
     }
+
+    public void attachPubTrans(PublicTransport mainPubTrans){ this.mainPubTrans = mainPubTrans; }
+    public void attachInformationPane(Pane informationPane){ this.informationPane = informationPane; }
 }

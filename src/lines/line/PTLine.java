@@ -79,5 +79,17 @@ public class PTLine implements iPTLine {
         }
     }
 
+    public void setVehiclesTickMeansSec(int num){
+        for (Vehicle lineVehicle : this.lineVehicles) {
+            lineVehicle.setTurnMeansSec(num);
+        }
+    }
+
+    public void setVehiclesTicksAtStop(int num){
+        for (Vehicle lineVehicle : this.lineVehicles) {
+            lineVehicle.setTurnsAtStop(num);
+        }
+    }
+
     java.util.List<Vehicle> getVehicles(){ return this.lineVehicles;}
 }

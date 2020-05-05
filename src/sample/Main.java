@@ -38,6 +38,7 @@ public class Main extends Application {
         Scene mainScene = new Scene(root, 1000, 600);
         Map mainMap = new Map();
         PublicTransport mainPubTrans = new PublicTransport();
+        mainMap.attachPubTrans(mainPubTrans);
         Pane overlay = new Pane();
         FileChooser fileChoose = new FileChooser();
         Rectangle stop = new Rectangle(5, 5);
@@ -88,7 +89,7 @@ public class Main extends Application {
         lineInformationPaneWrap.setPrefWidth(menuWidth);
         mainPubTrans.setTimeDisplay(timeDisplay);
         mainPubTrans.updateTimeDisplay();
-
+        mainMap.attachInformationPane(lineInformationPane);
 
         mapMenuButton.setPrefWidth(menuWidth/3);
         lineMenuButton.setPrefWidth(menuWidth/3);
@@ -208,7 +209,8 @@ public class Main extends Application {
                     newStopName.getText() != null && !newStopName.getText().equals("")){
                 Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
                 mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).addStop(new Stop(newStopName.getText(),
-                        mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).shortestPointToCoord(mouseCoord)));
+                        mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).shortestPointToCoord(mouseCoord),
+                        mainPubTrans, lineInformationPane));
                 stopAdd.fire();
                 overlay.getChildren().remove(stop);
                 mainMap.draw(overlay);
