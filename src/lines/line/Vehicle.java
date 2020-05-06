@@ -248,9 +248,9 @@ public class Vehicle implements iVehicle {
             if((this.forward && pos < this.informationPaneCounter) || (!this.forward && pos > this.informationPaneCounter)){
                 tmpSeconds -= this.turnsAtStop * this.turnMeansSec;
             }
-        } /*else if(this.line.getRoute().getRouteType().get(this.informationPaneCounter).equals("stop")){
-            tmpSeconds -= (20 - this.wait) * this.turnMeansSec;
-        }*/
+        } else if(this.line.getRoute().getRouteType().get(this.informationPaneCounter).equals("stop")){
+            tmpSeconds += (this.wait) * this.turnMeansSec;
+        }
         Vehicle tmpVehicle = new Vehicle(this.line, this.line.getRoute().getRoute().get(this.informationPaneCounter), 0, this.mainMap, this.mainPubTrans);
         if(pos < this.informationPaneCounter){
             tmpVehicle.setForward(false);
