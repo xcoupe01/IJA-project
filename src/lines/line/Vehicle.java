@@ -35,6 +35,7 @@ public class Vehicle implements iVehicle {
     private PublicTransport mainPubTrans;
     private int turnMeansSec = 10;
     private int turnsAtStop = 20;
+    private boolean informationPaneOcuppy= false;
 
     Vehicle(PTLine line, Coordinate start, int vehicleNumber, Map mainMap, PublicTransport mainPubTrans){
         this.line = line;
@@ -69,6 +70,9 @@ public class Vehicle implements iVehicle {
                     if(this.forward){
                         if(i+1 >= this.line.getRoute().getRoute().size()){
                             this.forward = false;
+                            if(this.informationPaneOcuppy){
+                                this.drawInformation();
+                            }
                             break;
                         } else {
                             this.target = this.line.getRoute().getRoute().get(i+1);
@@ -81,6 +85,9 @@ public class Vehicle implements iVehicle {
                     } else {
                         if(i-1 < 0){
                             this.forward = true;
+                            if(this.informationPaneOcuppy){
+                                this.drawInformation();
+                            }
                             break;
                         } else {
                             this.target = this.line.getRoute().getRoute().get(i-1);
@@ -169,7 +176,11 @@ public class Vehicle implements iVehicle {
     public void setInformationPane(Pane informationPane){
         this.informationPane = informationPane;
     }
+
     public void drawInformation(){
+        this.mainPubTrans.setAllVehiclesInformationPaneOccupyFalse();
+        this.mainMap.setAllStopInformationPaneOccupyFalse();
+        this.informationPaneOcuppy = true;
         this.informationPane.getChildren().clear();
         this.informationPane.setMinHeight((this.line.getRoute().getRoute().size() * 30));
         Rectangle sidePanel = new Rectangle();
@@ -255,7 +266,33 @@ public class Vehicle implements iVehicle {
         return (steps * this.turnMeansSec) + tmpSeconds;
     }
 
+    public int howMuchTimeToNext(int pos){
+        int tmpSeconds = 0;
+        if(this.turns > 0){
+            tmpSeconds -= this.turns * this.turnMeansSec;
+        }
+        if(this.wait > 0){
+            tmpSeconds += this.wait * this.turnMeansSec;
+        }
+        Vehicle tmpVehicle = new Vehicle(this.line, this.line.getRoute().getRoute().get(this.informationPaneCounter), 0, this.mainMap, this.mainPubTrans);
+        tmpVehicle.setForward(this.forward);
+        int steps = 0;
+        if(this.turns > 0 && tmpVehicle.getStartPosition() == pos ){
+            while(tmpVehicle.getStartPosition() == pos){
+                steps ++;
+                tmpVehicle.ride();
+            }
+        }
+        while(tmpVehicle.getStartPosition() != pos){
+            steps ++;
+            tmpVehicle.ride();
+        }
+        return (steps * this.turnMeansSec) + tmpSeconds;
+    }
+
     public void setTurnMeansSec(int num){ this.turnMeansSec = num; }
     public void setTurnsAtStop(int num){ this.turnsAtStop = num; }
+    public boolean getInformationPaneOccupy(){ return this.informationPaneOcuppy; }
+    public void setInformationPaneOccupyFalse(){ this.informationPaneOcuppy = false; }
 
 }

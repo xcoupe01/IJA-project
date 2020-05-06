@@ -16,12 +16,14 @@ public class PublicTransport implements iPublicTransport {
     private Timer mainTimer = new Timer();
     private boolean highlightDrawn = false;
     private Label timeDisplay = new Label();
-    //private Thread animator = new Thread();
+    private PTAnimator mainAnimator = new PTAnimator(this);
     private int tickMeansSec = 10;
     private int ticksAtStop = 20;
-    //TODO animation thread
-    public PublicTransport(){
+    private Map mainMap;
+    private boolean stopAnimator = true;
 
+    public PublicTransport(Map mainMap){
+        this.mainMap = mainMap;
     }
 
     public void addLine(PTLine line){ this.lines.add(line); }
@@ -168,13 +170,15 @@ public class PublicTransport implements iPublicTransport {
         }
     }
 
-    public void run(){
+    public void animationStep(){
         this.mainTimer.addSeconds(this.tickMeansSec);
         this.updateTimeDisplay();
         for (PTLine line : this.lines) {
             line.rideAllVehicles();
         }
-
+        if(this.mainMap.getStopThatOccupiesInformationPane() != null){
+            this.mainMap.getStopThatOccupiesInformationPane().drawInformation();
+        }
     }
 
     public void setTimeDisplay(Label timeDisplay){ this.timeDisplay = timeDisplay; }
@@ -203,9 +207,33 @@ public class PublicTransport implements iPublicTransport {
         }
     }
 
-    public void rideAllVehicles(Pane mapCanvas){
-
+    public void setAllVehiclesInformationPaneOccupyFalse(){
+        for (PTLine line : this.lines) {
+            for (int j = 0; j < line.getVehicles().size(); j++) {
+                line.getVehicles().get(j).setInformationPaneOccupyFalse();
+            }
+        }
     }
+
+    public Vehicle getVehicleOccupyInformationPaneTrue(){
+        for (PTLine line : this.lines) {
+            for (int j = 0; j < line.getVehicles().size(); j++) {
+                if (line.getVehicles().get(j).getInformationPaneOccupy()) {
+                    return line.getVehicles().get(j);
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean getStopAnimator(){ return this.stopAnimator; }
+    public void setStopAnimator(boolean stopAnimator){
+        this.stopAnimator = stopAnimator;
+        if(!stopAnimator){
+            this.mainAnimator.resetThread();
+        }
+    }
+    public void playAnimator(){ this.mainAnimator.start();}
 
     //TODO generate daily timetable
 }

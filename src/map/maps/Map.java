@@ -108,7 +108,7 @@ public class Map implements iMap{
                         if(matchedCoords.find() && matchedName.find()){
                             if(!this.streets.get(this.streets.size() - 1).addStop(new Stop(matchedName.group(1),
                                     Objects.requireNonNull(Coordinate.create(Integer.parseInt(matchedCoords.group(1))
-                                            , Integer.parseInt(matchedCoords.group(2)))),this.mainPubTrans, this.informationPane))){
+                                            , Integer.parseInt(matchedCoords.group(2)))),this.mainPubTrans, this.informationPane, this))){
                                 System.out.println("WARNING - stop cannot be added because of position");
                             }
                         }
@@ -180,4 +180,21 @@ public class Map implements iMap{
 
     public void attachPubTrans(PublicTransport mainPubTrans){ this.mainPubTrans = mainPubTrans; }
     public void attachInformationPane(Pane informationPane){ this.informationPane = informationPane; }
+    public void setAllStopInformationPaneOccupyFalse(){
+        for (Street street : this.streets) {
+            for (int j = 0; j < street.getStops().size(); j++) {
+                street.getStops().get(j).InformationPaneOccupyFalse();
+            }
+        }
+    }
+    public Stop getStopThatOccupiesInformationPane(){
+        for (Street street : this.streets) {
+            for (int j = 0; j < street.getStops().size(); j++) {
+                if (street.getStops().get(j).getInformationPaneOccupy()) {
+                    return street.getStops().get(j);
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -14,5 +14,7 @@ public interface iStop{
     void draw(Pane mapCanvas);
     void erase(Pane mapCanvas);
     void moveStop(Pane mapCanvas, int x, int y);
-
+    void drawInformation();
+    boolean getInformationPaneOccupy();
+    void InformationPaneOccupyFalse();
 }

@@ -21,4 +21,6 @@ public interface iMap{
     Stop getStopByCoord(Coordinate c);
     void attachPubTrans(PublicTransport mainPubTrans);
     void attachInformationPane(Pane informationPane);
+    void setAllStopInformationPaneOccupyFalse();
+    Stop getStopThatOccupiesInformationPane();
 }

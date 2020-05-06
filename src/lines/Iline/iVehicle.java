@@ -1,7 +1,6 @@
 package lines.Iline;
 
 import javafx.scene.layout.Pane;
-import java.awt.*;
 
 public interface iVehicle{
     void draw(Pane mapCanvas);
@@ -16,4 +15,8 @@ public interface iVehicle{
     void drawInformation();
     void setTurnMeansSec(int num);
     void setTurnsAtStop(int num);
+    int howMuchTimeToNext(int pos);
+    boolean getInformationPaneOccupy();
+    void setInformationPaneOccupyFalse();
+    int howMuchTimeTo(int pos);
 }

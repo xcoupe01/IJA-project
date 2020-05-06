@@ -3,6 +3,7 @@ package lines.line;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lines.Iline.iPTLine;
+import map.maps.Coordinate;
 import map.maps.Map;
 
 public class PTLine implements iPTLine {
@@ -91,5 +92,14 @@ public class PTLine implements iPTLine {
         }
     }
 
-    java.util.List<Vehicle> getVehicles(){ return this.lineVehicles;}
+    public int isStopInLineRoute(Coordinate stopCoord){
+        for(int i = 0; i < this.lineRoute.getRoute().size(); i++){
+            if(this.lineRoute.getRoute().get(i).equals(stopCoord) && this.lineRoute.getRouteType().get(i).equals("stop")){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public java.util.List<Vehicle> getVehicles(){ return this.lineVehicles;}
 }

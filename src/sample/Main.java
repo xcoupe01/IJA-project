@@ -37,7 +37,7 @@ public class Main extends Application {
         VBox menu = new VBox();
         Scene mainScene = new Scene(root, 1000, 600);
         Map mainMap = new Map();
-        PublicTransport mainPubTrans = new PublicTransport();
+        PublicTransport mainPubTrans = new PublicTransport(mainMap);
         mainMap.attachPubTrans(mainPubTrans);
         Pane overlay = new Pane();
         FileChooser fileChoose = new FileChooser();
@@ -76,15 +76,17 @@ public class Main extends Application {
         Button addLine = new Button("Add line");
         ColorPicker newLineColor = new ColorPicker();
         ToggleButton addVehicle = new ToggleButton("Add vehicle");
-        Button test = new Button("Test");
+        Button test = new Button("Pause");
+        Button test2 = new Button("Run");
         // overview list
         Pane lineInformationPane = new Pane();
         ScrollPane lineInformationPaneWrap = new ScrollPane();
         Label timeDisplay = new Label();
 
 
+        primaryStage.setOnCloseRequest(event -> mainPubTrans.setStopAnimator(true));
         lineInformationPaneWrap.setContent(lineInformationPane);
-        lineInformationPane.setStyle("-fx-background-color: WHITE");
+        //lineInformationPane.setStyle("-fx-background-color: WHITE");
         lineInformationPaneWrap.fitToHeightProperty().set(true);
         lineInformationPaneWrap.setPrefWidth(menuWidth);
         mainPubTrans.setTimeDisplay(timeDisplay);
@@ -103,7 +105,7 @@ public class Main extends Application {
                 removeLastLinePoint, addVehicle, toggleLineHighlight, deleteLine, addLine,
                 newLineColor, loadPublicTransp, savePublicTransp);
 
-        overview.getChildren().addAll(test, timeDisplay, lineInformationPaneWrap);
+        overview.getChildren().addAll(test, test2, timeDisplay, lineInformationPaneWrap);
 
         lineInformationPane.setPrefHeight(menuWidth);
         lineInformationPane.setPrefWidth(10);
@@ -210,7 +212,7 @@ public class Main extends Application {
                 Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
                 mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).addStop(new Stop(newStopName.getText(),
                         mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).shortestPointToCoord(mouseCoord),
-                        mainPubTrans, lineInformationPane));
+                        mainPubTrans, lineInformationPane, mainMap));
                 stopAdd.fire();
                 overlay.getChildren().remove(stop);
                 mainMap.draw(overlay);
@@ -580,18 +582,29 @@ public class Main extends Application {
         // overlay.setMinWidth((primaryStage.getWidth()/100) * 80);
 
         mainMap.loadMapFromFile("sample2.map", overlay);
-        mainPubTrans.loadPTFromFile(overlay, "sample2.line", mainMap, lineInformationPane);
+        mainPubTrans.loadPTFromFile(overlay, "sample3.line", mainMap, lineInformationPane);
         updateStreetMenu(streetMenu, mainMap);
         updateLinesMenu(linesMenu, mainPubTrans, addLine);
         mainMap.draw(overlay);
 
+
+
         test.setOnAction(event -> {
-            mainPubTrans.run();
-            mainPubTrans.run();
-            mainPubTrans.run();
-            mainPubTrans.run();
-            mainPubTrans.run();
-            mainPubTrans.run();
+
+            mainPubTrans.setStopAnimator(true);
+
+            /*
+            mainPubTrans.animationStep();
+            mainPubTrans.animationStep();
+            mainPubTrans.animationStep();
+            mainPubTrans.animationStep();
+            mainPubTrans.animationStep();
+            mainPubTrans.animationStep();
+            */
+        });
+
+        test2.setOnAction(event -> {
+            mainPubTrans.playAnimator();
         });
         /*
         test

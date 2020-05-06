@@ -4,6 +4,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import lines.line.PTLine;
 import lines.line.Timer;
+import lines.line.Vehicle;
 import map.maps.Map;
 
 
@@ -18,10 +19,11 @@ public interface iPublicTransport{
     void highlightAllRoutesOn(Pane mapCanvas);
     void highlightAllRoutesOff(Pane mapCanvas);
     void toggleHighlight(Pane mapCanvas);
-    void rideAllVehicles(Pane mapCanvas);
     void setTimeDisplay(Label timeDisplay);
     Timer getTimer();
     void setTickMeansSec(int num);
     void setTicksAtStop(int num);
     void updateTimeDisplay();
+    void setAllVehiclesInformationPaneOccupyFalse();
+    Vehicle getVehicleOccupyInformationPaneTrue();
 }

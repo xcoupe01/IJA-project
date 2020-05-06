@@ -4,6 +4,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lines.line.PublicTransport;
 import lines.line.Route;
+import lines.line.Vehicle;
+import map.maps.Coordinate;
 
 public interface iPTLine{
     void setRoute(Route toSet);
@@ -18,4 +20,6 @@ public interface iPTLine{
     void toggleLineHighlight(Pane mapCanvas);
     void rideAllVehicles();
     void updateVehicles(int x, int y);
+    int isStopInLineRoute(Coordinate stopCoord);
+    java.util.List<Vehicle> getVehicles();
 }

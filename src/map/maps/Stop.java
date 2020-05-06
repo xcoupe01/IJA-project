@@ -1,9 +1,12 @@
 package map.maps;
 
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import lines.line.PublicTransport;
+import lines.line.Timer;
 import map.Imaps.iStop;
 import static javafx.scene.Cursor.cursor;
 
@@ -16,8 +19,10 @@ public class Stop implements iStop{
     private Rectangle stop = new Rectangle(6, 6);   //< graphical stop object
     private PublicTransport mainPubTrans;
     private Pane informationPane;
+    private Map mainMap;
+    private boolean informationPaneOccupy = false;
 
-    public Stop(java.lang.String name, Coordinate coord, PublicTransport mainPubTrans, Pane informationPane){
+    public Stop(java.lang.String name, Coordinate coord, PublicTransport mainPubTrans, Pane informationPane, Map mainMap){
         this.name = name;
         this.coord = coord;
         this.drawn = false;
@@ -27,10 +32,8 @@ public class Stop implements iStop{
         this.stop.setCursor(cursor("HAND"));
         this.mainPubTrans = mainPubTrans;
         this.informationPane = informationPane;
-        this.stop.setOnMouseClicked(t -> {
-            System.out.println(this.name);
-            /*TODO here will be stop information itinerary *mainPubTrans* and *informationPane* will be used*/
-        });
+        this.mainMap = mainMap;
+        this.stop.setOnMouseClicked(t -> this.drawInformation());
     }
 
     // returns the Coordinates of the stop
@@ -73,5 +76,58 @@ public class Stop implements iStop{
             this.draw(mapCanvas);
         }
     }
+
+    public void drawInformation(){
+        this.mainPubTrans.setAllVehiclesInformationPaneOccupyFalse();
+        this.mainMap.setAllStopInformationPaneOccupyFalse();
+        this.informationPaneOccupy = true;
+        this.informationPane.getChildren().clear();
+        Rectangle sidePanel = new Rectangle();
+        sidePanel.setX(0);
+        sidePanel.setY(0);
+        int lines = 0;
+        for(int i = 0; i < this.mainPubTrans.getLines().size(); i++){
+            int pos = this.mainPubTrans.getLines().get(i).isStopInLineRoute(this.coord);
+            if(pos >= 0){
+                Rectangle linePanel = new Rectangle();
+                linePanel.setFill(this.mainPubTrans.getLines().get(i).getLineColor());
+                linePanel.setX(30);
+                linePanel.setY(lines * 20);
+                linePanel.setHeight(20);
+                linePanel.setWidth(170);
+                Text lineText = new Text("Line ".concat(String.valueOf(this.mainPubTrans.getLines().get(i).getLineNumber())));
+                lineText.setX(35);
+                lineText.setY(lines * 20 + 16);
+                lines ++;
+                this.informationPane.getChildren().addAll(linePanel, lineText);
+                for(int j = 0; j < this.mainPubTrans.getLines().get(i).getVehicles().size(); j++){
+                    Timer tmpTime = new Timer();
+                    tmpTime.addSeconds(this.mainPubTrans.getLines().get(i).getVehicles().get(j).howMuchTimeToNext(pos));
+                    Text informationLine = new Text();
+                    if(this.mainPubTrans.getLines().get(i).getVehicles().get(j).getStartPosition() == pos &&
+                            this.mainPubTrans.getLines().get(i).getVehicles().get(j).getTurns() == 0){
+                        informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat("at stop")));
+                    } else {
+                        informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat(String.valueOf(tmpTime.getHours() * 60 + tmpTime.getMinutes())).concat(" mins")));
+                    }
+                    informationLine.setX(35);
+                    informationLine.setY(lines * 20 + 16);
+                    this.informationPane.getChildren().add(informationLine);
+                    lines ++;
+                }
+            }
+        }
+        sidePanel.setWidth(30);
+        sidePanel.setHeight(lines * 20 + 320);
+        sidePanel.setFill(Paint.valueOf("CADETBLUE"));
+        Text stopText = new Text("Stop ".concat(this.name));
+        stopText.setRotate(-90);
+        stopText.setY(100);
+        stopText.setX(-40);
+        this.informationPane.getChildren().addAll(sidePanel, stopText);
+    }
+
+    public boolean getInformationPaneOccupy(){ return this.informationPaneOccupy; }
+    public void InformationPaneOccupyFalse(){ this.informationPaneOccupy = false; }
 
 }
