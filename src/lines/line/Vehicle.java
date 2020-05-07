@@ -10,33 +10,75 @@ import map.maps.Map;
 
 import static javafx.scene.Cursor.cursor;
 
+/**
+ * Vehicle class
+ * implements interface iVehicle
+ * Used to represent vehicles in public transport
+ *
+ * @author Vojtěch Čoupek (xcoupe01)
+ * @author Tadeáš Jůza (xjuzat00)
+ */
 public class Vehicle implements iVehicle {
-    private Circle vehicle = new Circle(3);
-    private Circle informationPanelVehicle = new Circle(3);
-    private PTLine line;
-    private Coordinate coord = new Coordinate(0,0);
-    private Coordinate start;
-    private Coordinate target = null;
-    private String targetType;
-    private double travelPieceX;
-    private double travelPieceY;
-    private double exactCoordX;
-    private double exactCoordY;
-    private int informationPaneCounter;
-    private double exactInformationCoordY;
-    private double informationTravelPiece;
-    private boolean forward = true;
-    private int wait = 0;
-    private boolean drawn = false;
-    private int turns = 0;
-    private Pane informationPane = null;
-    private int vehicleNumber;
-    private Map mainMap;
-    private PublicTransport mainPubTrans;
-    private int turnMeansSec = 10;
-    private int turnsAtStop = 20;
-    private boolean informationPaneOcuppy= false;
 
+    /** Graphicla object of vehicle*/
+    private Circle vehicle = new Circle(3);
+    /** Graphical object of the vehicle in the information Pane*/
+    private Circle informationPanelVehicle = new Circle(3);
+    /** Line to which the vehicle belongs*/
+    private PTLine line;
+    /** Actual vehicle coordinate*/
+    private Coordinate coord = new Coordinate(0,0);
+    /** Position from where the vehicle started actual ride (newest point of the line route where the vehicle was)*/
+    private Coordinate start;
+    /** Position where the vehicle is heading*/
+    private Coordinate target = null;
+    /** Type of target where the vehicle is heading ("point" or "stop")*/
+    private String targetType;
+    /** Piece that the vehicle is going to travel every step of the ride on X axis*/
+    private double travelPieceX;
+    /** Piece that the vehicle is going to travel every step of the ride on Y axis*/
+    private double travelPieceY;
+    /** Actual position of the vehicle on X axis (in double, in coord is less accurate)*/
+    private double exactCoordX;
+    /** Actual position of the vehicle on Y axis (in double, in coord is less accurate)*/
+    private double exactCoordY;
+    /** List index of the line route for vehicle*/
+    private int informationPaneCounter;
+    /** Actual position of the vehicle in information Pane*/
+    private double exactInformationCoordY;
+    /** Piece that the vehicle is going to travel every step of the ride on the information Pane*/
+    private double informationTravelPiece;
+    /** Orientation of the vehicle*/
+    private boolean forward = true;
+    /** Wait value of the vehicle*/
+    private int wait = 0;
+    /** Tells if the vehicle is visible on map Pane*/
+    private boolean drawn = false;
+    /** Tells how many steps have been done from last route point*/
+    private int turns = 0;
+    /** Connection to information Pane*/
+    private Pane informationPane = null;
+    /** Vehicle number*/
+    private int vehicleNumber;
+    /** Connection to map*/
+    private Map mainMap;
+    /** Connection to public transport*/
+    private PublicTransport mainPubTrans;
+    /** Tells how many seconds means one turn*/
+    private int turnMeansSec = 10;
+    /** Tells how many steps vehicle waits at stop*/
+    private int turnsAtStop = 20;
+    /** Tells if vehicle occupies information Pane*/
+    private boolean informationPaneOccupy = false;
+
+    /**
+     * Native constructor of Vehicle class
+     * @param line is the line to which the vehicle belongs
+     * @param start is the starting point of the vehicle
+     * @param vehicleNumber is the vehicle number
+     * @param mainMap is connection to map
+     * @param mainPubTrans is connection to public transport
+     */
     Vehicle(PTLine line, Coordinate start, int vehicleNumber, Map mainMap, PublicTransport mainPubTrans){
         this.line = line;
         this.vehicle.setStroke(Color.BLACK);
@@ -63,6 +105,9 @@ public class Vehicle implements iVehicle {
         this.mainPubTrans = mainPubTrans;
     }
 
+    /**
+     * Makes a step of vehicle
+     */
     public void ride(){
         if(this.target == null){
             for(int i = 0; i < this.line.getRoute().getRoute().size(); i++){
@@ -70,7 +115,7 @@ public class Vehicle implements iVehicle {
                     if(this.forward){
                         if(i+1 >= this.line.getRoute().getRoute().size()){
                             this.forward = false;
-                            if(this.informationPaneOcuppy){
+                            if(this.informationPaneOccupy){
                                 this.drawInformation();
                             }
                             break;
@@ -85,7 +130,7 @@ public class Vehicle implements iVehicle {
                     } else {
                         if(i-1 < 0){
                             this.forward = true;
-                            if(this.informationPaneOcuppy){
+                            if(this.informationPaneOccupy){
                                 this.drawInformation();
                             }
                             break;
@@ -136,6 +181,10 @@ public class Vehicle implements iVehicle {
         }
     }
 
+    /**
+     * Draws the vehicle to given Pane
+     * @param mapCanvas is the Pane where the vehicle is going to be drawn
+     */
     public void draw(Pane mapCanvas) {
         if (!this.drawn) {
             this.vehicle.setFill(this.line.getLineColor());
@@ -144,6 +193,22 @@ public class Vehicle implements iVehicle {
         }
     }
 
+    /**
+     * Erases the vehicle from a given Pane
+     * @param mapCanvas is the Pane where the vehicle is going to be erased
+     */
+    public void erase(Pane mapCanvas){
+        if(this.drawn){
+            mapCanvas.getChildren().remove(this.vehicle);
+            this.drawn = false;
+        }
+    }
+
+    /**
+     * Moves the vehicle with given values
+     * @param x is the movement amount in X axis
+     * @param y is the movement amount in Y axis
+     */
     public void move(int x, int y){
         this.exactCoordX = this.exactCoordX + x;
         this.exactCoordY = this.exactCoordY + y;
@@ -152,17 +217,22 @@ public class Vehicle implements iVehicle {
         this.vehicle.relocate(this.coord.getX() - 3, this.coord.getY() - 3);
     }
 
-    public void erase(Pane mapCanvas){
-        if(this.drawn){
-            mapCanvas.getChildren().remove(this.vehicle);
-            this.drawn = false;
-        }
-    }
-
+    /**
+     * Sets the orientation of vehicle
+     * @param setTo true means forward false means backward
+     */
     public void setForward(boolean setTo){ this.forward = setTo; }
 
+    /**
+     * Tell the orientation of vehicle
+     * @return true if forward false if backward
+     */
     public boolean getForward(){ return this.forward; }
 
+    /**
+     * Returns the last point from the line route where the vehicle was
+     * @return the list index of the last position of the line route where the vehicle was
+     */
     public int getStartPosition(){
         for(int i = 0; i < this.line.getRoute().getRoute().size(); i++){
             if(this.start.equals(this.line.getRoute().getRoute().get(i))){
@@ -172,15 +242,27 @@ public class Vehicle implements iVehicle {
         return 0;
     }
 
+    /**
+     * Tells how many steps the vehicle did from last route point
+     * @return the amount of steps the vehicle did from last route point
+     */
     public int getTurns(){ return this.turns; }
+
+    /**
+     * Attach the information Pane for the vehicle
+     * @param informationPane the Pane to be attached
+     */
     public void setInformationPane(Pane informationPane){
         this.informationPane = informationPane;
     }
 
+    /**
+     * Draws vehicle schedule on the information Pane
+     */
     public void drawInformation(){
         this.mainPubTrans.setAllVehiclesInformationPaneOccupyFalse();
         this.mainMap.setAllStopInformationPaneOccupyFalse();
-        this.informationPaneOcuppy = true;
+        this.informationPaneOccupy = true;
         this.informationPane.getChildren().clear();
         this.informationPane.setMinHeight((this.line.getRoute().getRoute().size() * 30));
         Rectangle sidePanel = new Rectangle();
@@ -241,6 +323,12 @@ public class Vehicle implements iVehicle {
         this.informationPane.getChildren().add(this.informationPanelVehicle);
     }
 
+    /**
+     * Tell how much time the vehicle needs to arrive to position in current ride. It also gives
+     * negative values for stops that has already been visited this ride.
+     * @param pos is the list index to line route coordinate list
+     * @return amount in app seconds that the vehicle need to get to position (can be negative)
+     */
     public int howMuchTimeTo(int pos) {
         int tmpSeconds = 0;
         if (this.turns > 0) {
@@ -266,6 +354,12 @@ public class Vehicle implements iVehicle {
         return (steps * this.turnMeansSec) + tmpSeconds;
     }
 
+    /**
+     * Tell how much time the vehicle needs to arrive to position. It returns only positive values
+     * how many time it will take for the vehicle to get to stop.
+     * @param pos is the list index to line route coordinate list
+     * @return amount in app seconds that the vehicle need to get to position
+     */
     public int howMuchTimeToNext(int pos){
         int tmpSeconds = 0;
         if(this.turns > 0){
@@ -290,9 +384,27 @@ public class Vehicle implements iVehicle {
         return (steps * this.turnMeansSec) + tmpSeconds;
     }
 
+    /**
+     * Sets amount of seconds that means one turn
+     * @param num is the value that's being set
+     */
     public void setTurnMeansSec(int num){ this.turnMeansSec = num; }
+
+    /**
+     * Sets how many turns vehicle should wait at stop
+     * @param num is the value how many turns the vehicle should wait
+     */
     public void setTurnsAtStop(int num){ this.turnsAtStop = num; }
-    public boolean getInformationPaneOccupy(){ return this.informationPaneOcuppy; }
-    public void setInformationPaneOccupyFalse(){ this.informationPaneOcuppy = false; }
+
+    /**
+     * Tells if this vehicle occupy the information Pane
+     * @return true if vehicle occupies the information Pane false otherwise
+     */
+    public boolean getInformationPaneOccupy(){ return this.informationPaneOccupy; }
+
+    /**
+     * Sets information Pane occupation value to false
+     */
+    public void setInformationPaneOccupyFalse(){ this.informationPaneOccupy = false; }
 
 }

@@ -1,6 +1,5 @@
 package map.maps;
 
-
 import javafx.scene.layout.Pane;
 import lines.line.PublicTransport;
 import map.Imaps.iMap;
@@ -10,25 +9,51 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Map class
+ * implements interface iMap
+ * Used to represent map
+ *
+ * @author Vojtěch Čoupek (xcoupe01)
+ * @author Tadeáš Jůza (xjuzat00)
+ */
 public class Map implements iMap{
 
-    private java.util.List<Street> streets = new java.util.ArrayList<>();   //< array of all streets in map
+    /**Array of all streets in map*/
+    private java.util.List<Street> streets = new java.util.ArrayList<>();
+    /**Connection to public transpotr class*/
     private PublicTransport mainPubTrans;
+    /**Connection to information Pane*/
     private Pane informationPane;
 
-    // adds given street to map
+    /**
+     * Adds given street to map
+     * @param street is street that's going to be added to map
+     */
     public void addStreet(Street street){ this.streets.add(street); }
 
-    // returns all streets saved in map
+    /**
+     * Returns all streets saved in map
+     * @return list of streets
+     */
     public java.util.List<Street> getStreets(){ return this.streets; }
 
-    // makes the whole map visible on given Pane
+    /**
+     * Makes the whole map visible on given Pane
+     * @param mapCanvas the Pane that the map is going to be drawn to
+     */
     public void draw(Pane mapCanvas){
         for (Street street : streets) {
             street.draw(mapCanvas);
         }
     }
 
+    /**
+     * Moves all objects in map
+     * @param mapCanvas is Pane where the map is drawn
+     * @param x is the movement in X axis
+     * @param y is the movement in Y axis
+     */
     public void moveMap(Pane mapCanvas, int x, int y){
         for (Street tmpStreet : this.streets) {
             for (int j = 0; j < tmpStreet.getCoordinates().size(); j++) {
@@ -40,6 +65,11 @@ public class Map implements iMap{
         }
     }
 
+    /**
+     * Returns list index (pointer) into street list in this map for a given street
+     * @param id is the id (probably name) of street
+     * @return list index into street list to street that matches given id (name)
+     */
     public int getMapPointerById(java.lang.String id){
         for(int i = 0; i < this.streets.size(); i++){
             if(this.streets.get(i).getId().equals(id)){
@@ -49,6 +79,11 @@ public class Map implements iMap{
         return 0;
     }
 
+    /**
+     * Tells if given id coresponds to some id (name) of some street in street list
+     * @param id is the id (name) to be inspected
+     * @return true if the id (name) is found false otherwise
+     */
     public boolean isStreet(java.lang.String id){
         for (Street street : this.streets) {
             if (street.getId().equals(id)) {
@@ -58,12 +93,22 @@ public class Map implements iMap{
         return false;
     }
 
+    /**
+     * Turns all street highlights of on given Pane
+     * @param mapCanvas is the Pane where the highlight is going to be turned off
+     */
     public void highlightOffAll(Pane mapCanvas){
         for (Street street : this.streets) {
             street.highlightOff(mapCanvas);
         }
     }
 
+    /**
+     * Loads map from a specified file and draws it on given Pane
+     * @param filePath is the path to the file (.map file recommended)
+     * @param mapCanvas is the Pane where the map is going to be displayed
+     * @return true if successful false otherwise
+     */
     public boolean loadMapFromFile(java.lang.String filePath, Pane mapCanvas){
         try {
             Pattern coordinate = Pattern.compile("\\[(\\d+),(\\d+)]");
@@ -74,7 +119,7 @@ public class Map implements iMap{
             mapCanvas.getChildren().clear();
             while (myReader.hasNextLine()) {
                 String line = myReader.nextLine();
-                if(line.matches("^STREET \\w+ [\\[\\d+,\\d+\\] ]+")){
+                if(line.matches("^STREET \\w+ [\\[\\d+,\\] ]+")){
                     Matcher matchedCoords = coordinate.matcher(line);
                     Matcher matchedName = name.matcher(line);
                     if(matchedName.find() && matchedCoords.find()){
@@ -128,6 +173,10 @@ public class Map implements iMap{
         return true;
     }
 
+    /**
+     * Generates map save file to a given path
+     * @param filePath is the file to which the map is going to be saved
+     */
     public void saveMapToFile(java.lang.String filePath){
         try{
             StringBuilder toSave = new StringBuilder();
@@ -151,6 +200,11 @@ public class Map implements iMap{
         }
     }
 
+    /**
+     * Returns coordinate object from map with same position as given coordinate
+     * @param c is the coordinate to be found
+     * @return coordinate with same position from map
+     */
     public Coordinate getCoord(Coordinate c){
         for (Street street : this.streets) {
             for (int j = 0; j < street.getCoordinates().size(); j++) {
@@ -167,6 +221,11 @@ public class Map implements iMap{
         return null;
     }
 
+    /**
+     * Returns stop object from map with the same position as given coordinate
+     * @param c is the coordinate to be found
+     * @return stop with the same position from map
+     */
     public Stop getStopByCoord(Coordinate c){
         for (Street street : this.streets) {
             for (int j = 0; j < street.getStops().size(); j++) {
@@ -178,8 +237,21 @@ public class Map implements iMap{
         return null;
     }
 
+    /**
+     * Attaches public transport connection to map
+     * @param mainPubTrans is the public transport to be added
+     */
     public void attachPubTrans(PublicTransport mainPubTrans){ this.mainPubTrans = mainPubTrans; }
+
+    /**
+     * Attaches information Pane connection to map
+     * @param informationPane is the Pane to be attached
+     */
     public void attachInformationPane(Pane informationPane){ this.informationPane = informationPane; }
+
+    /**
+     * Sets all stops occupation property to false
+     */
     public void setAllStopInformationPaneOccupyFalse(){
         for (Street street : this.streets) {
             for (int j = 0; j < street.getStops().size(); j++) {
@@ -187,6 +259,11 @@ public class Map implements iMap{
             }
         }
     }
+
+    /**
+     * Returns the stop that haves occupation property set to true
+     * @return stop with occupation property equals to true
+     */
     public Stop getStopThatOccupiesInformationPane(){
         for (Street street : this.streets) {
             for (int j = 0; j < street.getStops().size(); j++) {

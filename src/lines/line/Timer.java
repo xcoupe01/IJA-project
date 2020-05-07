@@ -2,11 +2,26 @@ package lines.line;
 
 import lines.Iline.iTimer;
 
+/**
+ * Timer class
+ * implements interface iTimer
+ * Used to represent time
+ *
+ * @author Vojtěch Čoupek (xcoupe01)
+ * @author Tadeáš Jůza (xjuzat00)
+ */
 public class Timer implements iTimer {
+
+    /** Seconds, max value 59*/
     private int seconds = 0;
+    /** Minutes equals 60 seconds, max value 59*/
     private int minutes = 0;
+    /** Hours equals 60 minutes, max value 23*/
     private int hours = 0;
 
+    /**
+     * Adds second to timer
+     */
     public void addSecond(){
         this.seconds++;
         if(this.seconds >= 60){
@@ -22,6 +37,9 @@ public class Timer implements iTimer {
         }
     }
 
+    /**
+     * Subtracts second from timer
+     */
     public void subSecond(){
         this.seconds --;
         if(this.seconds < 0){
@@ -37,6 +55,10 @@ public class Timer implements iTimer {
         }
     }
 
+    /**
+     * Adds specified amount of seconds to timer
+     * @param num is amount of seconds to be added (can be negative)
+     */
     public void addSeconds(int num){
         int i;
         if(num > 0){
@@ -51,13 +73,40 @@ public class Timer implements iTimer {
         }
     }
 
+    /**
+     * Tells actual time seconds
+     * @return actual time seconds
+     */
     public int getSeconds(){ return this.seconds; }
+
+    /**
+     * Tells actual time minutes
+     * @return actual time minutes
+     */
     public int getMinutes(){ return this.minutes; }
+
+    /**
+     * Tells actual time hours
+     * @return actual time hours
+     */
     public int getHours(){ return this.hours; }
+
+    /**
+     * Sets timer to specified time
+     * @param seconds is number of seconds (if the value is wrong it wont be added)
+     * @param minutes is number of minutes (if the value is wrong it wont be added)
+     * @param hours is number of hours (if the value is wrong it wont be added)
+     */
     public void set(int seconds, int minutes, int hours){
-        this.seconds = seconds;
-        this.minutes = minutes;
-        this.hours = hours;
+        if(seconds >= 0 && seconds < 60){
+            this.seconds = seconds;
+        }
+        if(minutes >= 0 && minutes < 60){
+            this.minutes = minutes;
+        }
+        if(hours >= 0 && hours < 60){
+            this.hours = hours;
+        }
     }
 
 }

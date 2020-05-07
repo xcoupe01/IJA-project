@@ -10,18 +10,43 @@ import lines.line.Timer;
 import map.Imaps.iStop;
 import static javafx.scene.Cursor.cursor;
 
+/**
+ * Stop class
+ * implements interface iStop
+ * Used to represent stop in map
+ *
+ * @author Vojtěch Čoupek (xcoupe01)
+ * @author Tadeáš Jůza (xjuzat00)
+ */
 public class Stop implements iStop{
 
-    private Coordinate coord;                              //< Coordinates of the stop
-    private java.lang.String name;                         //< name of the stop
-    private Street street;                                 //< Street to which this stop belongs
-    private boolean drawn;                                 //< tells if the Stop is visible
-    private Rectangle stop = new Rectangle(6, 6);   //< graphical stop object
+    /**Coordinates of the stop*/
+    private Coordinate coord;
+    /**Name of the stop*/
+    private java.lang.String name;
+    /**Street to which this stop belongs*/
+    private Street street;
+    /**Tells if the Stop is visible*/
+    private boolean drawn;
+    /**Graphical stop object*/
+    private Rectangle stop = new Rectangle(6, 6);
+    /**Public transport connection*/
     private PublicTransport mainPubTrans;
+    /**Information pane connection - to display information to*/
     private Pane informationPane;
+    /**Map connection*/
     private Map mainMap;
+    /**Tells if the stop is currently displaying the information on information Pane*/
     private boolean informationPaneOccupy = false;
 
+    /**
+     * Native stop constructor
+     * @param name is the name of the stop
+     * @param coord is the coordinate of the stop
+     * @param mainPubTrans is connection to PublicTransport class
+     * @param informationPane is connection to information Pane
+     * @param mainMap is connection to Map class
+     */
     public Stop(java.lang.String name, Coordinate coord, PublicTransport mainPubTrans, Pane informationPane, Map mainMap){
         this.name = name;
         this.coord = coord;
@@ -36,19 +61,34 @@ public class Stop implements iStop{
         this.stop.setOnMouseClicked(t -> this.drawInformation());
     }
 
-    // returns the Coordinates of the stop
+    /**
+     * Returns the Coordinates of the stop
+     * @return coordinate of the stop
+     */
     public Coordinate getCoord(){ return this.coord; }
 
-    // returns the name of the stop
+    /**
+     * Returns the name of the stop
+     * @return name of the stop
+     */
     public java.lang.String getName(){ return this.name; }
 
-    // returns the street to which Stop belongs
+    /**
+     * Returns the street to which Stop belongs
+     * @return street to which this stop belongs
+     */
     public Street getStreet(){ return this.street; }
 
-    // sets the street to which Stop belongs
+    /**
+     * Sets the street to which stop belongs
+     * @param street is the street to which the stop is going to be signed
+     */
     public void setStreet(Street street){ this.street = street; }
 
-    // makes the Stop visible on given Pane
+    /**
+     * Makes the stop visible on given Pane
+     * @param mapCanvas is the Pane where the stop is going to be drawn
+     */
     public void draw(Pane mapCanvas){
         if(!drawn) {
             mapCanvas.getChildren().add(this.stop);
@@ -56,7 +96,10 @@ public class Stop implements iStop{
         }
     }
 
-    // erases stop from mapCanvas
+    /**
+     * Erases stop from a given Pane
+     * @param mapCanvas is the pane where the stop is going to be erased
+     */
     public void erase(Pane mapCanvas){
         if(this.drawn){
             mapCanvas.getChildren().remove(this.stop);
@@ -64,7 +107,12 @@ public class Stop implements iStop{
         }
     }
 
-    // moves stop with specified value
+    /**
+     * Moves stop with specified value
+     * @param mapCanvas is the Pane where the stop is drawn
+     * @param x is the movement in X axis
+     * @param y is the movement in Y axis
+     */
     public void moveStop(Pane mapCanvas, int x, int y){
         this.coord.setMoved();
         this.coord.moveCoord(mapCanvas, x, y);
@@ -77,6 +125,10 @@ public class Stop implements iStop{
         }
     }
 
+    /**
+     * Draws information about stop such as stop name, lines that stops at this
+     * stop and time that vehicles of some line need to get to this stop
+     */
     public void drawInformation(){
         this.mainPubTrans.setAllVehiclesInformationPaneOccupyFalse();
         this.mainMap.setAllStopInformationPaneOccupyFalse();
@@ -133,7 +185,15 @@ public class Stop implements iStop{
         this.informationPane.getChildren().addAll(sidePanel, stopText);
     }
 
+    /**
+     * Returns if the information in the information panel is being displayed
+     * @return true if stop is displaying its information
+     */
     public boolean getInformationPaneOccupy(){ return this.informationPaneOccupy; }
+
+    /**
+     * Sets information pane occupation to false
+     */
     public void InformationPaneOccupyFalse(){ this.informationPaneOccupy = false; }
 
 }

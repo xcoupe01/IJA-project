@@ -1,6 +1,5 @@
 package sample;
 
-
 import javafx.scene.Scene;
 // import javafx.scene.canvas.Canvas;
 // import javafx.scene.canvas.GraphicsContext;
@@ -22,12 +21,31 @@ import map.maps.Street;
 import javafx.application.Application;
 import static java.lang.StrictMath.abs;
 
+/**
+ * IJA VUT FIT Project for year 2020
+ *
+ * This program simulates public transport in a city. Its developed in Java 11 but Its meant to run
+ * in Java SE 8 with corresponding JavaFX framework. Its fully self sufficient and does not need any other
+ * files to run, but it can load specialized files ".map" and ".lines".
+ *
+ * This is the main class of the whole project which generates window and set up all UI elements.
+ *
+ * @author Vojtěch Čoupek (xcoupe01)
+ * @author Tadeáš Jůza (xjuzat00)
+ */
 public class Main extends Application {
 
+    /** Current drag position X axis*/
     private int dragLocationX = - 1;
+    /** Current drag position Y axis*/
     private int dragLocationY = - 1;
+    /** Current zoom value*/
     private int zoomValue = 50;
 
+    /**
+     * Start of the whole applicaton, sets all UI elements and sets the main objects
+     * @param primaryStage is the window to be used
+     */
     public void start(Stage primaryStage) {
 
         // parameters
@@ -645,6 +663,11 @@ public class Main extends Application {
 
     }
 
+    /**
+     * Update street combo box menu to current map situation
+     * @param streetMenu is the combo box to be set
+     * @param map is the map to to be set from
+     */
     private void updateStreetMenu(ComboBox streetMenu, Map map){
         streetMenu.getItems().clear();
         for(int i = 0; i < map.getStreets().size(); i++){
@@ -654,6 +677,12 @@ public class Main extends Application {
         streetMenu.setEditable(true);
     }
 
+    /**
+     * Update lines combo box menu to current lines situation and sets new line button to new value
+     * @param linesMenu is the combo box to be set
+     * @param PT is the public transport
+     * @param newLineNum is the new line button
+     */
     private void updateLinesMenu(ComboBox linesMenu, PublicTransport PT, Button newLineNum){
         linesMenu.getItems().clear();
         for(int i = 0; i < PT.getLines().size(); i++){
@@ -674,7 +703,10 @@ public class Main extends Application {
         }
     }
 
-
+    /**
+     * Main function
+     * @param args arguments
+     */
     public static void main(String[] args) {
         launch(args);
     }

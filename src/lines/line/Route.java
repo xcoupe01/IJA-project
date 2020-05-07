@@ -6,21 +6,47 @@ import map.maps.Coordinate;
 import javafx.scene.shape.Line;
 import map.maps.Map;
 
-
+/**
+ * Route class
+ * implements interface iRoute
+ * Used to represent lines in public transport
+ *
+ * @author Vojtěch Čoupek (xcoupe01)
+ * @author Tadeáš Jůza (xjuzat00)
+ */
 public class Route implements iRoute {
+
+    /** Is the coordinates of the route points*/
     private java.util.List<Coordinate> coords = new java.util.ArrayList<>();
+    /** Is the types of the coordinates form "coords", "point" means regular coordinate "stop" means stop*/
     private java.util.List<java.lang.String> type = new java.util.ArrayList<>();
+    /** Is the graphical highlight of the line*/
     private java.util.List<Line> lineHighlight = new java.util.ArrayList<>();
+    /** Is the line to which the route belongs to*/
     private PTLine line;
+    /** Tells if the route highlight is visible*/
     private boolean drawn = false;
+    /** Is the connection to map*/
     private Map map;
 
+    /**
+     * Native constructor of Route class
+     * @param map is the map connection
+     * @param line is the line connection
+     */
     Route(Map map, PTLine line){
         this.line = line;
         this.map = map;
         line.setRoute(this);
     }
 
+    /**
+     * Tells if a given coordinate can be added to route. The condition is that the point must be in the map,
+     * the first point must be a stop and the the next must be directly connected with street.
+     * @param c is the point to be checked
+     * @param type type of the point, "point" if regular coordinate "stop" if stop
+     * @return true if it matches the condition false otherwise
+     */
     public boolean canAdd(Coordinate c, java.lang.String type){
         if(!(this.coords.size() > 0)){
             return type.equals("stop");
@@ -61,6 +87,11 @@ public class Route implements iRoute {
         return false;
     }
 
+    /**
+     * Adds given stop to route if its possible
+     * @param c is the coordinate of the stop we want to add
+     * @return true if the operation was successful false otherwise
+     */
     public boolean addStop(Coordinate c){
         if(canAdd(c, "stop")){
             this.coords.add(map.getCoord(c));
@@ -77,6 +108,11 @@ public class Route implements iRoute {
         return false;
     }
 
+    /**
+     * Adds given point to route if its possible
+     * @param c is the coordinate we want to add
+     * @return true if the operation was successful
+     */
     public boolean addPoint(Coordinate c){
         if(canAdd(c, "point")){
             this.coords.add(map.getCoord(c));
@@ -93,6 +129,10 @@ public class Route implements iRoute {
         return false;
     }
 
+    /**
+     * Updates route highlight on given Pane
+     * @param mapCanvas is the Pane where the highlight is going to be updated
+     */
     public void updateRouteHighlight(Pane mapCanvas){
         boolean tmp = drawn;
         this.erase(mapCanvas);
@@ -108,10 +148,22 @@ public class Route implements iRoute {
         }
     }
 
+    /**
+     * Tells if the route is complete which means if the first and last points are stops
+     * @return true if the route is complete
+     */
     public boolean completeRoute(){ return this.type.get(0).equals("stop") && this.type.get(this.type.size() - 1).equals("stop"); }
 
+    /**
+     * Returns the list of coordinates that describes the route
+     * @return list of coordinates that describes the route
+     */
     public java.util.List<Coordinate> getRoute(){ return this.coords; }
 
+    /**
+     * Returns the list of coordinate types that describes the route
+     * @return list of coordinate types that describes the route
+     */
     public java.util.List<java.lang.String> getRouteType(){ return this.type; }
 
     public void draw(Pane mapCanvas){
@@ -123,6 +175,10 @@ public class Route implements iRoute {
         }
     }
 
+    /**
+     * Erase the route highlight from a given Pane
+     * @param mapCanvas the Pane where the highlight route is going to be erased
+     */
     public void erase(Pane mapCanvas){
         if(this.drawn){
             this.drawn = false;
@@ -132,6 +188,10 @@ public class Route implements iRoute {
         }
     }
 
+    /**
+     * Removes last point that defines route
+     * @param mapCanvas is the Pane where the route is drawn
+     */
     public void removeLast(Pane mapCanvas){
         if(this.coords.size() > 1){
             this.coords.remove(this.coords.size() - 1);
