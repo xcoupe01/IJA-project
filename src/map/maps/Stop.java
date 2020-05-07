@@ -118,7 +118,13 @@ public class Stop implements iStop{
             }
         }
         sidePanel.setWidth(30);
-        sidePanel.setHeight(lines * 20 + 320);
+        if(lines * 20 < 300){
+            sidePanel.setHeight(300);
+            this.informationPane.setMinHeight(300);
+        } else {
+            sidePanel.setHeight(lines * 20);
+            this.informationPane.setMinHeight(lines * 20);
+        }
         sidePanel.setFill(Paint.valueOf("CADETBLUE"));
         Text stopText = new Text("Stop ".concat(this.name));
         stopText.setRotate(-90);

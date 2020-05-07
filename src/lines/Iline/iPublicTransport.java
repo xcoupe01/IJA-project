@@ -26,4 +26,7 @@ public interface iPublicTransport{
     void updateTimeDisplay();
     void setAllVehiclesInformationPaneOccupyFalse();
     Vehicle getVehicleOccupyInformationPaneTrue();
+    void setAnimationStepDelay(int num);
+    int getAnimationStepDelay();
+    int getTickMeansSec();
 }

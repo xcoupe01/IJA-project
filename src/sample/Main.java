@@ -10,6 +10,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lines.line.PTLine;
@@ -76,17 +77,23 @@ public class Main extends Application {
         Button addLine = new Button("Add line");
         ColorPicker newLineColor = new ColorPicker();
         ToggleButton addVehicle = new ToggleButton("Add vehicle");
-        Button test = new Button("Pause");
-        Button test2 = new Button("Run");
         // overview list
+        Label timeDisplay = new Label();
+        Button pauseButton = new Button("Pause");
+        Button runButton = new Button("Run");
+        Slider animationSpeed = new Slider(1, 150, 100);
         Pane lineInformationPane = new Pane();
         ScrollPane lineInformationPaneWrap = new ScrollPane();
-        Label timeDisplay = new Label();
+        Button realTimeAnimationSpeed = new Button("Real time speed");
 
 
         primaryStage.setOnCloseRequest(event -> mainPubTrans.setStopAnimator(true));
         lineInformationPaneWrap.setContent(lineInformationPane);
         //lineInformationPane.setStyle("-fx-background-color: WHITE");
+        Text lineInformationPaneStartText = new Text("This window will show\ndetail informations if you\nclick on vehicle or stop");
+        lineInformationPaneStartText.setY(50);
+        lineInformationPaneStartText.setX(20);
+        lineInformationPane.getChildren().add(lineInformationPaneStartText);
         lineInformationPaneWrap.fitToHeightProperty().set(true);
         lineInformationPaneWrap.setPrefWidth(menuWidth);
         mainPubTrans.setTimeDisplay(timeDisplay);
@@ -105,10 +112,14 @@ public class Main extends Application {
                 removeLastLinePoint, addVehicle, toggleLineHighlight, deleteLine, addLine,
                 newLineColor, loadPublicTransp, savePublicTransp);
 
-        overview.getChildren().addAll(test, test2, timeDisplay, lineInformationPaneWrap);
+        overview.getChildren().addAll(timeDisplay, runButton, pauseButton, animationSpeed, realTimeAnimationSpeed, lineInformationPaneWrap);
+        realTimeAnimationSpeed.setPrefWidth(menuWidth);
+        realTimeAnimationSpeed.setOnAction(event -> mainPubTrans.setAnimationStepDelay(mainPubTrans.getTickMeansSec() * 1000));
+        animationSpeed.setPrefHeight(runButton.getPrefHeight());
 
         lineInformationPane.setPrefHeight(menuWidth);
         lineInformationPane.setPrefWidth(10);
+        timeDisplay.setPrefHeight(runButton.getPrefHeight());
 
         mapMenuButton.setOnAction(event -> {
             if(mapMenuButton.isSelected()){
@@ -272,6 +283,24 @@ public class Main extends Application {
                         mainPubTrans.updatePTPos(overlay, 0, 0);
                     }
                 }
+            } else if (addVehicle.isSelected() && lineMenuButton.isSelected()){
+                double distance = 99999999;
+                Coordinate mouseCoord = new Coordinate((int) event.getX(), (int) event.getY());
+                for (int i = 0; i < linesMenu.getItems().size(); i++){
+                    if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
+                        int pos = 0;
+                        for(int j = 0; j < mainPubTrans.getLines().get(i).getRoute().getRoute().size(); j++){
+                            if(mainPubTrans.getLines().get(i).getRoute().getRoute().get(j).distance(mouseCoord) < distance){
+                                pos = j;
+                                distance = mainPubTrans.getLines().get(i).getRoute().getRoute().get(j).distance(mouseCoord);
+                            }
+                        }
+                        mainPubTrans.getLines().get(i).addVehicle(pos, mainPubTrans);
+                        mainPubTrans.getLines().get(i).getVehicles().get(mainPubTrans.getLines().get(i).getVehicles().size() - 1).draw(overlay);
+                        break;
+                    }
+                }
+
             }
         });
         overlay.setOnMousePressed(event ->{
@@ -339,6 +368,26 @@ public class Main extends Application {
                                 }
                             }
                         }
+                        break;
+                    }
+                }
+                highlightPoint.setFill(Paint.valueOf("RED"));
+                highlightPoint.relocate(tmpCoord.getX() - 5, tmpCoord.getY() - 5);
+                overlay.getChildren().remove(highlightPoint);
+                overlay.getChildren().add(highlightPoint);
+            } else if(addVehicle.isSelected() && lineMenuButton.isSelected()){
+                double distance = 99999999;
+                Coordinate mouseCoord = new Coordinate((int) event.getX(), (int) event.getY());
+                Coordinate tmpCoord = new Coordinate(0, 0);
+                for (int i = 0; i < linesMenu.getItems().size(); i++){
+                    if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
+                        for(int j = 0; j < mainPubTrans.getLines().get(i).getRoute().getRoute().size(); j++){
+                            if(mainPubTrans.getLines().get(i).getRoute().getRoute().get(j).distance(mouseCoord) < distance){
+                                tmpCoord = mainPubTrans.getLines().get(i).getRoute().getRoute().get(j);
+                                distance = mainPubTrans.getLines().get(i).getRoute().getRoute().get(j).distance(mouseCoord);
+                            }
+                        }
+                        break;
                     }
                 }
                 highlightPoint.setFill(Paint.valueOf("RED"));
@@ -561,11 +610,18 @@ public class Main extends Application {
 
         addVehicle.setPrefWidth(menuWidth);
         addVehicle.setOnAction(event -> {
-
+            //TODO
         });
 
-        linesMenu.setPrefWidth(menuWidth);
+        pauseButton.setPrefWidth(menuWidth);
+        pauseButton.setOnAction(event -> mainPubTrans.setStopAnimator(true));
+        runButton.setPrefWidth(menuWidth);
+        runButton.setOnAction(event -> mainPubTrans.playAnimator());
+        //animationSpeed.setShowTickMarks(true);
+        //animationSpeed.setShowTickLabels(true);
+        animationSpeed.setOnMouseDragged(event -> mainPubTrans.setAnimationStepDelay((int) animationSpeed.getValue()));
 
+        linesMenu.setPrefWidth(menuWidth);
         streetMenu.setPrefWidth(menuWidth);
         newStopName.setText("name of new stop");
         mapMenuLabel.setPrefWidth(menuWidth);
@@ -587,29 +643,6 @@ public class Main extends Application {
         updateLinesMenu(linesMenu, mainPubTrans, addLine);
         mainMap.draw(overlay);
 
-
-
-        test.setOnAction(event -> {
-
-            mainPubTrans.setStopAnimator(true);
-
-            /*
-            mainPubTrans.animationStep();
-            mainPubTrans.animationStep();
-            mainPubTrans.animationStep();
-            mainPubTrans.animationStep();
-            mainPubTrans.animationStep();
-            mainPubTrans.animationStep();
-            */
-        });
-
-        test2.setOnAction(event -> {
-            mainPubTrans.playAnimator();
-        });
-        /*
-        test
-
-        */
     }
 
     private void updateStreetMenu(ComboBox streetMenu, Map map){

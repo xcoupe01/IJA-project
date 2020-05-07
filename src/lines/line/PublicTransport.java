@@ -21,6 +21,8 @@ public class PublicTransport implements iPublicTransport {
     private int ticksAtStop = 20;
     private Map mainMap;
     private boolean stopAnimator = true;
+    private int animationStepDelay = 100;
+    private boolean animatorPlaying = false;
 
     public PublicTransport(Map mainMap){
         this.mainMap = mainMap;
@@ -229,11 +231,20 @@ public class PublicTransport implements iPublicTransport {
     public boolean getStopAnimator(){ return this.stopAnimator; }
     public void setStopAnimator(boolean stopAnimator){
         this.stopAnimator = stopAnimator;
+        this.animatorPlaying = false;
         if(!stopAnimator){
             this.mainAnimator.resetThread();
         }
     }
-    public void playAnimator(){ this.mainAnimator.start();}
+    public void playAnimator(){
+        if(!this.animatorPlaying){
+            this.mainAnimator.start();
+            this.animatorPlaying = true;
+        }
+    }
+    public void setAnimationStepDelay(int num){ this.animationStepDelay = num; }
+    public int getAnimationStepDelay(){ return this.animationStepDelay; }
+    public int getTickMeansSec(){ return this.tickMeansSec; }
 
     //TODO generate daily timetable
 }

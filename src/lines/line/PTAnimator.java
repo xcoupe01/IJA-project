@@ -17,7 +17,7 @@ public class PTAnimator implements Runnable {
                 Platform.runLater(
                         () -> this.mainPubTrans.animationStep()
                 );
-                Thread.sleep(100);
+                Thread.sleep(this.mainPubTrans.getAnimationStepDelay());
             }
         } catch (InterruptedException e){
             System.out.println("Animator Interrupted");
