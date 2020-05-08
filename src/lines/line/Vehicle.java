@@ -20,7 +20,7 @@ import static javafx.scene.Cursor.cursor;
  */
 public class Vehicle implements iVehicle {
 
-    /** Graphicla object of vehicle*/
+    /** Graphical object of vehicle*/
     private Circle vehicle = new Circle(3);
     /** Graphical object of the vehicle in the information Pane*/
     private Circle informationPanelVehicle = new Circle(3);
@@ -406,5 +406,47 @@ public class Vehicle implements iVehicle {
      * Sets information Pane occupation value to false
      */
     public void setInformationPaneOccupyFalse(){ this.informationPaneOccupy = false; }
+
+    /**
+     * Returns the coordinate of the starting point of the vehicle
+     * @return the coordinate of the starting point of the vehicle
+     */
+    public Coordinate getStartCoordinate(){ return this.start; }
+
+    /**
+     * Switches the orientation of the vehicle anywhere on the route. It does not just
+     * switch the "forward" value but rather prepares it for going other direction.
+     */
+    public void switchDirection(){
+        if(this.wait > 0){
+            int tmpWait = this.turnsAtStop - this.wait;
+            this.wait = 0;
+            this.forward = !this.forward;
+            this.target = this.start;
+            this.ride();
+            this.wait = tmpWait;
+        } else {
+            Vehicle tmpVehicle = new Vehicle(this.line, this.start, 0, this.mainMap, this.mainPubTrans);
+            tmpVehicle.setForward(this.forward);
+            int counter = 0;
+            while(tmpVehicle.getStartCoordinate().equals(this.target)){
+                tmpVehicle.ride();
+                counter++;
+            }
+            this.targetType = this.line.getRoute().getRouteType().get(this.informationPaneCounter);
+            if(this.forward){
+                this.informationPaneCounter ++;
+            } else {
+                this.informationPaneCounter --;
+            }
+            this.turns = counter - this.turns;
+            this.travelPieceX = - this.travelPieceX;
+            this.travelPieceY = - this.travelPieceY;
+            this.forward = !this.forward;
+            Coordinate tmpCoord = this.start;
+            this.start = this.target;
+            this.target = tmpCoord;
+        }
+    }
 
 }

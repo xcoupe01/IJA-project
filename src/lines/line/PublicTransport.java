@@ -44,6 +44,8 @@ public class PublicTransport implements iPublicTransport {
     /** Tells if the animator is playing*/
     private boolean animatorPlaying = false;
 
+    //TODO generate daily timetable
+
     /**
      * Native constructor of PublicTransport class
      * @param mainMap is the connection to map
@@ -90,6 +92,7 @@ public class PublicTransport implements iPublicTransport {
             Pattern lineCoordinate = Pattern.compile("\\[(\\w+),(\\d+)]");
             Pattern properties = Pattern.compile("^LINE (\\d+) (\\w+)");
             Pattern vehicle = Pattern.compile("^VEHICLE (\\d+) (\\w+) (\\d+)$");
+            Pattern time = Pattern.compile("^TIME (\\d+):(\\d+):(\\d+)$");
             File myFile = new File(filePath);
             Scanner myReader = new Scanner(myFile);
             this.eraseAllVehicles(mapCanvas);
@@ -97,7 +100,7 @@ public class PublicTransport implements iPublicTransport {
             this.lines.clear();
             while(myReader.hasNextLine()){
                 String line = myReader.nextLine();
-                if(line.matches("^LINE \\d+ \\w+ [\\[\\w+,\\d+\\]\\s*]+$")){
+                if(line.matches("^LINE \\d+ \\w+ [\\[\\w+,\\d\\]\\s*]+$")){
                     Matcher matchedProperties = properties.matcher(line);
                     Matcher matchedLineCoords = lineCoordinate.matcher(line);
                     if(matchedLineCoords.find() && matchedProperties.find()){
@@ -139,6 +142,15 @@ public class PublicTransport implements iPublicTransport {
                     } else {
                         return false;
                     }
+                } else if(line.matches("^TIME \\d+:\\d+:\\d+$")){
+                    Matcher matchedTime = time.matcher(line);
+                    if(matchedTime.find()){
+                        if(Integer.parseInt(matchedTime.group(1)) >= 0 && Integer.parseInt(matchedTime.group(1)) < 24 &&
+                                Integer.parseInt(matchedTime.group(2)) >= 0 && Integer.parseInt(matchedTime.group(2)) < 60 &&
+                                Integer.parseInt(matchedTime.group(3)) >= 0 && Integer.parseInt(matchedTime.group(3)) < 60){
+                            this.mainTimer.set(Integer.parseInt(matchedTime.group(3)), Integer.parseInt(matchedTime.group(2)),Integer.parseInt(matchedTime.group(1)));
+                        }
+                    }
                 } else if(!line.matches("")){
                     return false;
                 }
@@ -148,6 +160,7 @@ public class PublicTransport implements iPublicTransport {
             return false;
         }
     this.drawAllVehicles(mapCanvas);
+        this.updateTimeDisplay();
     return true;
     }
 
@@ -161,6 +174,8 @@ public class PublicTransport implements iPublicTransport {
             StringBuilder toSave = new StringBuilder();
             FileWriter savefile = new FileWriter(filePath, false);
             BufferedWriter file = new BufferedWriter(savefile);
+            toSave.append("TIME ").append(this.mainTimer.getHours()).append(":").append(this.mainTimer.getMinutes())
+                    .append(":").append(this.mainTimer.getSeconds()).append("\n");
             for (PTLine line : this.lines) {
                 toSave.append("LINE ").append(line.getLineNumber()).append(" ").append(line.getLineColor());
                 boolean appended = false;
@@ -253,6 +268,20 @@ public class PublicTransport implements iPublicTransport {
      */
     public void animationStep(){
         this.mainTimer.addSeconds(this.tickMeansSec);
+        this.updateTimeDisplay();
+        for (PTLine line : this.lines) {
+            line.rideAllVehicles();
+        }
+        if(this.mainMap.getStopThatOccupiesInformationPane() != null){
+            this.mainMap.getStopThatOccupiesInformationPane().drawInformation();
+        }
+    }
+
+    /**
+     * The same as animationStep function, but it subtracts from timer
+     */
+    public void oppositeAnimationStep(){
+        this.mainTimer.addSeconds(- this.tickMeansSec);
         this.updateTimeDisplay();
         for (PTLine line : this.lines) {
             line.rideAllVehicles();
@@ -379,5 +408,14 @@ public class PublicTransport implements iPublicTransport {
      */
     public int getTickMeansSec(){ return this.tickMeansSec; }
 
-    //TODO generate daily timetable
+    /**
+     * Switch direction of all vehicles in the public transport system
+     */
+    public void switchDirectionAllVehicles(){
+        for (PTLine line : this.lines) {
+            for (int j = 0; j < line.getVehicles().size(); j++) {
+                line.getVehicles().get(j).switchDirection();
+            }
+        }
+    }
 }

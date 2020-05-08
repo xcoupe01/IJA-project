@@ -1,6 +1,7 @@
 package lines.Iline;
 
 import javafx.scene.layout.Pane;
+import map.maps.Coordinate;
 
 /**
  * iVehicle interface
@@ -109,6 +110,18 @@ public interface iVehicle{
      * Sets information Pane occupation value to false
      */
     void setInformationPaneOccupyFalse();
+
+    /**
+     * Returns the coordinate of the starting point of the vehicle
+     * @return the coordinate of the starting point of the vehicle
+     */
+    Coordinate getStartCoordinate();
+
+    /**
+     * Switches the orientation of the vehicle anywhere on the route. It does not just
+     * switch the "forward" value but rather prepares it for going other direction.
+     */
+    void switchDirection();
 
 
 }

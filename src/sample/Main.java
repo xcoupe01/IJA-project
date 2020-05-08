@@ -1,8 +1,6 @@
 package sample;
 
 import javafx.scene.Scene;
-// import javafx.scene.canvas.Canvas;
-// import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -41,6 +39,13 @@ public class Main extends Application {
     private int dragLocationY = - 1;
     /** Current zoom value*/
     private int zoomValue = 50;
+    /** Selected time travel minutes value*/
+    private int timeTravelMinutesValue = 0;
+    /** Selected time travel hours value*/
+    private int timeTravelHoursValue = 0;
+
+    //TODO zoom mapCanvas with ScrollPane
+    //TODO add button collision control
 
     /**
      * Start of the whole applicaton, sets all UI elements and sets the main objects
@@ -103,21 +108,35 @@ public class Main extends Application {
         Pane lineInformationPane = new Pane();
         ScrollPane lineInformationPaneWrap = new ScrollPane();
         Button realTimeAnimationSpeed = new Button("Real time speed");
+        HBox timeTravelMenuButtons = new HBox();
+        HBox timeTravelButtons = new HBox();
+        MenuButton timeTravelHours = new MenuButton();
+        MenuButton timeTravelMinutes = new MenuButton();
+        Button timeTravelPast = new Button("To past");
+        Button timeTravelFuture = new Button("To future");
 
-
+        // kills animator thread when application is closed
         primaryStage.setOnCloseRequest(event -> mainPubTrans.setStopAnimator(true));
+
+        // information Pane settings
         lineInformationPaneWrap.setContent(lineInformationPane);
         //lineInformationPane.setStyle("-fx-background-color: WHITE");
-        Text lineInformationPaneStartText = new Text("This window will show\ndetail informations if you\nclick on vehicle or stop");
+        Text lineInformationPaneStartText = new Text("This window will show\ndetail information if you\nclick on vehicle or stop");
         lineInformationPaneStartText.setY(50);
         lineInformationPaneStartText.setX(20);
         lineInformationPane.getChildren().add(lineInformationPaneStartText);
         lineInformationPaneWrap.fitToHeightProperty().set(true);
         lineInformationPaneWrap.setPrefWidth(menuWidth);
+        mainMap.attachInformationPane(lineInformationPane);
+        lineInformationPane.setPrefHeight(menuWidth);
+        lineInformationPane.setPrefWidth(10);
+
+        // timer settings
         mainPubTrans.setTimeDisplay(timeDisplay);
         mainPubTrans.updateTimeDisplay();
-        mainMap.attachInformationPane(lineInformationPane);
+        timeDisplay.setPrefHeight(runButton.getPrefHeight());
 
+        // main menu builder
         mapMenuButton.setPrefWidth(menuWidth/3);
         lineMenuButton.setPrefWidth(menuWidth/3);
         overviewButton.setPrefWidth(menuWidth/3);
@@ -130,15 +149,17 @@ public class Main extends Application {
                 removeLastLinePoint, addVehicle, toggleLineHighlight, deleteLine, addLine,
                 newLineColor, loadPublicTransp, savePublicTransp);
 
-        overview.getChildren().addAll(timeDisplay, runButton, pauseButton, animationSpeed, realTimeAnimationSpeed, lineInformationPaneWrap);
+        overview.getChildren().addAll(timeDisplay, runButton, pauseButton, animationSpeed,
+                realTimeAnimationSpeed, timeTravelMenuButtons, timeTravelButtons, lineInformationPaneWrap);
+
+        // real time animation button settings
         realTimeAnimationSpeed.setPrefWidth(menuWidth);
         realTimeAnimationSpeed.setOnAction(event -> mainPubTrans.setAnimationStepDelay(mainPubTrans.getTickMeansSec() * 1000));
+
+        // animation speed slider settings
         animationSpeed.setPrefHeight(runButton.getPrefHeight());
 
-        lineInformationPane.setPrefHeight(menuWidth);
-        lineInformationPane.setPrefWidth(10);
-        timeDisplay.setPrefHeight(runButton.getPrefHeight());
-
+        // menu bar button settings
         mapMenuButton.setOnAction(event -> {
             if(mapMenuButton.isSelected()){
                 if(lineMenuButton.isSelected()){
@@ -188,11 +209,63 @@ public class Main extends Application {
         });
 
         menuListChooser.getChildren().addAll(overviewButton, mapMenuButton, lineMenuButton);
-
-        //Canvas canvas = new Canvas(300, 300);
-        //GraphicsContext gc = canvas.getGraphicsContext2D();
         menu.setBackground(new Background(new BackgroundFill(Paint.valueOf("GRAY"), null, null)));
-        // overlay.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
+        // time travel settings
+        for(int i = 0; i < 24; i++){
+            int finalI = i;
+            MenuItem tmpMenuItem = new MenuItem(String.valueOf(i));
+            tmpMenuItem.setOnAction(event -> {
+                timeTravelHours.setText(String.valueOf(finalI));
+                this.timeTravelHoursValue = finalI;
+            });
+            timeTravelHours.getItems().add(i, tmpMenuItem);
+        }
+        for(int i = 0; i < 60; i++){
+            int finalI = i;
+            MenuItem tmpMenuItem = new MenuItem();
+            if(i < 10){
+                tmpMenuItem.setText("0".concat(String.valueOf(i)));
+                tmpMenuItem.setOnAction(event -> {
+                    timeTravelMinutes.setText("0".concat(String.valueOf(finalI)));
+                    this.timeTravelMinutesValue = finalI;
+                });
+            } else {
+                tmpMenuItem.setText(String.valueOf(i));
+                tmpMenuItem.setOnAction(event -> {
+                    timeTravelMinutes.setText(String.valueOf(finalI));
+                    this.timeTravelMinutesValue = finalI;
+                });
+            }
+            timeTravelMinutes.getItems().add(i, tmpMenuItem);
+        }
+        timeTravelHours.setPrefWidth((menuWidth/2) - 5);
+        timeTravelMinutes.setPrefWidth((menuWidth/2) - 5);
+        timeTravelHours.getItems().get(0).fire();
+        timeTravelMinutes.getItems().get(0).fire();
+        Label timeTravelDots = new Label(" : ");
+        timeTravelDots.setPrefHeight(timeTravelHours.getPrefHeight());
+        timeTravelMenuButtons.getChildren().addAll(timeTravelHours, timeTravelDots, timeTravelMinutes);
+        timeTravelButtons.getChildren().addAll(timeTravelPast, timeTravelFuture);
+        timeTravelFuture.setOnAction(event -> {
+            mainPubTrans.setStopAnimator(true);
+            while(!(mainPubTrans.getTimer().getHours() == this.timeTravelHoursValue &&
+                    mainPubTrans.getTimer().getMinutes() == this.timeTravelMinutesValue)){
+                mainPubTrans.animationStep();
+            }
+        });
+        timeTravelPast.setOnAction(event -> {
+            mainPubTrans.setStopAnimator(true);
+            mainPubTrans.switchDirectionAllVehicles();
+            while(!(mainPubTrans.getTimer().getHours() == this.timeTravelHoursValue &&
+                    mainPubTrans.getTimer().getMinutes() == this.timeTravelMinutesValue)){
+                mainPubTrans.oppositeAnimationStep();
+            }
+            mainPubTrans.switchDirectionAllVehicles();
+        });
+        timeTravelPast.setPrefWidth(menuWidth/2);
+        timeTravelFuture.setPrefWidth(menuWidth/2);
+
 
         overlay.sceneProperty().addListener((observable, oldValue, newValue) -> {
             overlay.prefWidthProperty().bind(newValue.widthProperty());
@@ -415,7 +488,7 @@ public class Main extends Application {
             }
         });
 
-        // TODO continue wit zoom function
+        // TODO continue with zoom function
         overlay.setOnScroll(event -> {
             if(event.getDeltaY() != 0){
                 if(event.getDeltaY() > 0){
@@ -627,9 +700,6 @@ public class Main extends Application {
         });
 
         addVehicle.setPrefWidth(menuWidth);
-        addVehicle.setOnAction(event -> {
-            //TODO
-        });
 
         pauseButton.setPrefWidth(menuWidth);
         pauseButton.setOnAction(event -> mainPubTrans.setStopAnimator(true));

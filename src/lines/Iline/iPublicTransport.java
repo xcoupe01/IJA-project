@@ -89,6 +89,11 @@ public interface iPublicTransport{
     void animationStep();
 
     /**
+     * The same as animationStep function, but it subtracts from timer
+     */
+    void oppositeAnimationStep();
+
+    /**
      * Attaches connection to time display label
      * @param timeDisplay is the label to be attached
      */
@@ -162,4 +167,9 @@ public interface iPublicTransport{
      * @return number that represents how manny seconds means one animation step in application time
      */
     int getTickMeansSec();
+
+    /**
+     * Switch direction of all vehicles in the public transport system
+     */
+    void switchDirectionAllVehicles();
 }

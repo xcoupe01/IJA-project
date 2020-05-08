@@ -40,6 +40,8 @@ public class Street implements iStreet{
     /** Highlight of the end point of street*/
     private Circle highlightEnd = new Circle(5);
 
+    //TODO make traffic simulation
+
     /**
      * Native class constructor
      * @param id is the name of the street
@@ -304,17 +306,6 @@ public class Street implements iStreet{
             this.draw(mapCanvas);
         }
     }
-
-    /*
-    // future zoom function
-    // TODO complete zoom function
-    public void zoomStreet(Pane mapCanvas, Coordinate mouse, int zoom){
-        if(this.wholeStreetDrawn){
-            this.erase(mapCanvas);
-        }
-
-    }
-    */
 
     /**
      * Tell shortest point on street to mouse cursor *-- my loved masterpiece*

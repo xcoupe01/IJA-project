@@ -1,3 +1,4 @@
+TIME 12:5:10
 LINE 1 0x0000ffff [ulice1,1] [ulice1,2] [ulice1,3] [ulice1,4] [ulice4,5] [ulice3,4] [ulice3,3] [ulice3,2] [ulice3,1]
 VEHICLE 0 forward 0
 VEHICLE 3 backward 0

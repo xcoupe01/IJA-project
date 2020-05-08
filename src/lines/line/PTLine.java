@@ -29,6 +29,9 @@ public class PTLine implements iPTLine {
     /** Connection to map*/
     private Map mainMap;
 
+    //TODO make vehicles that starts at specified time and go only once
+    //TODO generate daily line schedule
+
     /**
      * Native constructor of PTLine class
      * @param lineNumber is the number of the line
