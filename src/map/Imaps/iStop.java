@@ -73,4 +73,9 @@ public interface iStop{
      * Sets information pane occupation to false
      */
     void InformationPaneOccupyFalse();
+
+    /**
+     * Prepares the stop for removal
+     */
+    void removeProcedure();
 }

@@ -70,6 +70,8 @@ public class Vehicle implements iVehicle {
     private int turnsAtStop = 20;
     /** Tells if vehicle occupies information Pane*/
     private boolean informationPaneOccupy = false;
+    /***/
+    private boolean offRoad = false;
 
     /**
      * Native constructor of Vehicle class
@@ -109,12 +111,14 @@ public class Vehicle implements iVehicle {
      * Makes a step of vehicle
      */
     public void ride(){
+        boolean notOK = true;
         if(this.target == null){
             for(int i = 0; i < this.line.getRoute().getRoute().size(); i++){
                 if(this.coord.equals(this.line.getRoute().getRoute().get(i))){
                     if(this.forward){
                         if(i+1 >= this.line.getRoute().getRoute().size()){
                             this.forward = false;
+                            notOK = false;
                             if(this.informationPaneOccupy){
                                 this.drawInformation();
                             }
@@ -130,6 +134,7 @@ public class Vehicle implements iVehicle {
                     } else {
                         if(i-1 < 0){
                             this.forward = true;
+                            notOK = false;
                             if(this.informationPaneOccupy){
                                 this.drawInformation();
                             }
@@ -144,6 +149,25 @@ public class Vehicle implements iVehicle {
                         }
                     }
                 }
+            }
+            if(this.target == null && notOK){
+                double distance = Double.POSITIVE_INFINITY;
+                Coordinate tmpCoord = null;
+                int tmpCounter = 0;
+                for(int i = 0; i < this.line.getRoute().getRoute().size(); i++){
+                    if(this.coord.distance(this.line.getRoute().getRoute().get(i)) < distance){
+                        tmpCoord = this.line.getRoute().getRoute().get(i);
+                        distance = this.coord.distance(this.line.getRoute().getRoute().get(i));
+                        tmpCounter = i;
+                    }
+                }
+                assert tmpCoord != null;
+                this.coord.setX(tmpCoord.getX());
+                this.coord.setY(tmpCoord.getY());
+                this.start = tmpCoord;
+                this.exactCoordX = tmpCoord.getX();
+                this.exactCoordY = tmpCoord.getY();
+                this.informationPaneCounter = tmpCounter;
             }
         } else if(this.wait > 0){
             this.wait --;
@@ -265,13 +289,21 @@ public class Vehicle implements iVehicle {
         this.informationPaneOccupy = true;
         this.informationPane.getChildren().clear();
         this.informationPane.setMinHeight((this.line.getRoute().getRoute().size() * 30));
+        this.informationPane.getChildren().add(this.informationPanelVehicle);
         Rectangle sidePanel = new Rectangle();
         sidePanel.setX(0);
         sidePanel.setY(0);
-        sidePanel.setHeight((this.line.getRoute().getRoute().size() * 30) + 20);
+        if((this.line.getRoute().getRoute().size() * 30) + 20 > 320){
+            sidePanel.setHeight((this.line.getRoute().getRoute().size() * 30) + 20);
+        } else {
+            sidePanel.setHeight(320);
+        }
         sidePanel.setWidth(30);
         sidePanel.setFill(this.line.getLineColor());
         Text lineText = new Text("Vehicle ".concat(String.valueOf(this.vehicleNumber).concat(" Line ".concat(String.valueOf(this.line.getLineNumber())))));
+        Text failText = new Text("Vehicle of road \ndetected");
+        failText.setX(50);
+        failText.setY(100);
         lineText.setRotate(-90);
         lineText.setY(100);
         lineText.setX(-40);
@@ -294,6 +326,12 @@ public class Vehicle implements iVehicle {
                 Timer tmpTimer = new Timer();
                 tmpTimer.set(this.mainPubTrans.getTimer().getSeconds(), this.mainPubTrans.getTimer().getMinutes(), this.mainPubTrans.getTimer().getHours());
                 tmpTimer.addSeconds(this.howMuchTimeTo(i));
+                if(this.offRoad){
+                    this.informationPane.getChildren().clear();
+                    this.informationPane.getChildren().addAll(sidePanel, lineText, failText);
+                    this.informationPane.setMinHeight(300);
+                    break;
+                }
                 if(tmpTimer.getMinutes() < 10){
                     tmpStopTime.setText(String.valueOf(tmpTimer.getHours()).concat(":0").concat(String.valueOf(tmpTimer.getMinutes())));
                 } else {
@@ -309,6 +347,12 @@ public class Vehicle implements iVehicle {
                 Timer tmpTimer = new Timer();
                 tmpTimer.set(this.mainPubTrans.getTimer().getSeconds(), this.mainPubTrans.getTimer().getMinutes(), this.mainPubTrans.getTimer().getHours());
                 tmpTimer.addSeconds(this.howMuchTimeTo(i));
+                if(this.offRoad){
+                    this.informationPane.getChildren().clear();
+                    this.informationPane.getChildren().addAll(sidePanel, lineText, failText);
+                    this.informationPane.setMinHeight(300);
+                    break;
+                }
                 Text tmpPointTime = new Text();
                 if(tmpTimer.getMinutes() < 10){
                     tmpPointTime.setText(String.valueOf(tmpTimer.getHours()).concat(":0").concat(String.valueOf(tmpTimer.getMinutes())));
@@ -320,7 +364,6 @@ public class Vehicle implements iVehicle {
             }
         }
         this.informationPanelVehicle.relocate(80, this.exactInformationCoordY);
-        this.informationPane.getChildren().add(this.informationPanelVehicle);
     }
 
     /**
@@ -330,6 +373,7 @@ public class Vehicle implements iVehicle {
      * @return amount in app seconds that the vehicle need to get to position (can be negative)
      */
     public int howMuchTimeTo(int pos) {
+        this.offRoad = false;
         int tmpSeconds = 0;
         if (this.turns > 0) {
             tmpSeconds -= this.turns * this.turnMeansSec;
@@ -338,6 +382,10 @@ public class Vehicle implements iVehicle {
             }
         } else if(this.line.getRoute().getRouteType().get(this.informationPaneCounter).equals("stop")){
             tmpSeconds += (this.wait) * this.turnMeansSec;
+        }
+        if(this.informationPaneCounter >= this.line.getRoute().getRoute().size()){
+            this.offRoad = true;
+            return 0;
         }
         Vehicle tmpVehicle = new Vehicle(this.line, this.line.getRoute().getRoute().get(this.informationPaneCounter), 0, this.mainMap, this.mainPubTrans);
         if(pos < this.informationPaneCounter){
@@ -355,10 +403,10 @@ public class Vehicle implements iVehicle {
     }
 
     /**
-     * Tell how much time the vehicle needs to arrive to position. It returns only positive values
-     * how many time it will take for the vehicle to get to stop.
+     * Tell how much time the vehicle needs to arrive to position. When everything is OK it returns only positive values
+     * how many time it will take for the vehicle to get to stop. When error occures (when vehicle is not on route) it returns -1
      * @param pos is the list index to line route coordinate list
-     * @return amount in app seconds that the vehicle need to get to position
+     * @return amount in app seconds that the vehicle need to get to position, when error it returns -1
      */
     public int howMuchTimeToNext(int pos){
         int tmpSeconds = 0;
@@ -367,6 +415,9 @@ public class Vehicle implements iVehicle {
         }
         if(this.wait > 0){
             tmpSeconds += this.wait * this.turnMeansSec;
+        }
+        if(this.informationPaneCounter >= this.line.getRoute().getRoute().size()){
+            return -1;
         }
         Vehicle tmpVehicle = new Vehicle(this.line, this.line.getRoute().getRoute().get(this.informationPaneCounter), 0, this.mainMap, this.mainPubTrans);
         tmpVehicle.setForward(this.forward);
@@ -382,6 +433,7 @@ public class Vehicle implements iVehicle {
             tmpVehicle.ride();
         }
         return (steps * this.turnMeansSec) + tmpSeconds;
+
     }
 
     /**
@@ -447,6 +499,24 @@ public class Vehicle implements iVehicle {
             this.start = this.target;
             this.target = tmpCoord;
         }
+    }
+
+    /**
+     * Returns current vehicle position
+     * @return current vehicle position
+     */
+    public Coordinate getPosition(){ return this.coord; }
+
+    /**
+     * Prepares the vehicle for removal
+     */
+    public void removeProcedure(){
+        this.informationPane.getChildren().clear();
+        Text removeText = new Text("vehicle ".concat(String.valueOf(this.vehicleNumber)).concat(" from line ")
+                .concat(String.valueOf(this.line.getLineNumber())).concat("\nhas been removed\nclick on other stop\nor vehicle"));
+        this.informationPane.getChildren().add(removeText);
+        removeText.setX(20);
+        removeText.setY(50);
     }
 
 }

@@ -29,14 +29,14 @@ public class Street implements iStreet{
     /** list of coordinates and stops from start to end in correct order*/
     private java.util.List<Coordinate> streetRoute = new java.util.ArrayList<>();
     /** List of coordinate types that corresponds with "streetRoute" list. If value is "point" its regular coordinate if
-     * value is "stop" it represents stop on the sreet*/
+     * value is "stop" it represents stop on the street*/
     private java.util.List<java.lang.String> streetRouteType = new java.util.ArrayList<>();
     /** Street id (probably name)*/
     private java.lang.String id;
     /** Tells if the street is visible*/
-    private boolean wholeStreetDrawn;
+    private boolean wholeStreetDrawn = false;
     /** Tells if the highlight is visible*/
-    private boolean highlightStatus;
+    private boolean highlightStatus = false;
     /** Highlight of the end point of street*/
     private Circle highlightEnd = new Circle(5);
 
@@ -50,8 +50,6 @@ public class Street implements iStreet{
     public Street(java.lang.String id, Coordinate begin){
         this.id = id;
         this.coords.add(begin);
-        this.wholeStreetDrawn = false;
-        this.highlightStatus = false;
         this.highlightEnd.setFill(Color.RED);
         this.streetRoute.add(begin);
         this.streetRouteType.add("point");
@@ -376,6 +374,7 @@ public class Street implements iStreet{
         for(int i = 0; i < this.stops.size(); i++){
             if(this.stops.get(i).getCoord().equals(c)){
                 this.stops.get(i).erase(mapCanvas);
+                this.stops.get(i).removeProcedure();
                 this.stops.remove(i);
                 break;
             }

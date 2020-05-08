@@ -154,13 +154,18 @@ public class Stop implements iStop{
                 this.informationPane.getChildren().addAll(linePanel, lineText);
                 for(int j = 0; j < this.mainPubTrans.getLines().get(i).getVehicles().size(); j++){
                     Timer tmpTime = new Timer();
-                    tmpTime.addSeconds(this.mainPubTrans.getLines().get(i).getVehicles().get(j).howMuchTimeToNext(pos));
                     Text informationLine = new Text();
-                    if(this.mainPubTrans.getLines().get(i).getVehicles().get(j).getStartPosition() == pos &&
-                            this.mainPubTrans.getLines().get(i).getVehicles().get(j).getTurns() == 0){
-                        informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat("at stop")));
+                    int tmpSecondsToNext = this.mainPubTrans.getLines().get(i).getVehicles().get(j).howMuchTimeToNext(pos);
+                    if(tmpSecondsToNext == -1){
+                        informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat("off route")));
                     } else {
-                        informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat(String.valueOf(tmpTime.getHours() * 60 + tmpTime.getMinutes())).concat(" mins")));
+                        tmpTime.addSeconds(tmpSecondsToNext);
+                        if(this.mainPubTrans.getLines().get(i).getVehicles().get(j).getStartPosition() == pos &&
+                                this.mainPubTrans.getLines().get(i).getVehicles().get(j).getTurns() == 0){
+                            informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat("at stop")));
+                        } else {
+                            informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat(String.valueOf(tmpTime.getHours() * 60 + tmpTime.getMinutes())).concat(" mins")));
+                        }
                     }
                     informationLine.setX(35);
                     informationLine.setY(lines * 20 + 16);
@@ -195,5 +200,16 @@ public class Stop implements iStop{
      * Sets information pane occupation to false
      */
     public void InformationPaneOccupyFalse(){ this.informationPaneOccupy = false; }
+
+    /**
+     * Prepares the stop for removal
+     */
+    public void removeProcedure(){
+        this.informationPane.getChildren().clear();
+        Text removeText = new Text("Stop ".concat(this.name).concat("\nhas been removed\nclick on other stop\nor vehicle"));
+        this.informationPane.getChildren().add(removeText);
+        removeText.setX(20);
+        removeText.setY(50);
+    }
 
 }

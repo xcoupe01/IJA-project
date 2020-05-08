@@ -12,6 +12,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lines.line.PTLine;
 import lines.line.PublicTransport;
+import lines.line.Vehicle;
 import map.maps.Coordinate;
 import map.maps.Map;
 import map.maps.Stop;
@@ -48,7 +49,7 @@ public class Main extends Application {
     //TODO add button collision control
 
     /**
-     * Start of the whole applicaton, sets all UI elements and sets the main objects
+     * Start of the whole application, sets all UI elements and sets the main objects
      * @param primaryStage is the window to be used
      */
     public void start(Stage primaryStage) {
@@ -100,6 +101,7 @@ public class Main extends Application {
         Button addLine = new Button("Add line");
         ColorPicker newLineColor = new ColorPicker();
         ToggleButton addVehicle = new ToggleButton("Add vehicle");
+        ToggleButton removeVehicle = new ToggleButton("Remove vehicle");
         // overview list
         Label timeDisplay = new Label();
         Button pauseButton = new Button("Pause");
@@ -146,8 +148,8 @@ public class Main extends Application {
                 loadMap, saveMap, mapMenuLabel);
 
         lineMenu.getChildren().addAll(highlightAllLineRoutes, linesMenu, addLinePoint,
-                removeLastLinePoint, addVehicle, toggleLineHighlight, deleteLine, addLine,
-                newLineColor, loadPublicTransp, savePublicTransp);
+                removeLastLinePoint, addVehicle, removeVehicle, toggleLineHighlight, deleteLine,
+                addLine, newLineColor, loadPublicTransp, savePublicTransp);
 
         overview.getChildren().addAll(timeDisplay, runButton, pauseButton, animationSpeed,
                 realTimeAnimationSpeed, timeTravelMenuButtons, timeTravelButtons, lineInformationPaneWrap);
@@ -322,7 +324,7 @@ public class Main extends Application {
                 Coordinate tmp;
                 Coordinate result = null;
                 Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
-                double distance = 999999;
+                double distance = Double.POSITIVE_INFINITY;
                 for(int i = 0; i < mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getStops().size(); i++){
                     tmp = mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getStops().get(i).getCoord();
                     if(tmp.distance(mouseCoord) < distance){
@@ -340,7 +342,7 @@ public class Main extends Application {
                 stopRemove.fire();
                 overlay.getChildren().remove(highlightPoint);
             } else if(addLinePoint.isSelected() && lineMenuButton.isSelected()){
-                double distance = 99999999;
+                double distance = Double.POSITIVE_INFINITY;
                 Coordinate mouseCoord = new Coordinate((int) event.getX(), (int) event.getY());
                 Coordinate tmpCoord = new Coordinate(0, 0);
                 boolean isItPoint = false;
@@ -374,8 +376,8 @@ public class Main extends Application {
                         mainPubTrans.updatePTPos(overlay, 0, 0);
                     }
                 }
-            } else if (addVehicle.isSelected() && lineMenuButton.isSelected()){
-                double distance = 99999999;
+            } else if(addVehicle.isSelected() && lineMenuButton.isSelected()){
+                double distance = Double.POSITIVE_INFINITY;
                 Coordinate mouseCoord = new Coordinate((int) event.getX(), (int) event.getY());
                 for (int i = 0; i < linesMenu.getItems().size(); i++){
                     if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
@@ -392,6 +394,14 @@ public class Main extends Application {
                     }
                 }
 
+            } else if(removeVehicle.isSelected() && lineMenuButton.isSelected()){
+                for (int i = 0; i < linesMenu.getItems().size(); i++){
+                    if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
+                        mainPubTrans.getLines().get(i).removeNearestVehicle(new Coordinate((int) event.getX(), (int) event.getY()), overlay);
+                        highlightPoint.relocate(-20, -20);
+                        break;
+                    }
+                }
             }
         });
         overlay.setOnMousePressed(event ->{
@@ -422,7 +432,7 @@ public class Main extends Application {
                 Coordinate tmp;
                 Coordinate result = null;
                 Coordinate mouseCoord = Coordinate.create((int) event.getX(), (int) event.getY());
-                double distance = 999999;
+                double distance = Double.POSITIVE_INFINITY;
                 for(int i = 0; i < mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getStops().size(); i++){
                     tmp = mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getStops().get(i).getCoord();
                     if(tmp.distance(mouseCoord) < distance){
@@ -436,7 +446,7 @@ public class Main extends Application {
                 highlightPoint.setFill(Color.RED);
                 overlay.getChildren().add(highlightPoint);
             } else if(addLinePoint.isSelected() && lineMenuButton.isSelected()){
-                double distance = 99999999;
+                double distance = Double.POSITIVE_INFINITY;
                 Coordinate mouseCoord = new Coordinate((int) event.getX(), (int) event.getY());
                 Coordinate tmpCoord = new Coordinate(0, 0);
                 for (int i = 0; i < linesMenu.getItems().size(); i++){
@@ -467,7 +477,7 @@ public class Main extends Application {
                 overlay.getChildren().remove(highlightPoint);
                 overlay.getChildren().add(highlightPoint);
             } else if(addVehicle.isSelected() && lineMenuButton.isSelected()){
-                double distance = 99999999;
+                double distance = Double.POSITIVE_INFINITY;
                 Coordinate mouseCoord = new Coordinate((int) event.getX(), (int) event.getY());
                 Coordinate tmpCoord = new Coordinate(0, 0);
                 for (int i = 0; i < linesMenu.getItems().size(); i++){
@@ -485,6 +495,19 @@ public class Main extends Application {
                 highlightPoint.relocate(tmpCoord.getX() - 5, tmpCoord.getY() - 5);
                 overlay.getChildren().remove(highlightPoint);
                 overlay.getChildren().add(highlightPoint);
+            } else if(removeVehicle.isSelected() && lineMenuButton.isSelected()){
+                for (int i = 0; i < linesMenu.getItems().size(); i++){
+                    if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
+                        Vehicle tmpVehicle = mainPubTrans.getLines().get(i).getNearestVehicle(new Coordinate((int) event.getX(), (int) event.getY()));
+                        if(tmpVehicle != null){
+                            highlightPoint.relocate(tmpVehicle.getPosition().getX() - 5, tmpVehicle.getPosition().getY() - 5);
+                            highlightPoint.setFill(Paint.valueOf("RED"));
+                            overlay.getChildren().remove(highlightPoint);
+                            overlay.getChildren().add(highlightPoint);
+                        }
+                        break;
+                    }
+                }
             }
         });
 
@@ -699,6 +722,7 @@ public class Main extends Application {
             }
         });
 
+        removeVehicle.setPrefWidth(menuWidth);
         addVehicle.setPrefWidth(menuWidth);
 
         pauseButton.setPrefWidth(menuWidth);

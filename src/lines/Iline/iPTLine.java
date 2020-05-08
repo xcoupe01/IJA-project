@@ -113,4 +113,18 @@ public interface iPTLine{
      * @return the list of all line vehicles
      */
     java.util.List<Vehicle> getVehicles();
+
+    /**
+     * Removes the closest vehicle from the line to given point
+     * @param mouseCoord is the coordinate that defines which vehicle is going to be erased
+     * @param mapCanvas is the map Pane where the vehicle is going to be deleted (erased)
+     */
+    void removeNearestVehicle(Coordinate mouseCoord, Pane mapCanvas);
+
+    /**
+     * Returns the closest vehicle to a given point
+     * @param mouseCoord is the coordinate that defines which vehicle is going to be returned
+     * @return the closest vehicle to a given point
+     */
+    Vehicle getNearestVehicle(Coordinate mouseCoord);
 }

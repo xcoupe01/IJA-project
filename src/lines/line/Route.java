@@ -29,6 +29,8 @@ public class Route implements iRoute {
     /** Is the connection to map*/
     private Map map;
 
+    //TODO function that checks if route points are still on the map
+
     /**
      * Native constructor of Route class
      * @param map is the map connection
@@ -55,29 +57,45 @@ public class Route implements iRoute {
             for(int j = 0; j < this.map.getStreets().get(i).getStreetRoute().size(); j++){
                 if(this.map.getStreets().get(i).getStreetRoute().get(j).equals(this.coords.get(this.coords.size() - 1)) &&
                         this.map.getStreets().get(i).getStreetRouteType().get(j).equals(this.type.get(this.type.size() - 1))){
-                    for(int k = j - 1; k >= 0 ; k--){
-                        if(this.map.getStreets().get(i).getStreetRouteType().get(k).equals("stop")){
-                            if(type.equals("stop") && this.map.getStreets().get(i).getStreetRoute().get(k).equals(c)){
-                                return true;
-                            }
-                        } else {
-                            if(type.equals("point") && this.map.getStreets().get(i).getStreetRoute().get(k).equals(c)){
-                                return true;
+                    if(j > 0){
+                        for(int k = j - 1; k >= 0 ; k--){
+                            if(this.map.getStreets().get(i).getStreetRouteType().get(k).equals("stop")){
+                                if(type.equals("stop") && this.map.getStreets().get(i).getStreetRoute().get(k).equals(c)){
+                                    return true;
+                                }
                             } else {
-                                for(int l = j + 1; l < this.map.getStreets().get(i).getStreetRoute().size(); l++){
-                                    if(this.map.getStreets().get(i).getStreetRouteType().get(l).equals("stop")){
-                                        if(type.equals("stop") && this.map.getStreets().get(i).getStreetRoute().get(l).equals(c)){
-                                            return true;
-                                        }
-                                    } else {
-                                        if(type.equals("point") && this.map.getStreets().get(i).getStreetRoute().get(l).equals(c)){
-                                            return true;
+                                if(type.equals("point") && this.map.getStreets().get(i).getStreetRoute().get(k).equals(c)){
+                                    return true;
+                                } else {
+                                    for(int l = j + 1; l < this.map.getStreets().get(i).getStreetRoute().size(); l++){
+                                        if(this.map.getStreets().get(i).getStreetRouteType().get(l).equals("stop")){
+                                            if(type.equals("stop") && this.map.getStreets().get(i).getStreetRoute().get(l).equals(c)){
+                                                return true;
+                                            }
                                         } else {
-                                            break;
+                                            if(type.equals("point") && this.map.getStreets().get(i).getStreetRoute().get(l).equals(c)){
+                                                return true;
+                                            } else {
+                                                break;
+                                            }
                                         }
                                     }
+                                    break;
                                 }
-                                break;
+                            }
+                        }
+                    } else {
+                        for(int l = j + 1; l < this.map.getStreets().get(i).getStreetRoute().size(); l++){
+                            if(this.map.getStreets().get(i).getStreetRouteType().get(l).equals("stop")){
+                                if(type.equals("stop") && this.map.getStreets().get(i).getStreetRoute().get(l).equals(c)){
+                                    return true;
+                                }
+                            } else {
+                                if(type.equals("point") && this.map.getStreets().get(i).getStreetRoute().get(l).equals(c)){
+                                    return true;
+                                } else {
+                                    break;
+                                }
                             }
                         }
                     }

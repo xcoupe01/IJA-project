@@ -192,4 +192,46 @@ public class PTLine implements iPTLine {
      * @return the list of all line vehicles
      */
     public java.util.List<Vehicle> getVehicles(){ return this.lineVehicles;}
+
+    /**
+     * Removes the closest vehicle from the line to given point
+     * @param mouseCoord is the coordinate that defines which vehicle is going to be erased
+     * @param mapCanvas is the map Pane where the vehicle is going to be deleted (erased)
+     */
+    public void removeNearestVehicle(Coordinate mouseCoord, Pane mapCanvas){
+        double distance = Double.POSITIVE_INFINITY;
+        int targetVehicle = 0;
+        if(this.lineVehicles.size() == 0){
+            return;
+        }
+        for(int i = 0; i < this.lineVehicles.size(); i++){
+            if(this.lineVehicles.get(i).getPosition().distance(mouseCoord) < distance){
+                distance = this.lineVehicles.get(i).getPosition().distance(mouseCoord);
+                targetVehicle = i;
+            }
+        }
+        this.lineVehicles.get(targetVehicle).erase(mapCanvas);
+        this.lineVehicles.get(targetVehicle).removeProcedure();
+        this.lineVehicles.remove(targetVehicle);
+    }
+
+    /**
+     * Returns the closest vehicle to a given point
+     * @param mouseCoord is the coordinate that defines which vehicle is going to be returned
+     * @return the closest vehicle to a given point
+     */
+    public Vehicle getNearestVehicle(Coordinate mouseCoord){
+        double distance = Double.POSITIVE_INFINITY;
+        int targetVehicle = 0;
+        if(this.lineVehicles.size() == 0){
+            return null;
+        }
+        for(int i = 0; i < this.lineVehicles.size(); i++){
+            if(this.lineVehicles.get(i).getPosition().distance(mouseCoord) < distance){
+                distance = this.lineVehicles.get(i).getPosition().distance(mouseCoord);
+                targetVehicle = i;
+            }
+        }
+        return this.lineVehicles.get(targetVehicle);
+    }
 }

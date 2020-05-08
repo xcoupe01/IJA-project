@@ -123,5 +123,14 @@ public interface iVehicle{
      */
     void switchDirection();
 
+    /**
+     * Returns current vehicle position
+     * @return current vehicle position
+     */
+    Coordinate getPosition();
 
+    /**
+     * Prepares the vehicle for removal
+     */
+    void removeProcedure();
 }
