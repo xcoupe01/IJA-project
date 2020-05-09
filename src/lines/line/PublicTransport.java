@@ -418,4 +418,14 @@ public class PublicTransport implements iPublicTransport {
             }
         }
     }
+
+    /**
+     * Executes route check function on all line routes (check updateRouteByMap function in Route class)
+     * @param mapCanvas is the Pane where the route highlights can be visible
+     */
+    public void correctLineRoutes(Pane mapCanvas){
+        for (PTLine line : this.lines) {
+            line.getRoute().updateRouteByMap(mapCanvas);
+        }
+    }
 }

@@ -29,8 +29,6 @@ public class Route implements iRoute {
     /** Is the connection to map*/
     private Map map;
 
-    //TODO function that checks if route points are still on the map
-
     /**
      * Native constructor of Route class
      * @param map is the map connection
@@ -216,6 +214,60 @@ public class Route implements iRoute {
             this.type.remove(this.type.size() - 1);
             mapCanvas.getChildren().remove(this.lineHighlight.get(this.lineHighlight.size() - 1));
             this.lineHighlight.remove(this.lineHighlight.size() - 1);
+        }
+    }
+
+    /**
+     * Checks if the route coordinates still exist on map. If not, it tries to save the longest connected part as possible
+     * @param mapCanvas is the Pane where the route can be highlighted
+     */
+    public void updateRouteByMap(Pane mapCanvas){
+        int length = 0;
+        int currentLength = 0;
+        int lastPromisingPoint = 0;
+        Route tmpTestRoute = new Route(this.map, this.line);
+        for(int i = 0; i < this.coords.size(); i++){
+            if(this.map.isCoordOnMap(this.coords.get(i)) && tmpTestRoute.canAdd(this.coords.get(i), this.type.get(i))){
+                if(this.type.get(i).equals("stop")){
+                    tmpTestRoute.addStop(this.coords.get(i));
+                } else {
+                    tmpTestRoute.addPoint(this.coords.get(i));
+                }
+                currentLength ++;
+                if(currentLength > length){
+                    length = currentLength;
+                    lastPromisingPoint = i;
+                }
+            } else {
+                tmpTestRoute.getRoute().clear();
+                tmpTestRoute.getRouteType().clear();
+                currentLength = 0;
+            }
+        }
+        if(length < this.coords.size()){
+            java.util.List<Coordinate> newCoords = new java.util.ArrayList<>();
+            java.util.List<java.lang.String> newType = new java.util.ArrayList<>();
+            for(int i = length - 1; i >= 0; i--){
+                newCoords.add(this.coords.get(lastPromisingPoint - i));
+                newType.add(this.type.get(lastPromisingPoint - i));
+            }
+            this.coords = newCoords;
+            this.type = newType;
+            boolean tmpDrawn = false;
+            if(this.drawn){
+                tmpDrawn = true;
+                this.erase(mapCanvas);
+            }
+            this.lineHighlight.clear();
+            for(int i = 1; i < this.coords.size(); i++){
+                Line newHighlightLine = new Line(this.coords.get(i - 1).getX(), this.coords.get(i - 1).getY(), this.coords.get(i).getX(), this.coords.get(i).getY());
+                newHighlightLine.setStrokeWidth(3);
+                newHighlightLine.setStroke(this.line.getLineColor());
+                this.lineHighlight.add(newHighlightLine);
+            }
+            if(tmpDrawn){
+                this.draw(mapCanvas);
+            }
         }
     }
 }

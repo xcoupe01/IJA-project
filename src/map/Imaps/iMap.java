@@ -76,6 +76,13 @@ public interface iMap{
     void saveMapToFile(java.lang.String filePath);
 
     /**
+     * Tells if given coordinate is on the map
+     * @param c is the coordinate to be looked for
+     * @return true if the coordinate is on the map false otherwise
+     */
+    boolean isCoordOnMap(Coordinate c);
+
+    /**
      * Returns coordinate object from map with same position as given coordinate
      * @param c is the coordinate to be found
      * @return coordinate with same position from map

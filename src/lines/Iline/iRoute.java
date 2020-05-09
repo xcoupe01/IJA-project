@@ -70,4 +70,10 @@ public interface iRoute{
      * @param mapCanvas is the Pane where the route is drawn
      */
     void removeLast(Pane mapCanvas);
+
+    /**
+     * Checks if the route coordinates still exist on map. If not, it tries to save the longest connected part as possible
+     * @param mapCanvas is the Pane where the route can be highlighted
+     */
+    void updateRouteByMap(Pane mapCanvas);
 }

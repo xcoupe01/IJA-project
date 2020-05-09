@@ -172,4 +172,10 @@ public interface iPublicTransport{
      * Switch direction of all vehicles in the public transport system
      */
     void switchDirectionAllVehicles();
+
+    /**
+     * Executes route check function on all line routes (check updateRouteByMap function in Route class)
+     * @param mapCanvas is the Pane where the route highlights can be visible
+     */
+    void correctLineRoutes(Pane mapCanvas);
 }

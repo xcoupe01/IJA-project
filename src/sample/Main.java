@@ -38,14 +38,11 @@ public class Main extends Application {
     private int dragLocationX = - 1;
     /** Current drag position Y axis*/
     private int dragLocationY = - 1;
-    /** Current zoom value*/
-    private int zoomValue = 50;
     /** Selected time travel minutes value*/
     private int timeTravelMinutesValue = 0;
     /** Selected time travel hours value*/
     private int timeTravelHoursValue = 0;
 
-    //TODO zoom mapCanvas with ScrollPane
     //TODO add button collision control
 
     /**
@@ -65,6 +62,7 @@ public class Main extends Application {
         PublicTransport mainPubTrans = new PublicTransport(mainMap);
         mainMap.attachPubTrans(mainPubTrans);
         Pane overlay = new Pane();
+        ZoomableScrollPane overlayWrapZoom = new ZoomableScrollPane(overlay);
         FileChooser fileChoose = new FileChooser();
         Rectangle stop = new Rectangle(5, 5);
         Circle highlightPoint = new Circle(5);
@@ -119,6 +117,9 @@ public class Main extends Application {
 
         // kills animator thread when application is closed
         primaryStage.setOnCloseRequest(event -> mainPubTrans.setStopAnimator(true));
+
+        // pack overlay (mapCanvas) to overlayWrap a set the overlayWrap
+        overlayWrapZoom.setMinWidth(primaryStage.getWidth() - menuWidth);
 
         // information Pane settings
         lineInformationPaneWrap.setContent(lineInformationPane);
@@ -270,6 +271,11 @@ public class Main extends Application {
 
 
         overlay.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            overlay.minWidthProperty().bind(newValue.widthProperty().multiply(2));
+            overlay.minHeightProperty().bind(newValue.heightProperty().multiply(2));
+        });
+
+        overlayWrapZoom.sceneProperty().addListener((observable, oldValue, newValue) -> {
             overlay.prefWidthProperty().bind(newValue.widthProperty());
             overlay.prefHeightProperty().bind(newValue.heightProperty());
         });
@@ -339,6 +345,7 @@ public class Main extends Application {
                     }
                 }
                 mainMap.moveMap(overlay, 0, 0);
+                mainPubTrans.correctLineRoutes(overlay);
                 stopRemove.fire();
                 overlay.getChildren().remove(highlightPoint);
             } else if(addLinePoint.isSelected() && lineMenuButton.isSelected()){
@@ -398,7 +405,7 @@ public class Main extends Application {
                 for (int i = 0; i < linesMenu.getItems().size(); i++){
                     if(linesMenu.getItems().get(i).equals(linesMenu.getValue())){
                         mainPubTrans.getLines().get(i).removeNearestVehicle(new Coordinate((int) event.getX(), (int) event.getY()), overlay);
-                        highlightPoint.relocate(-20, -20);
+                        overlay.getChildren().remove(highlightPoint);
                         break;
                     }
                 }
@@ -511,6 +518,7 @@ public class Main extends Application {
             }
         });
 
+        /*
         // TODO continue with zoom function
         overlay.setOnScroll(event -> {
             if(event.getDeltaY() != 0){
@@ -522,7 +530,7 @@ public class Main extends Application {
                 System.out.println("zoom detected " + this.zoomValue + " mouse location x:" + event.getX() + " y:" + event.getY());
             }
         });
-
+        */
         coordAdd.setPrefWidth(menuWidth);
 
         coordRemove.setPrefWidth(menuWidth);
@@ -532,6 +540,7 @@ public class Main extends Application {
                 mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).removeLastCoord(overlay);
                 mainMap.moveMap(overlay, 0, 0);
             }
+            mainPubTrans.correctLineRoutes(overlay);
         });
 
         stopAdd.setPrefWidth(menuWidth);
@@ -546,11 +555,15 @@ public class Main extends Application {
         removeStreet.setPrefWidth(menuWidth);
         removeStreet.setOnAction(event ->{
             if(mainMap.isStreet((String) streetMenu.getValue())){
-                overlay.getChildren().clear();
+                for(int i = 0; i < mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getCoordinates().size(); i++){
+                    mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getCoordinates().get(i).erase(overlay);
+                }
+                mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).erase(overlay);
                 mainMap.getStreets().remove(mainMap.getMapPointerById((String) streetMenu.getValue()));
                 mainMap.moveMap(overlay, 0, 0);
                 updateStreetMenu(streetMenu, mainMap);
             }
+            mainPubTrans.correctLineRoutes(overlay);
         });
 
         EraseStreet.setPrefWidth(menuWidth);
@@ -742,7 +755,7 @@ public class Main extends Application {
         menu.setSpacing(5);
         overviewButton.fire();
         menu.setMinWidth(menuWidth);
-        root.getChildren().addAll(overlay, menu);
+        root.getChildren().addAll(overlayWrapZoom, menu);
         primaryStage.setScene(mainScene);
         primaryStage.setTitle("IJA project");
         primaryStage.show();

@@ -201,6 +201,27 @@ public class Map implements iMap{
     }
 
     /**
+     * Tells if given coordinate is on the map
+     * @param c is the coordinate to be looked for
+     * @return true if the coordinate is on the map false otherwise
+     */
+    public boolean isCoordOnMap(Coordinate c){
+        for (Street street : this.streets) {
+            for (int j = 0; j < street.getCoordinates().size(); j++) {
+                if (street.getCoordinates().get(j).equals(c)) {
+                    return true;
+                }
+            }
+            for (int j = 0; j < street.getStops().size(); j++) {
+                if (street.getStops().get(j).getCoord().equals(c)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns coordinate object from map with same position as given coordinate
      * @param c is the coordinate to be found
      * @return coordinate with same position from map
