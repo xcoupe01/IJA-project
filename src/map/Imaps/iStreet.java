@@ -185,4 +185,10 @@ public interface iStreet{
      * @param mapCanvas is the Pane where we want the highlight visible
      */
     void toggleSegmentHighlight(int index, Pane mapCanvas);
+
+    /**
+     * Sets traffic value for all street segments
+     * @param val is the level of the traffic fr the whole street
+     */
+    void setTrafficAllToVal(int val);
 }

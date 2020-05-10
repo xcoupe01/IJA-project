@@ -428,4 +428,10 @@ public class PublicTransport implements iPublicTransport {
             line.getRoute().updateRouteByMap(mapCanvas);
         }
     }
+
+    /**
+     * Tells how many ticks every vehicle waits on stops
+     * @return number of ticks vehicles waits on stops
+     */
+    public int getTicksAtStop(){ return this.ticksAtStop; }
 }

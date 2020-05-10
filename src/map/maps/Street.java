@@ -41,8 +41,9 @@ public class Street implements iStreet{
     private Circle highlightEnd = new Circle(5);
     /** Traffic information between two defining coordinates*/
     private java.util.List<Integer> traffic = new java.util.ArrayList<>();
+    /** Traffic maximum level*/
+    private int maxTrafficValue = 5;
 
-    //TODO make traffic simulation
 
     /**
      * Native class constructor
@@ -450,12 +451,12 @@ public class Street implements iStreet{
      * @param traffic is the traffic value we want to set
      */
     public void setTraffic(int index, int traffic){
-        int maxTrafficValue = 5;
+
         if(index >= this.traffic.size() || index < 0){
             return;
         }
-        if(traffic > maxTrafficValue){
-            this.traffic.set(index, maxTrafficValue);
+        if(traffic > this.maxTrafficValue){
+            this.traffic.set(index, this.maxTrafficValue);
         } else if(traffic < 1){
             this.traffic.set(index, 1);
         } else {
@@ -487,6 +488,19 @@ public class Street implements iStreet{
         } else {
             mapCanvas.getChildren().add(this.streetHighlight.get(index));
             this.highlightStatus = true;
+        }
+    }
+
+    /**
+     * Sets traffic value for all street segments
+     * @param val is the level of the traffic fr the whole street
+     */
+    public void setTrafficAllToVal(int val){
+        if(val > this.maxTrafficValue){
+            val = this.maxTrafficValue;
+        }
+        for(int i = 0; i < this.traffic.size(); i++){
+            this.traffic.set(i, val);
         }
     }
 }

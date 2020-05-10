@@ -130,7 +130,8 @@ public class Vehicle implements iVehicle {
                                     / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
                             this.travelPieceY = (this.target.diffY(this.start) / this.target.distance(this.start))
                                     / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
-                            this.informationTravelPiece = 30 / this.target.distance(this.start);
+                            this.informationTravelPiece = (30 / this.target.distance(this.start))
+                                    / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
                             break;
                         }
                     } else {
@@ -148,7 +149,8 @@ public class Vehicle implements iVehicle {
                                     / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
                             this.travelPieceY = (this.target.diffY(this.start) / this.target.distance(this.start))
                                     / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
-                            this.informationTravelPiece = 30 / this.target.distance(this.start);
+                            this.informationTravelPiece = 30 / this.target.distance(this.start)
+                                    / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
                             break;
                         }
                     }

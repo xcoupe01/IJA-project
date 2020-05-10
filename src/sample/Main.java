@@ -284,19 +284,26 @@ public class Main extends Application {
         trafficLevelChooser.setShowTickLabels(true);
         trafficLevelChooser.valueProperty().addListener((obs, oldval, newVal) ->
                 trafficLevelChooser.setValue(newVal.intValue()));
-        streetMenu.setOnAction(event -> {
-            segmentChooserSetter(mainMap, streetMenu, streetSegmentChooser, trafficLevelChooser);
-        });
+        streetMenu.setOnAction(event -> segmentChooserSetter(mainMap, streetMenu, streetSegmentChooser, trafficLevelChooser));
         streetSegmentChooser.setPrefWidth(menuWidth/2);
         highlightSegment.setOnAction(event -> {
-            mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue()))
-                    .toggleSegmentHighlight(this.selectedSegment, mapCanvas);
+            if(this.selectedSegment == -1){
+                mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).highlightOn(mapCanvas);
+            } else {
+                mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue()))
+                        .toggleSegmentHighlight(this.selectedSegment, mapCanvas);
+            }
             highlightStreet.setSelected(true);
         });
         highlightSegment.setPrefWidth(menuWidth/2);
         segmentHBox.getChildren().addAll(streetSegmentChooser, highlightSegment);
-        trafficLevelChooser.setOnMouseReleased(event -> mainMap.getStreets().
-                get(mainMap.getMapPointerById((String) streetMenu.getValue())).setTraffic(this.selectedSegment, (int) trafficLevelChooser.getValue()));
+        trafficLevelChooser.setOnMouseReleased(event -> {
+            if(this.selectedSegment == -1){
+                mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).setTrafficAllToVal((int) trafficLevelChooser.getValue());
+            } else {
+                mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).setTraffic(this.selectedSegment, (int) trafficLevelChooser.getValue());
+            }
+        });
 
         // mapCanvas - listener for size setting
         mapCanvas.sceneProperty().addListener((observable, oldValue, newValue) -> {
@@ -809,6 +816,10 @@ public class Main extends Application {
         // initial map draw
         mainMap.draw(mapCanvas);
 
+        // initial values settings
+        mainPubTrans.setTickMeansSec(10);
+        mainPubTrans.setTicksAtStop(20);
+
     }
 
     /**
@@ -872,6 +883,13 @@ public class Main extends Application {
                 streetSegmentChooser.getItems().get(0).fire();
             }
         }
+        MenuItem wholeStreetOption = new MenuItem("Whole street");
+        wholeStreetOption.setOnAction(itemEvent -> {
+            streetSegmentChooser.setText("Whole street");
+            this.selectedSegment = -1;
+            trafficLevelChooser.setValue(1);
+        });
+        streetSegmentChooser.getItems().add(wholeStreetOption);
     }
 
     /**

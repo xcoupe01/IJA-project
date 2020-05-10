@@ -178,4 +178,10 @@ public interface iPublicTransport{
      * @param mapCanvas is the Pane where the route highlights can be visible
      */
     void correctLineRoutes(Pane mapCanvas);
+
+    /**
+     * Tells how many ticks every vehicle waits on stops
+     * @return number of ticks vehicles waits on stops
+     */
+    int getTicksAtStop();
 }
