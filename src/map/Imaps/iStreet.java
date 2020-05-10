@@ -155,4 +155,34 @@ public interface iStreet{
      */
     void removeStop(Coordinate c, Pane mapCanvas);
 
+    /**
+     * Returns traffic value between two points on the street, it don't depends on the order of the given coordinates
+     * @param c1 one of the coordinates
+     * @param c2 one of the coordinates
+     * @return the value of traffic, if it returns -1 it means error
+     */
+    int getTrafficAt(Coordinate c1, Coordinate c2);
+
+    /**
+     * Sets traffic on a given index. If index is greater than the field size or below 0
+     * nothing is going to happen, if the traffic value is below 1, traffic 1 is going to be set,
+     * if traffic value is above 5, traffic 5 is going to be set. Only traffic values 1 to 5 are allowed.
+     * @param index is the traffic segment index we want to set
+     * @param traffic is the traffic value we want to set
+     */
+    void setTraffic(int index, int traffic);
+
+    /**
+     * Returns array of integers representing traffic levels on segments of the street
+     * @return array of integers representing traffic
+     */
+    java.util.List<Integer> getTraffic();
+
+    /**
+     * Toggles a given street segment highlight (when whole street is highlighted, it erases highlight and
+     * highlights only the specified part, when street highlight is off it highlights the specified segment)
+     * @param index specifies the street segment
+     * @param mapCanvas is the Pane where we want the highlight visible
+     */
+    void toggleSegmentHighlight(int index, Pane mapCanvas);
 }

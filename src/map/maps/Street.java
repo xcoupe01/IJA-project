@@ -23,9 +23,9 @@ public class Street implements iStreet{
     /** List that tells which parts of Street are visible*/
     private java.util.List<Boolean> drawn = new java.util.ArrayList<>();
     /** List of graphical lines*/
-    private java.util.List<Line> StreetLines = new java.util.ArrayList<>();
+    private java.util.List<Line> streetLines = new java.util.ArrayList<>();
     /** List of highlighted lines*/
-    private java.util.List<Line> StreetHighlight = new java.util.ArrayList<>();
+    private java.util.List<Line> streetHighlight = new java.util.ArrayList<>();
     /** list of coordinates and stops from start to end in correct order*/
     private java.util.List<Coordinate> streetRoute = new java.util.ArrayList<>();
     /** List of coordinate types that corresponds with "streetRoute" list. If value is "point" its regular coordinate if
@@ -39,6 +39,8 @@ public class Street implements iStreet{
     private boolean highlightStatus = false;
     /** Highlight of the end point of street*/
     private Circle highlightEnd = new Circle(5);
+    /** Traffic information between two defining coordinates*/
+    private java.util.List<Integer> traffic = new java.util.ArrayList<>();
 
     //TODO make traffic simulation
 
@@ -121,12 +123,13 @@ public class Street implements iStreet{
                 coord.getX(), coord.getY());
         line.setStrokeWidth(1);
         line.setStroke(Color.BLACK.deriveColor(1, 1, 1, 0.7));
-        this.StreetLines.add(line);
+        this.streetLines.add(line);
         Line highlight = new Line(this.coords.get(this.coords.size() - 2).getX(), this.coords.get(this.coords.size() - 2).getY(),
                 coord.getX(), coord.getY());
         highlight.setStrokeWidth(3);
         highlight.setStroke(Color.RED);
-        this.StreetHighlight.add(highlight);
+        this.streetHighlight.add(highlight);
+        this.traffic.add(1);
     }
 
     /**
@@ -187,7 +190,7 @@ public class Street implements iStreet{
             begin.draw(mapCanvas);
             end.draw(mapCanvas);
             if(!this.drawn.get(i -1)) {
-                Line tmpLine =  StreetLines.get(i - 1);
+                Line tmpLine =  streetLines.get(i - 1);
                 tmpLine.setOnMouseClicked(t -> this.highlightToggle(mapCanvas));
                 mapCanvas.getChildren().add(tmpLine);
                 this.drawn.set(i-1, true);
@@ -205,8 +208,8 @@ public class Street implements iStreet{
      */
     public void erase(Pane mapCanvas){
         this.highlightOff(mapCanvas);
-        for(int i = 0; i < this.StreetLines.size(); i++){
-            mapCanvas.getChildren().remove(StreetLines.get(i));
+        for(int i = 0; i < this.streetLines.size(); i++){
+            mapCanvas.getChildren().remove(streetLines.get(i));
             this.drawn.set(i, false);
         }
         for (Stop stop : this.stops) {
@@ -234,7 +237,7 @@ public class Street implements iStreet{
     public void highlightOn(Pane mapCanvas){
         this.erase(mapCanvas);
         if(!this.highlightStatus){
-            for (Line line : this.StreetHighlight) {
+            for (Line line : this.streetHighlight) {
                 mapCanvas.getChildren().add(line);
             }
             this.highlightStatus = true;
@@ -253,7 +256,7 @@ public class Street implements iStreet{
      */
     public void highlightOff(Pane mapCanvas){
         if(this.highlightStatus){
-            for (Line line : this.StreetHighlight) {
+            for (Line line : this.streetHighlight) {
                 mapCanvas.getChildren().remove(line);
             }
             mapCanvas.getChildren().remove(this.highlightEnd);
@@ -284,18 +287,18 @@ public class Street implements iStreet{
             this.erase(mapCanvas);
         }
         this.begin().moveCoord(mapCanvas, x, y);
-        for(int i = 0; i < this.StreetLines.size(); i++){
+        for(int i = 0; i < this.streetLines.size(); i++){
             Coordinate begin = this.coords.get(i);
             Coordinate end = this.coords.get(i+1);
             end.moveCoord(mapCanvas, x, y);
             Line line = new Line(begin.getX(), begin.getY(), end.getX(), end.getY());
             line.setStrokeWidth(1);
             line.setStroke(Color.BLACK.deriveColor(1, 1, 1, 0.7));
-            this.StreetLines.set(i, line);
+            this.streetLines.set(i, line);
             Line highlight = new Line(begin.getX(), begin.getY(), end.getX(), end.getY());
             highlight.setStrokeWidth(3);
             highlight.setStroke(Color.RED);
-            this.StreetHighlight.set(i, highlight);
+            this.streetHighlight.set(i, highlight);
         }
         for (Stop stop : this.stops) {
             stop.moveStop(mapCanvas, x, y);
@@ -347,8 +350,8 @@ public class Street implements iStreet{
             this.coords.get(this.coords.size() - 1).erase(mapCanvas);
             this.coords.remove(this.coords.size() - 1);
             this.drawn.remove(this.drawn.size() - 1);
-            this.StreetLines.remove(this.StreetLines.size() - 1);
-            this.StreetHighlight.remove(this.StreetHighlight.size() - 1);
+            this.streetLines.remove(this.streetLines.size() - 1);
+            this.streetHighlight.remove(this.streetHighlight.size() - 1);
             this.streetRoute.remove(this.streetRoute.size() - 1);
             this.streetRouteType.remove(this.streetRouteType.size() - 1);
             if(this.streetRouteType.get(this.streetRouteType.size() - 1).equals("stop")){
@@ -385,6 +388,105 @@ public class Street implements iStreet{
                 this.streetRouteType.remove(i);
                 break;
             }
+        }
+    }
+
+    /**
+     * Returns traffic value between two points on the street, it don't depends on the order of the given coordinates
+     * @param c1 one of the coordinates
+     * @param c2 one of the coordinates
+     * @return the value of traffic, if it returns -1 it means error
+     */
+    public int getTrafficAt(Coordinate c1, Coordinate c2){
+        int firstCoordNum = -1;
+        int secondCoordNum = -1;
+        for(int i = 0; i < this.streetRoute.size(); i++){
+            if(this.streetRoute.get(i).equals(c1)){
+                if(firstCoordNum == -1){
+                   firstCoordNum = i;
+                } else {
+                    secondCoordNum = i;
+                    break;
+                }
+            } else if(this.streetRoute.get(i).equals(c2)){
+                if(firstCoordNum == -1){
+                    firstCoordNum = i;
+                } else {
+                    secondCoordNum = i;
+                    break;
+                }
+            }
+        }
+        if(firstCoordNum == -1 || secondCoordNum == -1){
+            return -1;
+        }
+        while(this.streetRouteType.get(firstCoordNum).equals("stop")){
+            firstCoordNum --;
+        }
+        while(this.streetRouteType.get(secondCoordNum).equals("stop")){
+            secondCoordNum ++;
+        }
+        int firstCoord = 0;
+        int secondCoord = 0;
+        for(int i = 0; i < this.coords.size(); i++){
+            if(this.coords.get(i).equals(this.streetRoute.get(firstCoordNum))){
+                firstCoord = i;
+            }
+            if(this.coords.get(i).equals(this.streetRoute.get(secondCoordNum))){
+                secondCoord = i;
+            }
+        }
+        if(firstCoord + 1 != secondCoord){
+            return -1;
+        }
+        return this.traffic.get(firstCoord);
+    }
+
+    /**
+     * Sets traffic on a given index. If index is greater than the field size or below 0
+     * nothing is going to happen, if the traffic value is below 1, traffic 1 is going to be set,
+     * if traffic value is above 5, traffic 5 is going to be set. Only traffic values 1 to 5 are allowed.
+     * @param index is the traffic segment index we want to set
+     * @param traffic is the traffic value we want to set
+     */
+    public void setTraffic(int index, int traffic){
+        int maxTrafficValue = 5;
+        if(index >= this.traffic.size() || index < 0){
+            return;
+        }
+        if(traffic > maxTrafficValue){
+            this.traffic.set(index, maxTrafficValue);
+        } else if(traffic < 1){
+            this.traffic.set(index, 1);
+        } else {
+            this.traffic.set(index, traffic);
+        }
+    }
+
+    /**
+     * Returns array of integers representing traffic levels on segments of the street
+     * @return array of integers representing traffic
+     */
+    public java.util.List<Integer> getTraffic(){ return this.traffic; }
+
+    /**
+     * Toggles a given street segment highlight (when whole street is highlighted, it erases highlight and
+     * highlights only the specified part, when street highlight is off it highlights the specified segment)
+     * @param index specifies the street segment
+     * @param mapCanvas is the Pane where we want the highlight visible
+     */
+    public void toggleSegmentHighlight(int index, Pane mapCanvas){
+        if(index >= this.streetHighlight.size()){
+            return;
+        }
+        if(this.highlightStatus){
+            this.highlightOff(mapCanvas);
+            mapCanvas.getChildren().add(this.streetHighlight.get(index));
+            this.drawn.set(index, true);
+            this.highlightStatus = true;
+        } else {
+            mapCanvas.getChildren().add(this.streetHighlight.get(index));
+            this.highlightStatus = true;
         }
     }
 }

@@ -49,7 +49,7 @@ public interface iMap{
     int getMapPointerById(java.lang.String id);
 
     /**
-     * Tells if given id coresponds to some id (name) of some street in street list
+     * Tells if given id corresponds to some id (name) of some street in street list
      * @param id is the id (name) to be inspected
      * @return true if the id (name) is found false otherwise
      */
@@ -118,4 +118,13 @@ public interface iMap{
      * @return stop with occupation property equals to true
      */
     Stop getStopThatOccupiesInformationPane();
+
+    /**
+     * Propagation of street class function getTrafficAt. Returns the first matched traffic by given coordinates.
+     * When traffic not found, it returns basic value 1 and writes an error note to console.
+     * @param c1 one of coordinates to be searched for
+     * @param c2 one of coordinates to be searched for
+     * @return level of traffic
+     */
+    int getTrafficLevelByCoords(Coordinate c1, Coordinate c2);
 }

@@ -47,7 +47,7 @@ public interface iPublicTransport{
     boolean loadPTFromFile(Pane mapCanvas, String filePath, Map mainMap, Pane lineInformationPane);
 
     /**
-     * Saves curresnt publci transport to a given file path
+     * Saves current public transport to a given file path
      * @param filePath is the file to be saved to
      * @param mainMap is the connection to map
      */

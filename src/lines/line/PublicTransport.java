@@ -23,7 +23,7 @@ public class PublicTransport implements iPublicTransport {
 
     /** List of lines*/
     private java.util.List<PTLine> lines = new java.util.ArrayList<>();
-    /** Main aplication timer*/
+    /** Main application timer*/
     private Timer mainTimer = new Timer();
     /** Tells if the public transport highlight is drawn*/
     private boolean highlightDrawn = false;
@@ -151,7 +151,7 @@ public class PublicTransport implements iPublicTransport {
                             this.mainTimer.set(Integer.parseInt(matchedTime.group(3)), Integer.parseInt(matchedTime.group(2)),Integer.parseInt(matchedTime.group(1)));
                         }
                     }
-                } else if(!line.matches("")){
+                } else if(!line.matches("") && !line.matches("^#")){
                     return false;
                 }
             }
@@ -165,7 +165,7 @@ public class PublicTransport implements iPublicTransport {
     }
 
     /**
-     * Saves curresnt publci transport to a given file path
+     * Saves current public transport to a given file path
      * @param filePath is the file to be saved to
      * @param mainMap is the connection to map
      */

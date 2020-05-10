@@ -126,8 +126,10 @@ public class Vehicle implements iVehicle {
                         } else {
                             this.target = this.line.getRoute().getRoute().get(i+1);
                             this.targetType = this.line.getRoute().getRouteType().get(i+1);
-                            this.travelPieceX = this.target.diffX(this.start) / this.target.distance(this.start);
-                            this.travelPieceY = this.target.diffY(this.start) / this.target.distance(this.start);
+                            this.travelPieceX = (this.target.diffX(this.start) / this.target.distance(this.start))
+                                    / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
+                            this.travelPieceY = (this.target.diffY(this.start) / this.target.distance(this.start))
+                                    / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
                             this.informationTravelPiece = 30 / this.target.distance(this.start);
                             break;
                         }
@@ -142,8 +144,10 @@ public class Vehicle implements iVehicle {
                         } else {
                             this.target = this.line.getRoute().getRoute().get(i-1);
                             this.targetType = this.line.getRoute().getRouteType().get(i-1);
-                            this.travelPieceX = this.target.diffX(this.start) / this.target.distance(this.start);
-                            this.travelPieceY = this.target.diffY(this.start) / this.target.distance(this.start);
+                            this.travelPieceX = (this.target.diffX(this.start) / this.target.distance(this.start))
+                                    / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
+                            this.travelPieceY = (this.target.diffY(this.start) / this.target.distance(this.start))
+                                    / this.mainMap.getTrafficLevelByCoords(this.start, this.target);
                             this.informationTravelPiece = 30 / this.target.distance(this.start);
                             break;
                         }
@@ -404,7 +408,7 @@ public class Vehicle implements iVehicle {
 
     /**
      * Tell how much time the vehicle needs to arrive to position. When everything is OK it returns only positive values
-     * how many time it will take for the vehicle to get to stop. When error occures (when vehicle is not on route) it returns -1
+     * how many time it will take for the vehicle to get to stop. When error occurs (when vehicle is not on route) it returns -1
      * @param pos is the list index to line route coordinate list
      * @return amount in app seconds that the vehicle need to get to position, when error it returns -1
      */

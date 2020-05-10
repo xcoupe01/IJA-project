@@ -21,7 +21,7 @@ public class Map implements iMap{
 
     /**Array of all streets in map*/
     private java.util.List<Street> streets = new java.util.ArrayList<>();
-    /**Connection to public transpotr class*/
+    /**Connection to public transport class*/
     private PublicTransport mainPubTrans;
     /**Connection to information Pane*/
     private Pane informationPane;
@@ -66,7 +66,7 @@ public class Map implements iMap{
     }
 
     /**
-     * Returns list index (pointer) into street list in this map for a given street
+     * Returns list index (pointer) into street list in this map for a given street, if not found 0 returned
      * @param id is the id (probably name) of street
      * @return list index into street list to street that matches given id (name)
      */
@@ -80,7 +80,7 @@ public class Map implements iMap{
     }
 
     /**
-     * Tells if given id coresponds to some id (name) of some street in street list
+     * Tells if given id corresponds to some id (name) of some street in street list
      * @param id is the id (name) to be inspected
      * @return true if the id (name) is found false otherwise
      */
@@ -113,6 +113,7 @@ public class Map implements iMap{
         try {
             Pattern coordinate = Pattern.compile("\\[(\\d+),(\\d+)]");
             Pattern name = Pattern.compile("^\\w+ (\\w+)");
+            Pattern traffic = Pattern.compile("(\\d+)");
             File myObj = new File(filePath);
             Scanner myReader = new Scanner(myObj);
             this.streets.clear();
@@ -160,8 +161,17 @@ public class Map implements iMap{
                     } else {
                         return false;
                     }
-                } else {
-                    System.out.println("unknown command");
+                } else if(line.matches("^TRAFFIC [\\d+ ]+")){
+                    Matcher matchedTraffic = traffic.matcher(line);
+                    if(this.streets.size() > 0){
+                            for(int i = 0; matchedTraffic.find(); i++){
+                                this.streets.get(this.streets.size() - 1).setTraffic(i, Integer.parseInt(matchedTraffic.group(1)));
+                            }
+                    } else {
+                        return false;
+                    }
+                } else if(!line.matches("") && !line.matches("^#")){
+                    System.out.println("unknown command - ".concat(line));
                     return false;
                 }
             }
@@ -187,7 +197,12 @@ public class Map implements iMap{
                 for (int j = 0; j < street.getCoordinates().size(); j++) {
                     toSave.append("[").append(street.getCoordinates().get(j).getX()).append(",").append(street.getCoordinates().get(j).getY()).append("] ");
                 }
-                toSave.append('\n');
+                toSave.append("\n");
+                toSave.append("TRAFFIC");
+                for(int i = 0; i < street.getTraffic().size(); i++){
+                    toSave.append(" ".concat(String.valueOf(street.getTraffic().get(i))));
+                }
+                toSave.append("\n");
                 for (int j = 0; j < street.getStops().size(); j++) {
                     toSave.append("STOP ").append(street.getStops().get(j).getName()).append(" [").append(street.getStops().get(j).getCoord().getX()).append(",").append(street.getStops().get(j).getCoord().getY()).append("]\n");
                 }
@@ -294,5 +309,23 @@ public class Map implements iMap{
             }
         }
         return null;
+    }
+
+    /**
+     * Propagation of street class function getTrafficAt. Returns the first matched traffic by given coordinates.
+     * When traffic not found, it returns basic value 1 and writes an error note to console.
+     * @param c1 one of coordinates to be searched for
+     * @param c2 one of coordinates to be searched for
+     * @return level of traffic
+     */
+    public int getTrafficLevelByCoords(Coordinate c1, Coordinate c2){
+        for (Street street : this.streets) {
+            int tmpTraffic = street.getTrafficAt(c1, c2);
+            if (tmpTraffic != -1) {
+                return tmpTraffic;
+            }
+        }
+        System.out.println("Map.getTrafficLevelByCoords - function failed and returned basic value");
+        return 1;
     }
 }
