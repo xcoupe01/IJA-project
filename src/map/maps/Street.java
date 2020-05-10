@@ -70,9 +70,14 @@ public class Street implements iStreet{
                 this.stops.add(stop);
                 stop.setStreet(this);
                 for(int j = 0; j < this.streetRoute.size(); j++){
-                    if(this.streetRoute.get(j).equals(this.coords.get(i))){
-                        this.streetRoute.add(j, stop.getCoord());
-                        this.streetRouteType.add(j, "stop");
+                    if(this.streetRoute.get(j).equals(this.coords.get(i - 1))){
+                        for(int k = j; k < this.streetRoute.size(); k ++){
+                            if(this.streetRoute.get(j).distance(stop.getCoord()) < this.streetRoute.get(j).distance(this.streetRoute.get(k))){
+                                this.streetRoute.add(k, stop.getCoord());
+                                this.streetRouteType.add(k, "stop");
+                                break;
+                            }
+                        }
                         break;
                     }
                 }
