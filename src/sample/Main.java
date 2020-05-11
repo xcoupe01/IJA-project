@@ -10,9 +10,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import lines.line.PTLine;
-import lines.line.PublicTransport;
-import lines.line.Vehicle;
+import lines.line.*;
 import map.maps.Coordinate;
 import map.maps.Map;
 import map.maps.Stop;
@@ -439,8 +437,8 @@ public class Main extends Application {
                                 distance = mainPubTrans.getLines().get(i).getRoute().getRoute().get(j).distance(mouseCoord);
                             }
                         }
-                        mainPubTrans.getLines().get(i).addVehicle(pos, mainPubTrans);
-                        mainPubTrans.getLines().get(i).getVehicles().get(mainPubTrans.getLines().get(i).getVehicles().size() - 1).draw(mapCanvas);
+                        mainPubTrans.getLines().get(i).addVehicle(pos, mainPubTrans, mapCanvas);
+                        mainPubTrans.getLines().get(i).getVehicles().get(mainPubTrans.getLines().get(i).getVehicles().size() - 1).draw();
                         break;
                     }
                 }
@@ -761,6 +759,7 @@ public class Main extends Application {
                         toggleLineHighlight.fire();
                         toggleLineHighlight.setSelected(false);
                     }
+                    mainPubTrans.getLines().get(i).eraseVehicles();
                     mainPubTrans.getLines().remove(i);
                     updateLinesMenu(linesMenu, mainPubTrans, addLine);
                     break;

@@ -18,16 +18,14 @@ public interface iVehicle{
     void ride();
 
     /**
-     * Draws the vehicle to given Pane
-     * @param mapCanvas is the Pane where the vehicle is going to be drawn
+     * Draws the vehicle to Pane defined from constructor
      */
-    void draw(Pane mapCanvas);
+    void draw();
 
     /**
-     * Erases the vehicle from a given Pane
-     * @param mapCanvas is the Pane where the vehicle is going to be erased
+     * Erases the vehicle from defined mapCanvas from constructor
      */
-    void erase(Pane mapCanvas);
+    void erase();
 
     /**
      * Moves the vehicle with given values
@@ -81,12 +79,14 @@ public interface iVehicle{
     int howMuchTimeTo(int pos);
 
     /**
-     * Tell how much time the vehicle needs to arrive to position. It returns only positive values
-     * how many time it will take for the vehicle to get to stop.
+     * Tell how much time the vehicle needs to arrive to position. When everything is OK it returns only positive values
+     * how many time it will take for the vehicle to get to stop and which direction its going to be headed.
+     * When error occurs (when vehicle is not on route) it returns -1 in zero index in list
      * @param pos is the list index to line route coordinate list
-     * @return amount in app seconds that the vehicle need to get to position
+     * @return list where on zero index is amount in application seconds that the vehicle needs to get to position,
+     * when error it returns -1 on position zero, when no error happen on second position is forward value at the stop.
      */
-    int howMuchTimeToNext(int pos);
+    java.util.List<Integer> howMuchTimeToNext(int pos);
 
     /**
      * Sets amount of seconds that means one turn
@@ -133,4 +133,21 @@ public interface iVehicle{
      * Prepares the vehicle for removal
      */
     void removeProcedure();
+
+    /**
+     * Tells the vehicle number
+     * @return the vehicle number
+     */
+    int getVehicleNumber();
+
+    /**
+     * Sets vehicle to scheduled mode - it wont be saved by save public transport method
+     */
+    void setScheduled();
+
+    /**
+     * Gets the vehicle schedule mode
+     * @return tru if the vehicle is in the scheduled mode false otherwise
+     */
+    boolean getScheduled();
 }

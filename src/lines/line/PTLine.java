@@ -28,6 +28,8 @@ public class PTLine implements iPTLine {
     private boolean drawn = false;
     /** Connection to map*/
     private Map mainMap;
+    /** List of scheduled Connections*/
+    private java.util.List<PTConnection> scheduledConnections = new java.util.ArrayList<>();
 
     //TODO make vehicles that starts at specified time and go only once
     //TODO generate daily line schedule
@@ -70,32 +72,36 @@ public class PTLine implements iPTLine {
     public int getLineNumber(){ return this.lineNumber; }
 
     /**
-     * Adds vehicle to the line
+     * Adds vehicle to the line, it makes sure that there are not two vehicles on the road with the same number
      * @param linePoint is where the vehicle is going to be added
      * @param mainPubTrans connection to public transport
+     * @param mapCanvas is the map Pane where the vehicle will be visible
      */
-    public void addVehicle(int linePoint, PublicTransport mainPubTrans){
-        Vehicle newVehicle = new Vehicle(this, this.lineRoute.getRoute().get(linePoint), this.lineVehicles.size() + 1, mainMap, mainPubTrans);
-        this.lineVehicles.add(newVehicle);
-    }
-
-    /**
-     * Draws all line vehicles on a given Pane
-     * @param mapCanvas is the Pane where the vehicles are going to be drawn
-     */
-    public void drawVehicles(Pane mapCanvas){
-        for (Vehicle lineVehicle : this.lineVehicles) {
-            lineVehicle.draw(mapCanvas);
+    public void addVehicle(int linePoint, PublicTransport mainPubTrans, Pane mapCanvas){
+        for(int i = 1; true; i++){
+            if(this.getVehicleByNumber(i) == null){
+                Vehicle newVehicle = new Vehicle(this, this.lineRoute.getRoute().get(linePoint), i, mainMap, mainPubTrans, mapCanvas);
+                this.lineVehicles.add(newVehicle);
+                return;
+            }
         }
     }
 
     /**
-     * Erases all line vehicles on a given Pane
-     * @param mapCanvas is the Pane where the vehicles are going to be erased
+     * Draws all line vehicles
      */
-    public void eraseVehicles(Pane mapCanvas){
+    public void drawVehicles(){
         for (Vehicle lineVehicle : this.lineVehicles) {
-            lineVehicle.erase(mapCanvas);
+            lineVehicle.draw();
+        }
+    }
+
+    /**
+     * Erases all line vehicles
+     */
+    public void eraseVehicles(){
+        for (Vehicle lineVehicle : this.lineVehicles) {
+            lineVehicle.erase();
         }
     }
 
@@ -210,7 +216,7 @@ public class PTLine implements iPTLine {
                 targetVehicle = i;
             }
         }
-        this.lineVehicles.get(targetVehicle).erase(mapCanvas);
+        this.lineVehicles.get(targetVehicle).erase();
         this.lineVehicles.get(targetVehicle).removeProcedure();
         this.lineVehicles.remove(targetVehicle);
     }
@@ -233,5 +239,62 @@ public class PTLine implements iPTLine {
             }
         }
         return this.lineVehicles.get(targetVehicle);
+    }
+
+    /**
+     * Finds vehicle by vehicle number
+     * @param vehicleNumber is the vehicle number to be searched for
+     * @return the vehicle with given number or null if not found
+     */
+    public Vehicle getVehicleByNumber(int vehicleNumber){
+        for (Vehicle lineVehicle : this.lineVehicles) {
+            if (lineVehicle.getVehicleNumber() == vehicleNumber) {
+                return lineVehicle;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Removes vehicle with given vehicle number
+     * @param vehicleNumber the vehicle number of vehicle to be removed
+     */
+    public void removeVehicleByNumber(int vehicleNumber){
+        for(int i = 0; i < this.lineVehicles.size(); i++){
+            if(this.lineVehicles.get(i).getVehicleNumber() == vehicleNumber){
+                this.lineVehicles.remove(i);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Adds a scheduled connection to a list of this connections of this line
+     * @param toAdd connection to be added
+     */
+    public void addScheduledConnection(PTConnection toAdd){ this.scheduledConnections.add(toAdd); }
+
+    /**
+     * returns a list of scheduled connections on this line
+     * @return list of connections on this line
+     */
+    public java.util.List<PTConnection> getScheduledConnections(){ return this.scheduledConnections; }
+
+    /**
+     * checks if any of scheduled connection should depart or arrive (also works when the time is going backwards
+     */
+    public void tickCheckScheduledConnections(){
+        for (PTConnection scheduledConnection : this.scheduledConnections) {
+            scheduledConnection.tickCheck();
+        }
+    }
+
+    /**
+     * Refreshes all scheduled connections arrival times and active value
+     */
+    public void refreshArrivalTimes(){
+        for (PTConnection scheduledConnection : this.scheduledConnections) {
+            scheduledConnection.refreshArrivalTime();
+        }
     }
 }

@@ -2,6 +2,7 @@ package lines.Iline;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import lines.line.PTConnection;
 import lines.line.PublicTransport;
 import lines.line.Route;
 import lines.line.Vehicle;
@@ -41,23 +42,22 @@ public interface iPTLine{
     int getLineNumber();
 
     /**
-     * Adds vehicle to the line
+     * Adds vehicle to the line, it makes sure that there are not two vehicles on the road with the same number
      * @param linePoint is where the vehicle is going to be added
      * @param mainPubTrans connection to public transport
+     * @param mapCanvas is the map Pane where the vehicle will be visible
      */
-    void addVehicle(int linePoint, PublicTransport mainPubTrans);
+    void addVehicle(int linePoint, PublicTransport mainPubTrans, Pane mapCanvas);
 
     /**
-     * Draws all line vehicles on a given Pane
-     * @param mapCanvas is the Pane where the vehicles are going to be drawn
+     * Draws all line vehicles
      */
-    void drawVehicles(Pane mapCanvas);
+    void drawVehicles();
 
     /**
-     * Erases all line vehicles on a given Pane
-     * @param mapCanvas is the Pane where the vehicles are going to be erased
+     * Erases all line vehicles
      */
-    void eraseVehicles(Pane mapCanvas);
+    void eraseVehicles();
 
     /**
      * Draws line route highlight on a given Pane
@@ -127,4 +127,39 @@ public interface iPTLine{
      * @return the closest vehicle to a given point
      */
     Vehicle getNearestVehicle(Coordinate mouseCoord);
+
+    /**
+     * Finds vehicle by vehicle number
+     * @param vehicleNumber is the vehicle number to be searched for
+     * @return the vehicle with given number or null if not found
+     */
+    Vehicle getVehicleByNumber(int vehicleNumber);
+
+    /**
+     * Removes vehicle with given vehicle number
+     * @param vehicleNumber the vehicle number of vehicle to be removed
+     */
+    void removeVehicleByNumber(int vehicleNumber);
+
+    /**
+     * Adds a scheduled connection to a list of this connections of this line
+     * @param toAdd connection to be added
+     */
+    void addScheduledConnection(PTConnection toAdd);
+
+    /**
+     * returns a list of scheduled connections on this line
+     * @return list of connections on this line
+     */
+    java.util.List<PTConnection> getScheduledConnections();
+
+    /**
+     * checks if any of scheduled connection should depart or arrive (also works when the time is going backwards
+     */
+    void tickCheckScheduledConnections();
+
+    /**
+     * Refreshes all scheduled connections arrival times and active value
+     */
+    void refreshArrivalTimes();
 }

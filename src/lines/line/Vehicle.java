@@ -40,7 +40,7 @@ public class Vehicle implements iVehicle {
     private double travelPieceY;
     /** Actual position of the vehicle on X axis (in double, in coord is less accurate)*/
     private double exactCoordX;
-    /** Actual position of the vehicle on Y axis (in double, in coord is less accurate)*/
+    /** Actual position of the vehicle on Y axis (in double, in coord is.lineVehicles.size() + 1 is less accurate)*/
     private double exactCoordY;
     /** List index of the line route for vehicle*/
     private int informationPaneCounter;
@@ -65,23 +65,27 @@ public class Vehicle implements iVehicle {
     /** Connection to public transport*/
     private PublicTransport mainPubTrans;
     /** Tells how many seconds means one turn*/
-    private int turnMeansSec = 10;
+    private int turnMeansSec;
     /** Tells how many steps vehicle waits at stop*/
-    private int turnsAtStop = 20;
+    private int turnsAtStop;
     /** Tells if vehicle occupies information Pane*/
     private boolean informationPaneOccupy = false;
-    /***/
+    /** Tells if the vehicle is off its route*/
     private boolean offRoad = false;
+    /** Tells if the vehicle is created by schedule*/
+    private boolean scheduled = false;
+    /***/
+    private Pane mapCanvas;
 
     /**
      * Native constructor of Vehicle class
      * @param line is the line to which the vehicle belongs
      * @param start is the starting point of the vehicle
-     * @param vehicleNumber is the vehicle number
+     * @param vehicleNumber is the vehicle number (number 0 is reserved for application)
      * @param mainMap is connection to map
      * @param mainPubTrans is connection to public transport
      */
-    Vehicle(PTLine line, Coordinate start, int vehicleNumber, Map mainMap, PublicTransport mainPubTrans){
+    Vehicle(PTLine line, Coordinate start, int vehicleNumber, Map mainMap, PublicTransport mainPubTrans, Pane mapCanvas){
         this.line = line;
         this.vehicle.setStroke(Color.BLACK);
         this.vehicle.setFill(this.line.getLineColor());
@@ -105,6 +109,9 @@ public class Vehicle implements iVehicle {
         this.vehicleNumber = vehicleNumber;
         this.mainMap = mainMap;
         this.mainPubTrans = mainPubTrans;
+        this.turnMeansSec = this.mainPubTrans.getTickMeansSec();
+        this.turnsAtStop = this.mainPubTrans.getTurnsAtStop();
+        this.mapCanvas = mapCanvas;
     }
 
     /**
@@ -122,6 +129,7 @@ public class Vehicle implements iVehicle {
                             if(this.informationPaneOccupy){
                                 this.drawInformation();
                             }
+                            this.informationPaneCounter = this.line.getRoute().getRoute().size() - 1;
                             break;
                         } else {
                             this.target = this.line.getRoute().getRoute().get(i+1);
@@ -141,6 +149,7 @@ public class Vehicle implements iVehicle {
                             if(this.informationPaneOccupy){
                                 this.drawInformation();
                             }
+                            this.informationPaneCounter = 0;
                             break;
                         } else {
                             this.target = this.line.getRoute().getRoute().get(i-1);
@@ -167,17 +176,26 @@ public class Vehicle implements iVehicle {
                         tmpCounter = i;
                     }
                 }
-                assert tmpCoord != null;
-                this.coord.setX(tmpCoord.getX());
-                this.coord.setY(tmpCoord.getY());
-                this.start = tmpCoord;
-                this.exactCoordX = tmpCoord.getX();
-                this.exactCoordY = tmpCoord.getY();
-                this.informationPaneCounter = tmpCounter;
+                if(tmpCoord != null){
+                    this.coord.setX(tmpCoord.getX());
+                    this.coord.setY(tmpCoord.getY());
+                    this.start = tmpCoord;
+                    this.exactCoordX = tmpCoord.getX();
+                    this.exactCoordY = tmpCoord.getY();
+                    this.informationPaneCounter = tmpCounter;
+                } else {
+                    // line route have no points -> kamikaze
+                    this.informationPaneCounter = 0;
+                    this.removeProcedure();
+                    this.erase();
+                }
             }
         } else if(this.wait > 0){
             this.wait --;
         } else if(this.coord.distance(this.target) > 1){
+            if(!this.drawn && this.vehicleNumber != 0){
+                this.draw();
+            }
             this.turns ++;
             this.exactCoordX = this.exactCoordX + this.travelPieceX;
             this.exactCoordY = this.exactCoordY + this.travelPieceY;
@@ -212,24 +230,22 @@ public class Vehicle implements iVehicle {
     }
 
     /**
-     * Draws the vehicle to given Pane
-     * @param mapCanvas is the Pane where the vehicle is going to be drawn
+     * Draws the vehicle to Pane defined from constructor
      */
-    public void draw(Pane mapCanvas) {
+    public void draw() {
         if (!this.drawn) {
             this.vehicle.setFill(this.line.getLineColor());
-            mapCanvas.getChildren().add(this.vehicle);
+            this.mapCanvas.getChildren().add(this.vehicle);
             this.drawn = true;
         }
     }
 
     /**
-     * Erases the vehicle from a given Pane
-     * @param mapCanvas is the Pane where the vehicle is going to be erased
+     * Erases the vehicle from defined mapCanvas from constructor
      */
-    public void erase(Pane mapCanvas){
+    public void erase(){
         if(this.drawn){
-            mapCanvas.getChildren().remove(this.vehicle);
+            this.mapCanvas.getChildren().remove(this.vehicle);
             this.drawn = false;
         }
     }
@@ -393,7 +409,7 @@ public class Vehicle implements iVehicle {
             this.offRoad = true;
             return 0;
         }
-        Vehicle tmpVehicle = new Vehicle(this.line, this.line.getRoute().getRoute().get(this.informationPaneCounter), 0, this.mainMap, this.mainPubTrans);
+        Vehicle tmpVehicle = new Vehicle(this.line, this.line.getRoute().getRoute().get(this.informationPaneCounter), 0, this.mainMap, this.mainPubTrans, null);
         if(pos < this.informationPaneCounter){
             tmpVehicle.setForward(false);
         }
@@ -410,12 +426,16 @@ public class Vehicle implements iVehicle {
 
     /**
      * Tell how much time the vehicle needs to arrive to position. When everything is OK it returns only positive values
-     * how many time it will take for the vehicle to get to stop. When error occurs (when vehicle is not on route) it returns -1
+     * how many time it will take for the vehicle to get to stop and which direction its going to be headed.
+     * When error occurs (when vehicle is not on route) it returns -1 in zero index in list
      * @param pos is the list index to line route coordinate list
-     * @return amount in app seconds that the vehicle need to get to position, when error it returns -1
+     * @return list where on zero index is amount in application seconds that the vehicle needs to get to position,
+     * when error it returns -1 on position zero, when no error happen on second position is forward value at the stop
+     * (forward = true <=> .get(1) = 1).
      */
-    public int howMuchTimeToNext(int pos){
+    public java.util.List<Integer> howMuchTimeToNext(int pos){
         int tmpSeconds = 0;
+        java.util.List<Integer> returnVal = new java.util.ArrayList<>();
         if(this.turns > 0){
             tmpSeconds -= this.turns * this.turnMeansSec;
         }
@@ -423,9 +443,10 @@ public class Vehicle implements iVehicle {
             tmpSeconds += this.wait * this.turnMeansSec;
         }
         if(this.informationPaneCounter >= this.line.getRoute().getRoute().size()){
-            return -1;
+            returnVal.add(-1);
+            return returnVal;
         }
-        Vehicle tmpVehicle = new Vehicle(this.line, this.line.getRoute().getRoute().get(this.informationPaneCounter), 0, this.mainMap, this.mainPubTrans);
+        Vehicle tmpVehicle = new Vehicle(this.line, this.line.getRoute().getRoute().get(this.informationPaneCounter), 0, this.mainMap, this.mainPubTrans, null);
         tmpVehicle.setForward(this.forward);
         int steps = 0;
         if(this.turns > 0 && tmpVehicle.getStartPosition() == pos ){
@@ -438,7 +459,13 @@ public class Vehicle implements iVehicle {
             steps ++;
             tmpVehicle.ride();
         }
-        return (steps * this.turnMeansSec) + tmpSeconds;
+        returnVal.add((steps * this.turnMeansSec) + tmpSeconds);
+        if(tmpVehicle.getForward()){
+            returnVal.add(1);
+        } else {
+            returnVal.add(0);
+        }
+        return returnVal;
 
     }
 
@@ -484,7 +511,7 @@ public class Vehicle implements iVehicle {
             this.ride();
             this.wait = tmpWait;
         } else {
-            Vehicle tmpVehicle = new Vehicle(this.line, this.start, 0, this.mainMap, this.mainPubTrans);
+            Vehicle tmpVehicle = new Vehicle(this.line, this.start, 0, this.mainMap, this.mainPubTrans, null);
             tmpVehicle.setForward(this.forward);
             int counter = 0;
             while(tmpVehicle.getStartCoordinate().equals(this.target)){
@@ -524,5 +551,22 @@ public class Vehicle implements iVehicle {
         removeText.setX(20);
         removeText.setY(50);
     }
+
+    /**
+     * Tells the vehicle number
+     * @return the vehicle number
+     */
+    public int getVehicleNumber(){ return this.vehicleNumber; }
+
+    /**
+     * Sets vehicle to scheduled mode - it wont be saved by save public transport method
+     */
+    public void setScheduled(){ this.scheduled = true; }
+
+    /**
+     * Gets the vehicle schedule mode
+     * @return tru if the vehicle is in the scheduled mode false otherwise
+     */
+    public boolean getScheduled(){ return this.scheduled; }
 
 }

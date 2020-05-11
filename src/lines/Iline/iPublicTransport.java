@@ -72,16 +72,14 @@ public interface iPublicTransport{
     void toggleHighlight(Pane mapCanvas);
 
     /**
-     * Draws all vehicles on a given Pane
-     * @param mapCanvas is the Pane where the vehicles are going to be drawn
+     * Draws all vehicles
      */
-    void drawAllVehicles(Pane mapCanvas);
+    void drawAllVehicles();
 
     /**
-     * Erases all vehicles on a given Pane
-     * @param mapCanvas is the Pane where the vehicles are going to be erased
+     * Erases all vehicles
      */
-    void eraseAllVehicles(Pane mapCanvas);
+    void eraseAllVehicles();
 
     /**
      * Makes one animation step
@@ -183,5 +181,16 @@ public interface iPublicTransport{
      * Tells how many ticks every vehicle waits on stops
      * @return number of ticks vehicles waits on stops
      */
-    int getTicksAtStop();
+    int getTurnsAtStop();
+
+    /**
+     * Tells which direction is the animation going
+     * @return true if forward false if backward
+     */
+    boolean getAnimationForward();
+
+    /**
+     * Checks all line schedules for departures and arrivals
+     */
+    void checkAllSchedules();
 }

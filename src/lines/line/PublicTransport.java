@@ -34,7 +34,7 @@ public class PublicTransport implements iPublicTransport {
     /** Tells how many seconds is added every step*/
     private int tickMeansSec = 10;
     /** Tells how many steps should vehicles wait at stop*/
-    private int ticksAtStop = 20;
+    private int turnsAtStop = 20;
     /** Connection to map*/
     private Map mainMap;
     /** Tells if the animator is stopped*/
@@ -43,6 +43,8 @@ public class PublicTransport implements iPublicTransport {
     private int animationStepDelay = 100;
     /** Tells if the animator is playing*/
     private boolean animatorPlaying = false;
+    /** Tells if the animating is going forward*/
+    private boolean animationForward = true;
 
     //TODO generate daily timetable
 
@@ -93,9 +95,10 @@ public class PublicTransport implements iPublicTransport {
             Pattern properties = Pattern.compile("^LINE (\\d+) (\\w+)");
             Pattern vehicle = Pattern.compile("^VEHICLE (\\d+) (\\w+) (\\d+)$");
             Pattern time = Pattern.compile("^TIME (\\d+):(\\d+):(\\d+)$");
+            Pattern schedule = Pattern.compile("^SCHEDULE (\\d+):(\\d+):(\\d+) (\\w+)$");
             File myFile = new File(filePath);
             Scanner myReader = new Scanner(myFile);
-            this.eraseAllVehicles(mapCanvas);
+            this.eraseAllVehicles();
             this.highlightAllRoutesOff(mapCanvas);
             this.lines.clear();
             while(myReader.hasNextLine()){
@@ -129,7 +132,7 @@ public class PublicTransport implements iPublicTransport {
                 } else if(line.matches("^VEHICLE \\d+ \\w+ \\d+$")){
                     Matcher matchedVehicles = vehicle.matcher(line);
                     if(matchedVehicles.find() && this.lines.size() > 0 && this.lines.get(this.lines.size() - 1).getRoute().getRoute().size() > Integer.parseInt(matchedVehicles.group(1))){
-                        this.lines.get(this.lines.size() - 1).addVehicle(Integer.parseInt(matchedVehicles.group(1)), this);
+                        this.lines.get(this.lines.size() - 1).addVehicle(Integer.parseInt(matchedVehicles.group(1)), this, mapCanvas);
                         this.lines.get(this.lines.size() - 1).getVehicles().get(this.lines.get(this.lines.size() - 1).getVehicles().size() - 1).setInformationPane(lineInformationPane);
                         if(matchedVehicles.group(2).equals("forward")){
                             this.lines.get(this.lines.size() - 1).getVehicles().get(this.lines.get(this.lines.size() - 1).getVehicles().size() - 1).setForward(true);
@@ -151,6 +154,19 @@ public class PublicTransport implements iPublicTransport {
                             this.mainTimer.set(Integer.parseInt(matchedTime.group(3)), Integer.parseInt(matchedTime.group(2)),Integer.parseInt(matchedTime.group(1)));
                         }
                     }
+                } else if(line.matches("^SCHEDULE \\d+:\\d+:\\d+ \\w+$")){
+                    Matcher matchedSchedules = schedule.matcher(line);
+                    if(matchedSchedules.find() && this.lines.size() > 0){
+                        Timer tmpTimer = new Timer();
+                        tmpTimer.set(Integer.parseInt(matchedSchedules.group(3)), Integer.parseInt(matchedSchedules.group(2)), Integer.parseInt(matchedSchedules.group(1)));
+                        if(matchedSchedules.group(4).equals("forward")){
+                            PTConnection tmpPTConnection = new PTConnection(this.lines.get(this.lines.size() - 1), tmpTimer, true, this.mainMap, this, lineInformationPane, mapCanvas);
+                            this.lines.get(this.lines.size() - 1).addScheduledConnection(tmpPTConnection);
+                        } else if(matchedSchedules.group(4).equals("backward")){
+                            PTConnection tmpPTConnection = new PTConnection(this.lines.get(this.lines.size() - 1), tmpTimer, true, this.mainMap, this, lineInformationPane, mapCanvas);
+                            this.lines.get(this.lines.size() - 1).addScheduledConnection(tmpPTConnection);
+                        }
+                    }
                 } else if(!line.matches("") && !line.matches("^#")){
                     return false;
                 }
@@ -159,7 +175,7 @@ public class PublicTransport implements iPublicTransport {
             e.printStackTrace();
             return false;
         }
-    this.drawAllVehicles(mapCanvas);
+    this.drawAllVehicles();
         this.updateTimeDisplay();
     return true;
     }
@@ -193,13 +209,28 @@ public class PublicTransport implements iPublicTransport {
                 }
                 toSave.append("\n");
                 for (int i = 0; i < line.getVehicles().size(); i++){
-                    toSave.append("VEHICLE ").append(line.getVehicles().get(i).getStartPosition());
-                    if(line.getVehicles().get(i).getForward()){
-                        toSave.append(" forward ");
-                    } else {
-                        toSave.append(" backward ");
+                    if(!line.getVehicles().get(i).getScheduled()){
+                        toSave.append("VEHICLE ").append(line.getVehicles().get(i).getStartPosition());
+                        if(line.getVehicles().get(i).getForward()){
+                            toSave.append(" forward ");
+                        } else {
+                            toSave.append(" backward ");
+                        }
+                        toSave.append(line.getVehicles().get(i).getTurns()).append("\n");
                     }
-                    toSave.append(line.getVehicles().get(i).getTurns()).append("\n");
+                }
+                for(int i = 0; i < line.getScheduledConnections().size(); i++){
+                    toSave.append("SCHEDULE ");
+                    toSave.append(line.getScheduledConnections().get(i).getDepartureTime().getHours());
+                    toSave.append(":");
+                    toSave.append(line.getScheduledConnections().get(i).getDepartureTime().getMinutes());
+                    toSave.append(":");
+                    toSave.append(line.getScheduledConnections().get(i).getDepartureTime().getSeconds());
+                    if(line.getScheduledConnections().get(i).getVehicleForward()){
+                        toSave.append(" forward\n");
+                    } else {
+                        toSave.append(" backward\n");
+                    }
                 }
             }
             file.write(String.valueOf(toSave));
@@ -244,22 +275,20 @@ public class PublicTransport implements iPublicTransport {
     }
 
     /**
-     * Draws all vehicles on a given Pane
-     * @param mapCanvas is the Pane where the vehicles are going to be drawn
+     * Draws all vehicles
      */
-    public void drawAllVehicles(Pane mapCanvas){
+    public void drawAllVehicles(){
         for (PTLine line : this.lines) {
-            line.drawVehicles(mapCanvas);
+            line.drawVehicles();
         }
     }
 
     /**
-     * Erases all vehicles on a given Pane
-     * @param mapCanvas is the Pane where the vehicles are going to be erased
+     * Erases all vehicles
      */
-    public void eraseAllVehicles(Pane mapCanvas){
+    public void eraseAllVehicles(){
         for (PTLine line : this.lines) {
-            line.eraseVehicles(mapCanvas);
+            line.eraseVehicles();
         }
     }
 
@@ -267,7 +296,11 @@ public class PublicTransport implements iPublicTransport {
      * Makes one animation step
      */
     public void animationStep(){
-        this.mainTimer.addSeconds(this.tickMeansSec);
+        this.animationForward = true;
+        for(int i = 0; i < this.tickMeansSec; i++){
+            this.mainTimer.addSecond();
+            this.checkAllSchedules();
+        }
         this.updateTimeDisplay();
         for (PTLine line : this.lines) {
             line.rideAllVehicles();
@@ -281,7 +314,11 @@ public class PublicTransport implements iPublicTransport {
      * The same as animationStep function, but it subtracts from timer
      */
     public void oppositeAnimationStep(){
-        this.mainTimer.addSeconds(- this.tickMeansSec);
+        this.animationForward = false;
+        for(int i = 0; i < this.tickMeansSec; i++){
+            this.mainTimer.subSecond();
+            this.checkAllSchedules();
+        }
         this.updateTimeDisplay();
         for (PTLine line : this.lines) {
             line.rideAllVehicles();
@@ -330,7 +367,7 @@ public class PublicTransport implements iPublicTransport {
      * @param num the amount of animation steps vehicles will wait at stops
      */
     public void setTicksAtStop(int num){
-        this.ticksAtStop = num;
+        this.turnsAtStop = num;
         for (PTLine line : this.lines) {
             line.setVehiclesTicksAtStop(num);
         }
@@ -421,11 +458,13 @@ public class PublicTransport implements iPublicTransport {
 
     /**
      * Executes route check function on all line routes (check updateRouteByMap function in Route class)
+     * and corrects arrival times for scheduled connections
      * @param mapCanvas is the Pane where the route highlights can be visible
      */
     public void correctLineRoutes(Pane mapCanvas){
         for (PTLine line : this.lines) {
             line.getRoute().updateRouteByMap(mapCanvas);
+            line.refreshArrivalTimes();
         }
     }
 
@@ -433,5 +472,20 @@ public class PublicTransport implements iPublicTransport {
      * Tells how many ticks every vehicle waits on stops
      * @return number of ticks vehicles waits on stops
      */
-    public int getTicksAtStop(){ return this.ticksAtStop; }
+    public int getTurnsAtStop(){ return this.turnsAtStop; }
+
+    /**
+     * Tells which direction is the animation going
+     * @return true if forward false if backward
+     */
+    public boolean getAnimationForward(){ return this.animationForward; }
+
+    /**
+     * Checks all line schedules for departures and arrivals
+     */
+    public void checkAllSchedules(){
+        for (PTLine line : this.lines) {
+            line.tickCheckScheduledConnections();
+        }
+    }
 }

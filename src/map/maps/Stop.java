@@ -155,16 +155,42 @@ public class Stop implements iStop{
                 for(int j = 0; j < this.mainPubTrans.getLines().get(i).getVehicles().size(); j++){
                     Timer tmpTime = new Timer();
                     Text informationLine = new Text();
-                    int tmpSecondsToNext = this.mainPubTrans.getLines().get(i).getVehicles().get(j).howMuchTimeToNext(pos);
+                    java.util.List<Integer> tmpSecondsToNextList = this.mainPubTrans.getLines().get(i).getVehicles().get(j).howMuchTimeToNext(pos);
+                    int tmpSecondsToNext = tmpSecondsToNextList.get(0);
                     if(tmpSecondsToNext == -1){
                         informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat("off route")));
                     } else {
+                        int tmpForwardToNext = tmpSecondsToNextList.get(1);
                         tmpTime.addSeconds(tmpSecondsToNext);
                         if(this.mainPubTrans.getLines().get(i).getVehicles().get(j).getStartPosition() == pos &&
                                 this.mainPubTrans.getLines().get(i).getVehicles().get(j).getTurns() == 0){
-                            informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat("at stop")));
+                            if(tmpForwardToNext == 1){
+                                informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" > - ").concat("at stop")));
+                            } else {
+                                informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" < - ").concat("at stop")));
+                            }
                         } else {
-                            informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" - ").concat(String.valueOf(tmpTime.getHours() * 60 + tmpTime.getMinutes())).concat(" mins")));
+                            if(tmpForwardToNext == 1){
+                                if(this.mainPubTrans.getLines().get(i).getVehicles().get(j).getScheduled()){
+                                    if(this.mainPubTrans.getLines().get(i).getVehicles().get(j).howMuchTimeTo(pos) > 0){
+                                        informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" < - ").concat(String.valueOf(tmpTime.getHours() * 60 + tmpTime.getMinutes())).concat(" mins")));
+                                    } else {
+                                        informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" < - departed")));
+                                    }
+                                } else {
+                                    informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" > - ").concat(String.valueOf(tmpTime.getHours() * 60 + tmpTime.getMinutes())).concat(" mins")));
+                                }
+                            } else {
+                                if(this.mainPubTrans.getLines().get(i).getVehicles().get(j).getScheduled()){
+                                    if(this.mainPubTrans.getLines().get(i).getVehicles().get(j).howMuchTimeTo(pos) > 0){
+                                        informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" < - ").concat(String.valueOf(tmpTime.getHours() * 60 + tmpTime.getMinutes())).concat(" mins")));
+                                    } else {
+                                        informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" < - departed")));
+                                    }
+                                } else {
+                                    informationLine.setText(("vehicle ".concat(String.valueOf(j+1)).concat(" < - ").concat(String.valueOf(tmpTime.getHours() * 60 + tmpTime.getMinutes())).concat(" mins")));
+                                }
+                            }
                         }
                     }
                     informationLine.setX(35);

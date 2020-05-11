@@ -225,7 +225,11 @@ public class Route implements iRoute {
         int length = 0;
         int currentLength = 0;
         int lastPromisingPoint = 0;
+        // this causes weird object disconnection bug, dunno why but the second
+        // line should fix the disconnection cause on the first line.
         Route tmpTestRoute = new Route(this.map, this.line);
+        this.line.setRoute(this);
+        //--------
         for(int i = 0; i < this.coords.size(); i++){
             if(this.map.isCoordOnMap(this.coords.get(i)) && tmpTestRoute.canAdd(this.coords.get(i), this.type.get(i))){
                 if(this.type.get(i).equals("stop")){

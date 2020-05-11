@@ -1,5 +1,7 @@
 package lines.Iline;
 
+import lines.line.Timer;
+
 /**
  * iTimer interface
  * implemented by class Timer
@@ -50,4 +52,12 @@ public interface iTimer {
      * @param hours is number of hours (if the value is wrong it wont be added)
      */
     void set(int seconds, int minutes, int hours);
+
+    /**
+     * Tells if time of this timer is between the given time interval
+     * @param timeStart is the start of the time interval
+     * @param timeEnd is the end of time interval
+     * @return true if it i in the time interval, false otherwise
+     */
+    boolean isTimeBetweenTwoTimes(Timer timeStart, Timer timeEnd);
 }

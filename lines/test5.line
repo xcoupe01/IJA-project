@@ -1,17 +1,15 @@
-TIME 12:15:00
+TIME 12:16:40
 LINE 1 0x0000ffff [ulice1,1] [ulice1,2] [ulice1,3] [ulice1,4] [ulice4,5] [ulice3,4] [ulice3,3] [ulice3,2] [ulice3,1]
-VEHICLE 0 forward 0
-VEHICLE 3 backward 0
-VEHICLE 5 backward 0
-SCHEDULE 12:5:0 forward
-SCHEDULE 13:5:0 backward
+VEHICLE 0 forward 10
+VEHICLE 3 backward 10
+VEHICLE 5 backward 10
 LINE 2 0x008000ff [ulice1,7] [ulice1,6] [ulice1,5] [ulice1,4] [ulice4,7] [ulice4,8] [ulice4,9]
-VEHICLE 1 forward 0
-VEHICLE 3 forward 0
-VEHICLE 5 backward 0
+VEHICLE 1 forward 10
+VEHICLE 3 forward 10
+VEHICLE 5 backward 10
 LINE 3 0xffff00ff [ulice2,5] [ulice2,6] [ulice4,3] [ulice3,4] [ulice3,5] [ulice3,6] [ulice3,7]
-VEHICLE 0 forward 0
-VEHICLE 2 forward 0
+VEHICLE 0 forward 10
+VEHICLE 2 forward 10
 LINE 4 0xff0000ff [ulice3,7] [ulice3,6] [ulice3,5] [ulice3,4] [ulice3,3] [ulice3,2] [ulice3,1]
-VEHICLE 0 forward 0
-VEHICLE 5 backward 0
+VEHICLE 0 forward 10
+VEHICLE 5 backward 10

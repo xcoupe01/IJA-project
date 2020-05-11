@@ -109,4 +109,24 @@ public class Timer implements iTimer {
         }
     }
 
+    /**
+     * Tells if time of this timer is between the given time interval
+     * @param timeStart is the start of the time interval
+     * @param timeEnd is the end of time interval
+     * @return true if it i in the time interval, false otherwise
+     */
+    public boolean isTimeBetweenTwoTimes(Timer timeStart, Timer timeEnd){
+        Timer begin = new Timer();
+        begin.set(timeStart.getSeconds(), timeStart.getMinutes(), timeStart.getHours());
+        while(!(begin.getHours() == timeEnd.getHours() &&
+                begin.getMinutes() == timeEnd.getMinutes() &&
+                begin.getSeconds() == timeEnd.getSeconds())){
+            begin.addSecond();
+            if(this.hours == begin.getHours() && this.minutes == begin.getMinutes() && this.seconds == begin.getSeconds()){
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
