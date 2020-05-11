@@ -163,7 +163,7 @@ public class PublicTransport implements iPublicTransport {
                             PTConnection tmpPTConnection = new PTConnection(this.lines.get(this.lines.size() - 1), tmpTimer, true, this.mainMap, this, lineInformationPane, mapCanvas);
                             this.lines.get(this.lines.size() - 1).addScheduledConnection(tmpPTConnection);
                         } else if(matchedSchedules.group(4).equals("backward")){
-                            PTConnection tmpPTConnection = new PTConnection(this.lines.get(this.lines.size() - 1), tmpTimer, true, this.mainMap, this, lineInformationPane, mapCanvas);
+                            PTConnection tmpPTConnection = new PTConnection(this.lines.get(this.lines.size() - 1), tmpTimer, false, this.mainMap, this, lineInformationPane, mapCanvas);
                             this.lines.get(this.lines.size() - 1).addScheduledConnection(tmpPTConnection);
                         }
                     }
