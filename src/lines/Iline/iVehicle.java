@@ -150,4 +150,10 @@ public interface iVehicle{
      * @return tru if the vehicle is in the scheduled mode false otherwise
      */
     boolean getScheduled();
+
+    /**
+     * Sets drawn value
+     * @param set value to be set
+     */
+    void setDrawn(boolean set);
 }

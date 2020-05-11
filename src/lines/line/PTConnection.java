@@ -45,7 +45,7 @@ public class PTConnection implements iPTConnection {
      * @param informationPane is the information pane connection
      * @param mapCanvas is the map pane connection
      */
-    PTConnection(PTLine line, Timer departureTime, boolean vehicleForward, Map mainMap, PublicTransport mainPubTrans, Pane informationPane, Pane mapCanvas){
+    public PTConnection(PTLine line, Timer departureTime, boolean vehicleForward, Map mainMap, PublicTransport mainPubTrans, Pane informationPane, Pane mapCanvas){
         this.line = line;
         this.mapCanvas = mapCanvas;
         this.informationPane = informationPane;
@@ -181,4 +181,14 @@ public class PTConnection implements iPTConnection {
      * @return the planned vehicle orientation
      */
     public boolean getVehicleForward(){ return this.vehicleForward; }
+
+    /**
+     * Prepares connection for deletion
+     */
+    public void removeProcedure(){
+        if(this.vehicleNumber != -1){
+            this.line.getVehicleByNumber(this.vehicleNumber).removeProcedure();
+        }
+        this.line.removeVehicleByNumber(this.vehicleNumber);
+    }
 }

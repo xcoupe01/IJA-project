@@ -42,6 +42,10 @@ public class Main extends Application {
     private int timeTravelHoursValue = 0;
     /** Selected street segment value*/
     private int selectedSegment = 0;
+    /** Selected connection value*/
+    private int selectedConnection = -1;
+    private int connectionHours = 0;
+    private int connectionMinutes = 0;
 
     //TODO add button collision control
 
@@ -59,7 +63,7 @@ public class Main extends Application {
         // main objects of the app
         HBox root = new HBox();
         VBox menu = new VBox();
-        Scene mainScene = new Scene(root, 1000, 600);
+        Scene mainScene = new Scene(root, 1000, 650);
         Map mainMap = new Map();
         PublicTransport mainPubTrans = new PublicTransport(mainMap);
         mainMap.attachPubTrans(mainPubTrans);
@@ -105,6 +109,14 @@ public class Main extends Application {
         ColorPicker newLineColor = new ColorPicker();
         ToggleButton addVehicle = new ToggleButton("Add vehicle");
         ToggleButton removeVehicle = new ToggleButton("Remove vehicle");
+        Accordion scheduledConnectionList = new Accordion();
+        ScrollPane scheduledConnectionListWrap = new ScrollPane(scheduledConnectionList);
+        Button removeConnection = new Button("Remove Connection");
+        Button addConnection = new Button("Add connection");
+        MenuButton connectionTimeHours = new MenuButton();
+        MenuButton connectionTimeMinutes = new MenuButton();
+        Button connectionDirectionButton = new Button("Forward");
+        HBox connectionButtons = new HBox();
         // overview list
         Label timeDisplay = new Label();
         Button pauseButton = new Button("Pause");
@@ -155,7 +167,8 @@ public class Main extends Application {
 
         lineMenu.getChildren().addAll(highlightAllLineRoutes, linesMenu, addLinePoint,
                 removeLastLinePoint, addVehicle, removeVehicle, toggleLineHighlight, deleteLine,
-                addLine, newLineColor, loadPublicTransp, savePublicTransp);
+                addLine, newLineColor, scheduledConnectionListWrap, connectionButtons, addConnection,
+                removeConnection, loadPublicTransp, savePublicTransp);
 
         overview.getChildren().addAll(timeDisplay, runButton, pauseButton, animationSpeed,
                 realTimeAnimationSpeed, timeTravelMenuButtons, timeTravelButtons, lineInformationPaneWrap);
@@ -163,9 +176,6 @@ public class Main extends Application {
         // real time animation button settings
         realTimeAnimationSpeed.setPrefWidth(menuWidth);
         realTimeAnimationSpeed.setOnAction(event -> mainPubTrans.setAnimationStepDelay(mainPubTrans.getTickMeansSec() * 1000));
-
-        // animation speed slider settings
-        animationSpeed.setPrefHeight(runButton.getPrefHeight());
 
         // menu bar button settings
         mapMenuButton.setOnAction(event -> {
@@ -598,6 +608,8 @@ public class Main extends Application {
         menu.setMinWidth(menuWidth);
         linesMenu.setPrefWidth(menuWidth);
         streetMenu.setPrefWidth(menuWidth);
+        addConnection.setPrefWidth(menuWidth);
+        removeConnection.setPrefWidth(menuWidth);
 
         // other UI buttons settings - pretty self explanatory
         coordRemove.setOnAction(event -> {
@@ -605,8 +617,10 @@ public class Main extends Application {
                 mapCanvas.getChildren().clear();
                 mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).removeLastCoord(mapCanvas);
                 mainMap.moveMap(mapCanvas, 0, 0);
+                mainPubTrans.correctLineRoutes(mapCanvas);
+                mainPubTrans.setAllVehiclesDrawn(false);
+                mainPubTrans.drawAllVehicles();
             }
-            mainPubTrans.correctLineRoutes(mapCanvas);
         });
 
         stopAdd.setOnAction(event ->{
@@ -783,6 +797,8 @@ public class Main extends Application {
             }
         });
 
+        // animation speed slider settings
+        animationSpeed.setPrefHeight(runButton.getPrefHeight());
         pauseButton.setOnAction(event -> mainPubTrans.setStopAnimator(true));
         runButton.setOnAction(event -> mainPubTrans.playAnimator());
         //animationSpeed.setShowTickMarks(true);
@@ -818,6 +834,94 @@ public class Main extends Application {
         // initial values settings
         mainPubTrans.setTickMeansSec(10);
         mainPubTrans.setTicksAtStop(20);
+
+        // scheduled connections Accordion setup and buttons setup
+        scheduledConnectionList.setPrefWidth(menuWidth);
+        scheduledConnectionList.setPrefHeight(menuWidth/2);
+        scheduledConnectionListWrap.setPrefHeight(menuWidth);
+        scheduledConnectionListWrap.setFitToWidth(true);
+        for (int i = 0; i < linesMenu.getItems().size(); i++) {
+            if (linesMenu.getItems().get(i).equals(linesMenu.getValue())) {
+                updateScheduledConnectionList(scheduledConnectionList, mainPubTrans.getLines().get(i));
+                break;
+            }
+        }
+        linesMenu.setOnAction(event -> {
+            for (int i = 0; i < linesMenu.getItems().size(); i++) {
+                if (linesMenu.getItems().get(i).equals(linesMenu.getValue())) {
+                    updateScheduledConnectionList(scheduledConnectionList, mainPubTrans.getLines().get(i));
+                    break;
+                }
+            }
+        });
+        connectionTimeHours.getItems().clear();
+        connectionTimeMinutes.getItems().clear();
+        for(int i = 0; i < 24; i++){
+            int finalI = i;
+            MenuItem tmpMenuItem = new MenuItem(String.valueOf(i));
+            tmpMenuItem.setOnAction(event -> {
+                this.connectionHours = finalI;
+                connectionTimeHours.setText(String.valueOf(finalI));
+            });
+            connectionTimeHours.getItems().add(tmpMenuItem);
+        }
+        for(int i = 0; i < 60; i++){
+            int finalI = i;
+            MenuItem tmpMenuItem = new MenuItem();
+            if(i < 10){
+                tmpMenuItem.setText("0".concat(String.valueOf(i)));
+                tmpMenuItem.setOnAction(event ->{
+                    this.connectionMinutes = finalI;
+                    connectionTimeMinutes.setText("0".concat(String.valueOf(finalI)));
+                });
+            } else {
+                tmpMenuItem.setText(String.valueOf(i));
+                tmpMenuItem.setOnAction(event ->{
+                    this.connectionMinutes = finalI;
+                    connectionTimeMinutes.setText(String.valueOf(finalI));
+                });
+            }
+            connectionTimeMinutes.getItems().addAll(tmpMenuItem);
+        }
+        connectionDirectionButton.setPrefWidth(menuWidth/3);
+        connectionTimeHours.setPrefWidth(menuWidth/3);
+        connectionTimeMinutes.setPrefWidth(menuWidth/3);
+        connectionDirectionButton.setOnAction(event -> {
+            if(connectionDirectionButton.getText().equals("Forward")){
+                connectionDirectionButton.setText("Backward");
+            } else {
+                connectionDirectionButton.setText("Forward");
+            }
+        });
+        connectionButtons.getChildren().addAll(connectionTimeHours, connectionTimeMinutes, connectionDirectionButton);
+        connectionTimeHours.getItems().get(0).fire();
+        connectionTimeMinutes.getItems().get(0).fire();
+        addConnection.setOnAction(event -> {
+            Timer tmpTimer = new Timer();
+            tmpTimer.set(0, this.connectionMinutes, this.connectionHours);
+            for (int i = 0; i < linesMenu.getItems().size(); i++) {
+                if (linesMenu.getItems().get(i).equals(linesMenu.getValue())) {
+                    if(connectionDirectionButton.getText().equals("Forward")){
+                        PTConnection tmpConnection = new PTConnection(mainPubTrans.getLines().get(i), tmpTimer, true, mainMap, mainPubTrans, lineInformationPane, mapCanvas);
+                        mainPubTrans.getLines().get(i).addScheduledConnection(tmpConnection);
+                    } else {
+                        PTConnection tmpConnection = new PTConnection(mainPubTrans.getLines().get(i), tmpTimer, false, mainMap, mainPubTrans, lineInformationPane, mapCanvas);
+                        mainPubTrans.getLines().get(i).addScheduledConnection(tmpConnection);
+                    }
+                    updateScheduledConnectionList(scheduledConnectionList, mainPubTrans.getLines().get(i));
+                    break;
+                }
+            }
+        });
+        removeConnection.setOnAction(event -> {
+            for (int i = 0; i < linesMenu.getItems().size(); i++) {
+                if (linesMenu.getItems().get(i).equals(linesMenu.getValue())) {
+                    mainPubTrans.getLines().get(i).removeScheduledConnection(this.selectedConnection);
+                    updateScheduledConnectionList(scheduledConnectionList, mainPubTrans.getLines().get(i));
+                    break;
+                }
+            }
+        });
 
     }
 
@@ -879,7 +983,7 @@ public class Main extends Application {
             });
             streetSegmentChooser.getItems().add(tmpMenuItem);
             if(i == 0){
-                streetSegmentChooser.getItems().get(0).fire();
+                streetSegmentChooser.getItems().get(i).fire();
             }
         }
         MenuItem wholeStreetOption = new MenuItem("Whole street");
@@ -889,6 +993,32 @@ public class Main extends Application {
             trafficLevelChooser.setValue(1);
         });
         streetSegmentChooser.getItems().add(wholeStreetOption);
+    }
+
+    private void updateScheduledConnectionList(Accordion list, PTLine line){
+        list.getPanes().clear();
+        int counter = 0;
+        for(int i = 0; i < line.getScheduledConnections().size(); i++){
+            counter ++;
+            Label tmpText = new Label();
+            int finalI = i;
+            if(line.getScheduledConnections().get(i).getDepartureTime().getMinutes() < 10){
+                tmpText.setText("Departure time: ".concat(String.valueOf(line.getScheduledConnections().get(i).getDepartureTime().getHours()))
+                        .concat(":0").concat(String.valueOf(line.getScheduledConnections().get(i).getDepartureTime().getMinutes())));
+            } else {
+                tmpText.setText("Departure time: ".concat(String.valueOf(line.getScheduledConnections().get(i).getDepartureTime().getHours()))
+                        .concat(":").concat(String.valueOf(line.getScheduledConnections().get(i).getDepartureTime().getMinutes())));
+            }
+            if(line.getScheduledConnections().get(i).getVehicleForward()){
+                tmpText.setText(tmpText.getText().concat("\nHeading: forward"));
+            } else {
+                tmpText.setText(tmpText.getText().concat("\nHeading: backward"));
+            }
+            TitledPane tmpPane = new TitledPane("Connection ".concat(String.valueOf(i)), tmpText);
+            tmpPane.setOnMouseClicked(event -> this.selectedConnection = finalI);
+            list.getPanes().add(tmpPane);
+        }
+        list.setPrefHeight(counter * 27 + 75);
     }
 
     /**

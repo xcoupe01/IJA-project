@@ -162,4 +162,15 @@ public interface iPTLine{
      * Refreshes all scheduled connections arrival times and active value
      */
     void refreshArrivalTimes();
+
+    /**
+     * Sets drawn value for all vehicles in the line
+     * @param set the value that's set
+     */
+    void setVehiclesDrawn(boolean set);
+
+    /**
+     * Checks all line schedules for departures and arrivals
+     */
+    void removeScheduledConnection(int index);
 }

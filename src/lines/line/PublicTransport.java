@@ -488,4 +488,14 @@ public class PublicTransport implements iPublicTransport {
             line.tickCheckScheduledConnections();
         }
     }
+
+    /**
+     * Sets all vehicles drawn value
+     * @param set is the value to be set for all vehicles
+     */
+    public void setAllVehiclesDrawn(boolean set){
+        for (PTLine line : this.lines) {
+            line.setVehiclesDrawn(set);
+        }
+    }
 }

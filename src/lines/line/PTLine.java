@@ -31,7 +31,6 @@ public class PTLine implements iPTLine {
     /** List of scheduled Connections*/
     private java.util.List<PTConnection> scheduledConnections = new java.util.ArrayList<>();
 
-    //TODO make vehicles that starts at specified time and go only once
     //TODO generate daily line schedule
 
     /**
@@ -295,6 +294,27 @@ public class PTLine implements iPTLine {
     public void refreshArrivalTimes(){
         for (PTConnection scheduledConnection : this.scheduledConnections) {
             scheduledConnection.refreshArrivalTime();
+        }
+    }
+
+    /**
+     * Sets drawn value for all vehicles in the line
+     * @param set the value that's set
+     */
+    public void setVehiclesDrawn(boolean set){
+        for (Vehicle lineVehicle : this.lineVehicles) {
+            lineVehicle.setDrawn(set);
+        }
+    }
+
+    /**
+     * Removes scheduled connection with given index
+     * @param index list index of connection to be removed
+     */
+    public void removeScheduledConnection(int index){
+        if(index < this.scheduledConnections.size()){
+            this.scheduledConnections.get(index).removeProcedure();
+            this.scheduledConnections.remove(index);
         }
     }
 }

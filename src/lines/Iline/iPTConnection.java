@@ -33,4 +33,9 @@ public interface iPTConnection {
      * @return the planned vehicle orientation
      */
     boolean getVehicleForward();
+
+    /**
+     * Prepares connection for deletion
+     */
+    void removeProcedure();
 }

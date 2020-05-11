@@ -569,4 +569,10 @@ public class Vehicle implements iVehicle {
      */
     public boolean getScheduled(){ return this.scheduled; }
 
+    /**
+     * Sets drawn value
+     * @param set value to be set
+     */
+    public void setDrawn(boolean set){ this.drawn = set;}
+
 }

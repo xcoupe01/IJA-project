@@ -193,4 +193,6 @@ public interface iPublicTransport{
      * Checks all line schedules for departures and arrivals
      */
     void checkAllSchedules();
+
+    void setAllVehiclesDrawn(boolean set);
 }
