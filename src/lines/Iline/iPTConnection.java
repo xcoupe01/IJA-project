@@ -38,4 +38,10 @@ public interface iPTConnection {
      * Prepares connection for deletion
      */
     void removeProcedure();
+
+    /**
+     * Tells the current assigned vehicle number
+     * @return assigned vehicle number
+     */
+    int getVehicleNumber();
 }

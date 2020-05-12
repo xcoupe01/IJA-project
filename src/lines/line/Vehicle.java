@@ -85,7 +85,7 @@ public class Vehicle implements iVehicle {
      * @param mainMap is connection to map
      * @param mainPubTrans is connection to public transport
      */
-    Vehicle(PTLine line, Coordinate start, int vehicleNumber, Map mainMap, PublicTransport mainPubTrans, Pane mapCanvas){
+    public Vehicle(PTLine line, Coordinate start, int vehicleNumber, Map mainMap, PublicTransport mainPubTrans, Pane mapCanvas){
         this.line = line;
         this.vehicle.setStroke(Color.BLACK);
         this.vehicle.setFill(this.line.getLineColor());

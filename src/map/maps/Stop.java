@@ -7,6 +7,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import lines.line.PublicTransport;
 import lines.line.Timer;
+import lines.line.Vehicle;
 import map.Imaps.iStop;
 import static javafx.scene.Cursor.cursor;
 
@@ -197,6 +198,35 @@ public class Stop implements iStop{
                     informationLine.setY(lines * 20 + 16);
                     this.informationPane.getChildren().add(informationLine);
                     lines ++;
+                }
+                for(int j = 0; j < this.mainPubTrans.getLines().get(i).getScheduledConnections().size(); j++){
+                    if(this.mainPubTrans.getLines().get(i).getScheduledConnections().get(j).getVehicleNumber() == -1){
+                        Text informationLine = new Text();
+                        informationLine.setText("conn. ".concat(String.valueOf(j)));
+                        Vehicle tmpVehicle;
+                        if(this.mainPubTrans.getLines().get(i).getScheduledConnections().get(j).getVehicleForward()){
+                            tmpVehicle = new Vehicle(this.mainPubTrans.getLines().get(i),
+                                    this.mainPubTrans.getLines().get(i).getRoute().getRoute().get(0),
+                                    0, this.mainMap, this.mainPubTrans, null);
+                            informationLine.setText(informationLine.getText().concat(" > - "));
+                        } else {
+                            tmpVehicle = new Vehicle(this.mainPubTrans.getLines().get(i),
+                                    this.mainPubTrans.getLines().get(i).getRoute().getRoute().get(this.mainPubTrans.getLines().get(i).getRoute().getRoute().size() -1),
+                                    0, this.mainMap, this.mainPubTrans, null);
+                            tmpVehicle.setForward(false);
+                            informationLine.setText(informationLine.getText().concat(" < - "));
+                        }
+                        Timer tmpTimer = new Timer();
+                        tmpTimer.set(this.mainPubTrans.getLines().get(i).getScheduledConnections().get(j).getDepartureTime().getSeconds(),
+                                this.mainPubTrans.getLines().get(i).getScheduledConnections().get(j).getDepartureTime().getMinutes(),
+                                this.mainPubTrans.getLines().get(i).getScheduledConnections().get(j).getDepartureTime().getHours());
+                        tmpTimer.addSeconds(tmpVehicle.howMuchTimeTo(pos));
+                        informationLine.setText(informationLine.getText().concat(String.valueOf(this.mainPubTrans.getTimer().minutesTo(tmpTimer))).concat(" mins"));
+                        informationLine.setX(35);
+                        informationLine.setY(lines * 20 + 16);
+                        this.informationPane.getChildren().add(informationLine);
+                        lines ++;
+                    }
                 }
             }
         }

@@ -60,4 +60,16 @@ public interface iTimer {
      * @return true if it i in the time interval, false otherwise
      */
     boolean isTimeBetweenTwoTimes(Timer timeStart, Timer timeEnd);
+
+    /**
+     * Tells how many minutes are between two timers, the given timer is modified
+     * @param time to count the minutes to (is modified during the calculation)
+     * @return minutes from given counter to this counter
+     */
+    int minutesTo(Timer time);
+
+    /**
+     * Adds one minute to the counter
+     */
+    void addMinute();
 }

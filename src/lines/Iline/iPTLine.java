@@ -173,4 +173,11 @@ public interface iPTLine{
      * Checks all line schedules for departures and arrivals
      */
     void removeScheduledConnection(int index);
+
+    /**
+     * Generates line time table based on scheduled lines in PNG format
+     * @param filepath is the folder to be saved to
+     * @param mainPubTrans is the connection for the public transport
+     */
+    void generateTimeScheduleToFile(String filepath, PublicTransport mainPubTrans);
 }

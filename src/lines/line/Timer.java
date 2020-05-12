@@ -129,4 +129,32 @@ public class Timer implements iTimer {
         return false;
     }
 
+    /**
+     * Tells how many minutes are between two timers, the given timer is modified
+     * @param time to count the minutes to (is modified during the calculation)
+     * @return minutes from given counter to this counter
+     */
+    public int minutesTo(Timer time){
+        int returnVal = 0;
+        while(!(this.hours == time.getHours() && this.minutes == time.getMinutes() && this.seconds == this.getSeconds())){
+           time.subSecond();
+           returnVal ++;
+        }
+        return returnVal / 60;
+    }
+
+    /**
+     * Adds one minute to the counter
+     */
+    public void addMinute(){
+        this.minutes ++;
+        if(this.minutes >= 60){
+            this.minutes -= 60;
+            this.hours ++;
+        }
+        if(this.hours >= 24){
+            this.hours -= 24;
+        }
+    }
+
 }

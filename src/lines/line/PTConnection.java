@@ -191,4 +191,10 @@ public class PTConnection implements iPTConnection {
         }
         this.line.removeVehicleByNumber(this.vehicleNumber);
     }
+
+    /**
+     * Tells the current assigned vehicle number
+     * @return assigned vehicle number
+     */
+    public int getVehicleNumber(){ return this.vehicleNumber; }
 }

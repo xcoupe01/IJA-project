@@ -117,6 +117,7 @@ public class Main extends Application {
         MenuButton connectionTimeMinutes = new MenuButton();
         Button connectionDirectionButton = new Button("Forward");
         HBox connectionButtons = new HBox();
+        Button generateTimeTable = new Button("Generate time table");
         // overview list
         Label timeDisplay = new Label();
         Button pauseButton = new Button("Pause");
@@ -168,7 +169,7 @@ public class Main extends Application {
         lineMenu.getChildren().addAll(highlightAllLineRoutes, linesMenu, addLinePoint,
                 removeLastLinePoint, addVehicle, removeVehicle, toggleLineHighlight, deleteLine,
                 addLine, newLineColor, scheduledConnectionListWrap, connectionButtons, addConnection,
-                removeConnection, loadPublicTransp, savePublicTransp);
+                removeConnection, generateTimeTable, loadPublicTransp, savePublicTransp);
 
         overview.getChildren().addAll(timeDisplay, runButton, pauseButton, animationSpeed,
                 realTimeAnimationSpeed, timeTravelMenuButtons, timeTravelButtons, lineInformationPaneWrap);
@@ -610,6 +611,7 @@ public class Main extends Application {
         streetMenu.setPrefWidth(menuWidth);
         addConnection.setPrefWidth(menuWidth);
         removeConnection.setPrefWidth(menuWidth);
+        generateTimeTable.setPrefWidth(menuWidth);
 
         // other UI buttons settings - pretty self explanatory
         coordRemove.setOnAction(event -> {
@@ -818,10 +820,10 @@ public class Main extends Application {
         primaryStage.show();
 
         // initial map load
-        mainMap.loadMapFromFile("maps/sample3.map", mapCanvas);
+        mainMap.loadMapFromFile("data/maps/sample3.map", mapCanvas);
 
         // initial line load
-        mainPubTrans.loadPTFromFile(mapCanvas, "lines/sample3.line", mainMap, lineInformationPane);
+        mainPubTrans.loadPTFromFile(mapCanvas, "data/lines/sample3.line", mainMap, lineInformationPane);
 
         // initial updates of choosers
         updateStreetMenu(streetMenu, mainMap);
@@ -923,6 +925,16 @@ public class Main extends Application {
             }
         });
 
+
+        // time table generator setup
+        generateTimeTable.setOnAction(event ->{
+            for (int i = 0; i < linesMenu.getItems().size(); i++) {
+                if (linesMenu.getItems().get(i).equals(linesMenu.getValue())) {
+                    mainPubTrans.getLines().get(i).generateTimeScheduleToFile("data/generatedTimeTables", mainPubTrans);
+                    break;
+                }
+            }
+        });
     }
 
     /**

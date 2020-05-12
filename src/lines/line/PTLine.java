@@ -6,6 +6,12 @@ import lines.Iline.iPTLine;
 import map.maps.Coordinate;
 import map.maps.Map;
 
+import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
 /**
  * PTLine class
  * implements interface iPTLine
@@ -31,7 +37,6 @@ public class PTLine implements iPTLine {
     /** List of scheduled Connections*/
     private java.util.List<PTConnection> scheduledConnections = new java.util.ArrayList<>();
 
-    //TODO generate daily line schedule
 
     /**
      * Native constructor of PTLine class
@@ -315,6 +320,141 @@ public class PTLine implements iPTLine {
         if(index < this.scheduledConnections.size()){
             this.scheduledConnections.get(index).removeProcedure();
             this.scheduledConnections.remove(index);
+        }
+    }
+
+    /**
+     * Generates line time table based on scheduled lines in PNG format
+     * @param filepath is the folder to be saved to
+     * @param mainPubTrans is the connection for the public transport
+     */
+    public void generateTimeScheduleToFile(String filepath, PublicTransport mainPubTrans){
+
+        java.util.List<Integer> stopX = new java.util.ArrayList<>();
+        int horizontalShift = 150;
+        int width = 0;
+        for(int i = 0; i < this.lineRoute.getRouteType().size(); i++){
+            if(this.lineRoute.getRouteType().get(i).equals("stop")){
+                width ++;
+            }
+        }
+        width = (width * 120) + horizontalShift;
+        int height = (this.scheduledConnections.size() * 50) + 100;
+        // vertical spacing is 50 point per line + 2 initial lines
+        java.util.List<Integer> timesForward = new java.util.ArrayList<>();
+        java.util.List<Integer> timesBackward = new java.util.ArrayList<>();
+        Vehicle tmpVehicle = new Vehicle(this, this.lineRoute.getRoute().get(0), 0, this.mainMap, mainPubTrans, null);
+        int vehicleCounter = 0;
+        int tickCounter = 0;
+        while(tmpVehicle.getStartPosition() != this.lineRoute.getRoute().size() - 1){
+            if(tmpVehicle.getStartPosition() == vehicleCounter){
+                if(this.lineRoute.getRouteType().get(vehicleCounter).equals("stop")){
+                    vehicleCounter ++;
+                    timesForward.add(tickCounter);
+                } else {
+                    vehicleCounter ++;
+                }
+            }
+            tickCounter ++;
+            tmpVehicle.ride();
+        }
+        timesForward.add(tickCounter);
+        tmpVehicle = new Vehicle(this, this.lineRoute.getRoute().get(this.lineRoute.getRoute().size() - 1), 0, this.mainMap, mainPubTrans, null);
+        tmpVehicle.setForward(false);
+        vehicleCounter = this.lineRoute.getRoute().size() - 1;
+        tickCounter = 0;
+        while(tmpVehicle.getStartPosition() != 0){
+            if(tmpVehicle.getStartPosition() == vehicleCounter){
+                if(this.lineRoute.getRouteType().get(vehicleCounter).equals("stop")){
+                    vehicleCounter --;
+                    timesBackward.add(tickCounter);
+                } else {
+                    vehicleCounter --;
+                }
+            }
+            tickCounter ++;
+            tmpVehicle.ride();
+        }
+        timesBackward.add(tickCounter);
+        // this will generate warning in java 11 but in java 8 it should be fine
+        BufferedImage saveImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D canvas = saveImage.createGraphics();
+        canvas.setColor(java.awt.Color.white);
+        canvas.fillRect(0, 0, width, height);
+        java.awt.Color lineColor = new java.awt.Color((float) this.lineColor.getRed(),
+                (float) this.lineColor.getGreen(),
+                (float) this.lineColor.getBlue(),
+                (float) this.lineColor.getOpacity());
+
+        canvas.setColor(lineColor);
+        canvas.fillRect(0,0,50, 50);
+        canvas.setColor(java.awt.Color.black);
+        canvas.drawString("Line ".concat(String.valueOf(this.lineNumber).concat(" connections")), 70, 30);
+        //canvas.fillRect(0, 50, 50, 50);
+        int counter = 0;
+        for(int i = 0; i < this.lineRoute.getRoute().size(); i++){
+            if(this.lineRoute.getRouteType().get(i).equals("stop")){
+                canvas.setColor(java.awt.Color.yellow);
+                canvas.fillRect(counter * 120 + horizontalShift, 80, 10, 10);
+                stopX.add(counter * 120 + horizontalShift);
+                canvas.setColor(java.awt.Color.black);
+                canvas.drawString(this.mainMap.getStopByCoord(this.lineRoute.getRoute().get(i)).getName(), counter * 120 + (horizontalShift - 25), 70);
+                if(counter > 0){
+                    canvas.drawLine((counter - 1) * 120 + horizontalShift + 10, 85, counter * 120 + horizontalShift, 85);
+                }
+                counter ++;
+            }
+        }
+        counter = 0;
+        Timer tmpTimer = new Timer();
+        while(!(tmpTimer.getHours() == 23 && tmpTimer.getMinutes() == 59)){
+            for(int i = 0; i < this.scheduledConnections.size(); i++){
+                if(tmpTimer.getHours() == this.scheduledConnections.get(i).getDepartureTime().getHours() &&
+                    tmpTimer.getMinutes() == this.scheduledConnections.get(i).getDepartureTime().getMinutes()){
+                    canvas.setColor(java.awt.Color.black);
+                    Timer tmpDeparture = new Timer();
+                    if(this.scheduledConnections.get(i).getVehicleForward()){
+                        canvas.drawString("Connection ".concat(String.valueOf(i)).concat(" >"), 2, 125 + counter * 50);
+                        for(int j = 0; j < timesForward.size(); j++){
+                            tmpDeparture.set(this.scheduledConnections.get(i).getDepartureTime().getSeconds(),
+                                    this.scheduledConnections.get(i).getDepartureTime().getMinutes(),
+                                    this.scheduledConnections.get(i).getDepartureTime().getHours());
+                            tmpDeparture.addSeconds(timesForward.get(j) * mainPubTrans.getTickMeansSec());
+                            if(tmpDeparture.getMinutes() < 10){
+                                canvas.drawString(String.valueOf(tmpDeparture.getHours()).concat(":0")
+                                        .concat(String.valueOf(tmpDeparture.getMinutes())), stopX.get(j)- 10, 125 + counter * 50);
+                            } else {
+                                canvas.drawString(String.valueOf(tmpDeparture.getHours()).concat(":")
+                                        .concat(String.valueOf(tmpDeparture.getMinutes())), stopX.get(j) - 10, 125 + counter * 50);
+                            }
+                        }
+                    } else {
+                        canvas.drawString("Connection ".concat(String.valueOf(i)).concat(" <"), 2, 125 + counter * 50);
+                        for(int j = stopX.size() - 1; j >= 0; j--){
+                            tmpDeparture.set(this.scheduledConnections.get(i).getDepartureTime().getSeconds(),
+                                    this.scheduledConnections.get(i).getDepartureTime().getMinutes(),
+                                    this.scheduledConnections.get(i).getDepartureTime().getHours());
+                            tmpDeparture.addSeconds(timesBackward.get(timesBackward.size() - j - 1) * mainPubTrans.getTickMeansSec());
+                            if(tmpDeparture.getMinutes() < 10){
+                                canvas.drawString(String.valueOf(tmpDeparture.getHours()).concat(":0")
+                                        .concat(String.valueOf(tmpDeparture.getMinutes())), stopX.get(j) - 10, 125 + counter * 50);
+                            } else {
+                                canvas.drawString(String.valueOf(tmpDeparture.getHours()).concat(":")
+                                        .concat(String.valueOf(tmpDeparture.getMinutes())), stopX.get(j) - 10, 125 + counter * 50);
+                            }
+                        }
+                    }
+                    counter ++;
+                }
+            }
+            tmpTimer.addMinute();
+        }
+        canvas.dispose();
+        try{
+            File saveFile = new File(filepath.concat("/scheduleLine").concat(String.valueOf(this.lineNumber).concat(".png")));
+            ImageIO.write(saveImage, "png", saveFile);
+        } catch (IOException e){
+            System.out.println("File cannot be saved");
         }
     }
 }
