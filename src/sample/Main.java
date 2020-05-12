@@ -97,21 +97,23 @@ public class Main extends Application {
         Button saveMap = new Button("Save map");
         HBox segmentHBox = new HBox();
         // line menu buttons ect
-        ToggleButton highlightAllLineRoutes = new ToggleButton("Highlight Public Transport");
-        Button loadPublicTransp = new Button("Load Public Transport");
-        Button savePublicTransp = new Button("Save Public Transport");
+        ToggleButton highlightAllLineRoutes = new ToggleButton("Highlight public transport");
+        Button loadPublicTransp = new Button("Load public transport");
+        Button savePublicTransp = new Button("Save public transport");
         ComboBox linesMenu = new ComboBox();
         ToggleButton addLinePoint = new ToggleButton("Add line route point");
         Button removeLastLinePoint = new Button("Remove last route point");
-        ToggleButton toggleLineHighlight = new ToggleButton("Highlight Line Route");
+        ToggleButton toggleLineHighlight = new ToggleButton("Highlight line route");
         Button deleteLine = new Button("Delete line");
         Button addLine = new Button("Add line");
         ColorPicker newLineColor = new ColorPicker();
         ToggleButton addVehicle = new ToggleButton("Add vehicle");
+        Button addVehicleForward = new Button("Forward");
+        HBox addVehicleBox = new HBox();
         ToggleButton removeVehicle = new ToggleButton("Remove vehicle");
         Accordion scheduledConnectionList = new Accordion();
         ScrollPane scheduledConnectionListWrap = new ScrollPane(scheduledConnectionList);
-        Button removeConnection = new Button("Remove Connection");
+        Button removeConnection = new Button("Remove connection");
         Button addConnection = new Button("Add connection");
         MenuButton connectionTimeHours = new MenuButton();
         MenuButton connectionTimeMinutes = new MenuButton();
@@ -167,12 +169,24 @@ public class Main extends Application {
                 segmentHBox, trafficLevelChooser, loadMap, saveMap);
 
         lineMenu.getChildren().addAll(highlightAllLineRoutes, linesMenu, addLinePoint,
-                removeLastLinePoint, addVehicle, removeVehicle, toggleLineHighlight, deleteLine,
+                removeLastLinePoint, addVehicleBox, removeVehicle, toggleLineHighlight, deleteLine,
                 addLine, newLineColor, scheduledConnectionListWrap, connectionButtons, addConnection,
                 removeConnection, generateTimeTable, loadPublicTransp, savePublicTransp);
 
         overview.getChildren().addAll(timeDisplay, runButton, pauseButton, animationSpeed,
                 realTimeAnimationSpeed, timeTravelMenuButtons, timeTravelButtons, lineInformationPaneWrap);
+
+        // line add vehicle setting
+        addVehicleBox.getChildren().addAll(addVehicle, addVehicleForward);
+        addVehicle.setPrefWidth(menuWidth / 2);
+        addVehicleForward.setPrefWidth(menuWidth / 2);
+        addVehicleForward.setOnAction(event -> {
+            if(addVehicleForward.getText().equals("Forward")){
+                addVehicleForward.setText("Backward");
+            } else {
+                addVehicleForward.setText("Forward");
+            }
+        });
 
         // real time animation button settings
         realTimeAnimationSpeed.setPrefWidth(menuWidth);
@@ -453,6 +467,9 @@ public class Main extends Application {
                         }
                         mainPubTrans.getLines().get(i).addVehicle(pos, mainPubTrans, mapCanvas);
                         mainPubTrans.getLines().get(i).getVehicles().get(mainPubTrans.getLines().get(i).getVehicles().size() - 1).draw();
+                        if(addVehicleForward.getText().equals("Backward")){
+                            mainPubTrans.getLines().get(i).getVehicles().get(mainPubTrans.getLines().get(i).getVehicles().size() - 1).setForward(false);
+                        }
                         break;
                     }
                 }
@@ -606,7 +623,6 @@ public class Main extends Application {
         newLineColor.setPrefWidth(menuWidth);
         addLine.setPrefWidth(menuWidth);
         removeVehicle.setPrefWidth(menuWidth);
-        addVehicle.setPrefWidth(menuWidth);
         pauseButton.setPrefWidth(menuWidth);
         runButton.setPrefWidth(menuWidth);
         menu.setMinWidth(menuWidth);
