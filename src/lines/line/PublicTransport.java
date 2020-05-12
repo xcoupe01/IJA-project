@@ -46,8 +46,6 @@ public class PublicTransport implements iPublicTransport {
     /** Tells if the animating is going forward*/
     private boolean animationForward = true;
 
-    //TODO generate daily timetable
-
     /**
      * Native constructor of PublicTransport class
      * @param mainMap is the connection to map
@@ -497,5 +495,18 @@ public class PublicTransport implements iPublicTransport {
         for (PTLine line : this.lines) {
             line.setVehiclesDrawn(set);
         }
+    }
+
+    /**
+     * Tells if the whole public transport highlight is on
+     * @return true if highlight is visible false otherwise
+     */
+    public boolean allLineHighlightsDrawn(){
+        for (PTLine line : this.lines) {
+            if (!line.getDrawn()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

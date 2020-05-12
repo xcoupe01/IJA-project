@@ -156,5 +156,4 @@ public class Timer implements iTimer {
             this.hours -= 24;
         }
     }
-
 }

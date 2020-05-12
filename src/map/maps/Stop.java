@@ -267,5 +267,4 @@ public class Stop implements iStop{
         removeText.setX(20);
         removeText.setY(50);
     }
-
 }

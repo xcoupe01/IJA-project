@@ -574,5 +574,4 @@ public class Vehicle implements iVehicle {
      * @param set value to be set
      */
     public void setDrawn(boolean set){ this.drawn = set;}
-
 }

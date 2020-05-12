@@ -194,5 +194,15 @@ public interface iPublicTransport{
      */
     void checkAllSchedules();
 
+    /**
+     * Sets all vehicles drawn value
+     * @param set is the value to be set for all vehicles
+     */
     void setAllVehiclesDrawn(boolean set);
+
+    /**
+     * Tells if the whole public transport highlight is on
+     * @return true if highlight is visible false otherwise
+     */
+    boolean allLineHighlightsDrawn();
 }

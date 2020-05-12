@@ -44,10 +44,10 @@ public class Main extends Application {
     private int selectedSegment = 0;
     /** Selected connection value*/
     private int selectedConnection = -1;
+    /** Selected connection hour value*/
     private int connectionHours = 0;
+    /** Selected connection minute value*/
     private int connectionMinutes = 0;
-
-    //TODO add button collision control
 
     /**
      * Start of the whole application, sets all UI elements and sets the main objects
@@ -293,7 +293,11 @@ public class Main extends Application {
         trafficLevelChooser.setShowTickLabels(true);
         trafficLevelChooser.valueProperty().addListener((obs, oldval, newVal) ->
                 trafficLevelChooser.setValue(newVal.intValue()));
-        streetMenu.setOnAction(event -> segmentChooserSetter(mainMap, streetMenu, streetSegmentChooser, trafficLevelChooser));
+        streetMenu.setOnAction(event -> {
+            segmentChooserSetter(mainMap, streetMenu, streetSegmentChooser, trafficLevelChooser);
+            eraseStreet.setSelected(!mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getDrawn());
+            highlightStreet.setSelected(mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getHighlightStatus());
+        });
         streetSegmentChooser.setPrefWidth(menuWidth/2);
         highlightSegment.setOnAction(event -> {
             if(this.selectedSegment == -1){
@@ -342,7 +346,6 @@ public class Main extends Application {
                         Coordinate tmpCoord = tmpStreet.getCoordinates().get(j);
                         if(abs(tmpCoord.getX() - event.getX()) < snapAggression && abs(tmpCoord.getY() - event.getY()) < snapAggression){
                             snapCoord = tmpCoord;
-                            System.out.println("snapping");
                         }
                     }
                 }
@@ -631,6 +634,34 @@ public class Main extends Application {
             }
         });
 
+        coordAdd.setOnAction(event -> {
+            stopAdd.setSelected(false);
+            stopRemove.setSelected(false);
+        });
+
+        stopAdd.setOnAction(event -> {
+            coordAdd.setSelected(false);
+            stopRemove.setSelected(false);
+        });
+
+        stopRemove.setOnAction(event -> {
+            coordAdd.setSelected(false);
+            stopAdd.setSelected(false);
+        });
+
+        addLinePoint.setOnAction(event -> {
+            addVehicle.setSelected(false);
+            removeVehicle.setSelected(false);
+        });
+        addVehicle.setOnAction(event -> {
+            addLinePoint.setSelected(false);
+            removeVehicle.setSelected(false);
+        });
+        removeVehicle.setOnAction(event -> {
+            addVehicle.setSelected(false);
+            addLinePoint.setSelected(false);
+        });
+
         removeStreet.setOnAction(event ->{
             if(mainMap.isStreet((String) streetMenu.getValue())){
                 for(int i = 0; i < mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getCoordinates().size(); i++){
@@ -686,12 +717,14 @@ public class Main extends Application {
                 stopRemove.setSelected(false);
             }
             try {
-                mainMap.loadMapFromFile(fileChoose.showOpenDialog(primaryStage).getPath(), mapCanvas);
+                if(!mainMap.loadMapFromFile(fileChoose.showOpenDialog(primaryStage).getPath(), mapCanvas)){
+                    System.out.println("Warning - map file cannot be loaded properly, check the file!");
+                }
                 updateStreetMenu(streetMenu, mainMap);
                 mainMap.draw(mapCanvas);
             }
             catch (NullPointerException e){
-                System.out.println("no file choosed");
+                System.out.println("Warning - no file choosed");
             }
         });
 
@@ -722,18 +755,23 @@ public class Main extends Application {
                 mainMap.saveMapToFile(fileChoose.showSaveDialog(primaryStage).getPath());
             }
             catch (NullPointerException e){
-                System.out.println("no file choosed");
+                System.out.println("Warning - no file choosed");
             }
         });
 
-        highlightAllLineRoutes.setOnAction(event -> mainPubTrans.toggleHighlight(mapCanvas));
+        highlightAllLineRoutes.setOnAction(event -> {
+            toggleLineHighlight.setSelected(false);
+            mainPubTrans.toggleHighlight(mapCanvas);
+        });
 
         loadPublicTransp.setOnAction(event -> {
             try {
-                mainPubTrans.loadPTFromFile(mapCanvas, fileChoose.showOpenDialog(primaryStage).getPath(), mainMap, lineInformationPane);
+                if(!mainPubTrans.loadPTFromFile(mapCanvas, fileChoose.showOpenDialog(primaryStage).getPath(), mainMap, lineInformationPane)){
+                    System.out.println("Warning - line file cannot be loaded properly, check the file!");
+                }
                 updateLinesMenu(linesMenu, mainPubTrans, addLine);
             } catch (NullPointerException e){
-                System.out.println("no file choosed");
+                System.out.println("Warning - no file choosed");
             }
         });
 
@@ -741,7 +779,7 @@ public class Main extends Application {
             try {
                 mainPubTrans.savePTToFile(fileChoose.showSaveDialog(primaryStage).getPath(), mainMap);
             } catch (NullPointerException e){
-                System.out.println("no file choosed");
+                System.out.println("Warning - no file choosed");
             }
         });
 
@@ -820,10 +858,15 @@ public class Main extends Application {
         primaryStage.show();
 
         // initial map load
-        mainMap.loadMapFromFile("data/maps/sample3.map", mapCanvas);
+        if(!mainMap.loadMapFromFile("data/maps/sample3.map", mapCanvas)){
+            System.out.println("Warning - map file cannot be loaded properly, check the file!");
+        }
 
         // initial line load
-        mainPubTrans.loadPTFromFile(mapCanvas, "data/lines/sample3.line", mainMap, lineInformationPane);
+        if(!mainPubTrans.loadPTFromFile(mapCanvas, "data/lines/sample3.line", mainMap, lineInformationPane)){
+            System.out.println("Warning - line file cannot be loaded properly, check the file!");
+        }
+
 
         // initial updates of choosers
         updateStreetMenu(streetMenu, mainMap);
@@ -852,6 +895,16 @@ public class Main extends Application {
             for (int i = 0; i < linesMenu.getItems().size(); i++) {
                 if (linesMenu.getItems().get(i).equals(linesMenu.getValue())) {
                     updateScheduledConnectionList(scheduledConnectionList, mainPubTrans.getLines().get(i));
+                    if(mainPubTrans.allLineHighlightsDrawn()){
+                        highlightAllLineRoutes.setSelected(true);
+                        toggleLineHighlight.setSelected(false);
+                    } else if(mainPubTrans.getLines().get(i).getDrawn()){
+                        highlightAllLineRoutes.setSelected(false);
+                        toggleLineHighlight.setSelected(true);
+                    } else {
+                        highlightAllLineRoutes.setSelected(false);
+                        toggleLineHighlight.setSelected(false);
+                    }
                     break;
                 }
             }

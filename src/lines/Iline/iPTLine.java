@@ -180,4 +180,10 @@ public interface iPTLine{
      * @param mainPubTrans is the connection for the public transport
      */
     void generateTimeScheduleToFile(String filepath, PublicTransport mainPubTrans);
+
+    /**
+     * Tells of the line highlight is drawn
+     * @return true if the line highlight is visible, false otherwise
+     */
+    boolean getDrawn();
 }

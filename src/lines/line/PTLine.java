@@ -457,4 +457,10 @@ public class PTLine implements iPTLine {
             System.out.println("File cannot be saved");
         }
     }
+
+    /**
+     * Tells of the line highlight is drawn
+     * @return true if the line highlight is visible, false otherwise
+     */
+    public boolean getDrawn(){ return this.drawn; }
 }

@@ -166,5 +166,4 @@ public class Coordinate implements iCoordinate{
         }
         return false;
     }
-
 }
