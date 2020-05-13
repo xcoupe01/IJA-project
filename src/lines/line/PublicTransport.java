@@ -170,7 +170,7 @@ public class PublicTransport implements iPublicTransport {
                 }
             }
         } catch (FileNotFoundException e){
-            e.printStackTrace();
+            System.out.println("Error - file ".concat(filePath).concat(" is not accesible or dont exist"));
             return false;
         }
     this.drawAllVehicles();

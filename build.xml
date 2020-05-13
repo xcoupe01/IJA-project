@@ -3,7 +3,7 @@
 	<property name="build_dir" value="build"/>
 	<property name="doc_dir" value="doc"/>
 	<property name="dest_dir" value="dest/"/>
-	<property name="main_class"  value="Main"/>
+	<property name="main_class" value="sample.Main"/>
 
 	<!-- cleans -->
 
@@ -29,7 +29,7 @@
     	</target>
 	
     	<target name="compile" depends="compile-classes, doc">
-        	<jar destfile="${dest-client_dir}/ija-app.jar" basedir="${build_dir}">
+        	<jar destfile="${dest_dir}/ija-app.jar" basedir="${build_dir}">
            	 	<manifest><attribute name="Main-Class" value="${main_class}"/></manifest>
         	</jar>
    	</target>

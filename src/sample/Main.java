@@ -17,6 +17,7 @@ import map.maps.Stop;
 import map.maps.Street;
 import javafx.application.Application;
 import static java.lang.StrictMath.abs;
+import java.io.File;
 
 /**
  * IJA VUT FIT Project for year 2020
@@ -1053,26 +1054,28 @@ public class Main extends Application {
      */
     private void segmentChooserSetter(Map mainMap, ComboBox streetMenu, MenuButton streetSegmentChooser, Slider trafficLevelChooser){
         streetSegmentChooser.getItems().clear();
-        for(int i = 0; i < mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getTraffic().size(); i++){
-            int finalI = i;
-            MenuItem tmpMenuItem = new MenuItem("Segment ".concat(String.valueOf(i)));
-            tmpMenuItem.setOnAction(itemEvent -> {
-                streetSegmentChooser.setText("Segment ".concat(String.valueOf(finalI)));
-                this.selectedSegment = finalI;
-                trafficLevelChooser.setValue(mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getTraffic().get(finalI));
-            });
-            streetSegmentChooser.getItems().add(tmpMenuItem);
-            if(i == 0){
-                streetSegmentChooser.getItems().get(i).fire();
+        if(mainMap.getStreets().size() > 0){
+            for(int i = 0; i < mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getTraffic().size(); i++){
+                int finalI = i;
+                MenuItem tmpMenuItem = new MenuItem("Segment ".concat(String.valueOf(i)));
+                tmpMenuItem.setOnAction(itemEvent -> {
+                    streetSegmentChooser.setText("Segment ".concat(String.valueOf(finalI)));
+                    this.selectedSegment = finalI;
+                    trafficLevelChooser.setValue(mainMap.getStreets().get(mainMap.getMapPointerById((String) streetMenu.getValue())).getTraffic().get(finalI));
+                });
+                streetSegmentChooser.getItems().add(tmpMenuItem);
+                if(i == 0){
+                    streetSegmentChooser.getItems().get(i).fire();
+                }
             }
+            MenuItem wholeStreetOption = new MenuItem("Whole street");
+            wholeStreetOption.setOnAction(itemEvent -> {
+                streetSegmentChooser.setText("Whole street");
+                this.selectedSegment = -1;
+                trafficLevelChooser.setValue(1);
+            });
+            streetSegmentChooser.getItems().add(wholeStreetOption);
         }
-        MenuItem wholeStreetOption = new MenuItem("Whole street");
-        wholeStreetOption.setOnAction(itemEvent -> {
-            streetSegmentChooser.setText("Whole street");
-            this.selectedSegment = -1;
-            trafficLevelChooser.setValue(1);
-        });
-        streetSegmentChooser.getItems().add(wholeStreetOption);
     }
 
     private void updateScheduledConnectionList(Accordion list, PTLine line){
