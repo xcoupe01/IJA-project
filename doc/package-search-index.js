@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"m":"IJA.project","l":"lines.Iline"},{"m":"IJA.project","l":"lines.line"},{"m":"IJA.project","l":"map.Imaps"},{"m":"IJA.project","l":"map.maps"},{"m":"IJA.project","l":"sample"}]

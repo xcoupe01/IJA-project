@@ -1,0 +1,37 @@
+TIME 19:10:10
+LINE 1 0x00ff00ff [ulice10,1] [ulice10,2] [ulice10,3] [ulice7,3] [ulice7,2] [ulice1,13] [ulice1,12] [ulice1,11] [ulice1,10]
+VEHICLE 5 forward 28
+VEHICLE 4 backward 44
+LINE 2 0x008000ff [ulice9,1] [ulice7,10] [ulice9,3] [ulice9,4] [ulice9,5] [ulice9,6] [ulice9,7] [ulice9,8] [ulice9,9] [ulice9,10] [ulice6,7] [ulice6,6]
+VEHICLE 7 forward 15
+VEHICLE 9 backward 69
+LINE 3 0x808000ff [ulice7,2] [ulice7,3] [ulice7,4] [ulice7,5] [ulice7,6] [ulice7,7] [ulice7,8] [ulice6,0] [ulice7,10] [ulice9,3]
+VEHICLE 2 backward 63
+VEHICLE 6 forward 52
+LINE 4 0xffff00ff [ulice7,4] [ulice7,3] [ulice10,5] [ulice10,6] [ulice10,7] [ulice10,8] [ulice10,9] [ulice10,10] [ulice10,11] [ulice3,4] [ulice3,3]
+VEHICLE 4 backward 34
+VEHICLE 7 forward 169
+LINE 5 0x800000ff [ulice5,1] [ulice1,7] [ulice1,8] [ulice1,9] [ulice3,1]
+VEHICLE 3 backward 132
+VEHICLE 0 forward 0
+LINE 6 0xff0000ff [ulice3,1] [ulice1,9] [ulice3,3] [ulice3,4] [ulice10,13] [ulice10,14] [ulice10,15] [ulice10,16] [ulice5,6] [ulice5,5]
+VEHICLE 0 forward 0
+VEHICLE 3 forward 106
+LINE 7 0x800080ff [ulice1,2] [ulice1,3] [ulice1,4] [ulice10,26] [ulice10,25] [ulice10,24] [ulice10,23] [ulice10,22]
+VEHICLE 3 forward 53
+VEHICLE 7 backward 65
+LINE 8 0xff00ffff [ulice2,4] [ulice1,6] [ulice2,6] [ulice2,7] [ulice2,8] [ulice2,9] [ulice4,4] [ulice4,3] [ulice4,2] [ulice4,1]
+VEHICLE 6 backward 0
+VEHICLE 8 forward 36
+LINE 9 0x000080ff [ulice4,7] [ulice4,8] [ulice3,7] [ulice4,10] [ulice4,11] [ulice4,12] [ulice4,13] [ulice6,4] [ulice6,5] [ulice6,6]
+VEHICLE 9 backward 108
+VEHICLE 0 forward 58
+LINE 10 0x0000ffff [ulice4,7] [ulice4,6] [ulice2,9] [ulice2,10] [ulice2,11] [ulice8,5] [ulice8,6] [ulice8,7] [ulice8,8] [ulice8,9]
+VEHICLE 1 forward 166
+VEHICLE 4 backward 20
+LINE 11 0x008080ff [ulice8,9] [ulice8,10] [ulice3,11] [ulice8,12] [ulice8,13] [ulice8,14]
+VEHICLE 2 backward 119
+VEHICLE 4 forward 17
+LINE 12 0x00ffffff [ulice3,6] [ulice3,7] [ulice3,8] [ulice3,9] [ulice3,10] [ulice3,11] [ulice8,12]
+VEHICLE 2 backward 50
+VEHICLE 5 backward 13

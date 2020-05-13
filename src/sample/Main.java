@@ -467,6 +467,7 @@ public class Main extends Application {
                         }
                         mainPubTrans.getLines().get(i).addVehicle(pos, mainPubTrans, mapCanvas);
                         mainPubTrans.getLines().get(i).getVehicles().get(mainPubTrans.getLines().get(i).getVehicles().size() - 1).draw();
+                        mainPubTrans.getLines().get(i).getVehicles().get(mainPubTrans.getLines().get(i).getVehicles().size() - 1).setInformationPane(lineInformationPane);
                         if(addVehicleForward.getText().equals("Backward")){
                             mainPubTrans.getLines().get(i).getVehicles().get(mainPubTrans.getLines().get(i).getVehicles().size() - 1).setForward(false);
                         }

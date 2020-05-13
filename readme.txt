@@ -36,7 +36,7 @@ Další sekce "Map" slouží k editaci mapy. Opět od shora se nejprve nachází
 		- rozbalovací tlačítko "Segment" je pro zvolení segmentu, kde budeme provoz nastavovat, je přítomná volba "Whole street", po jejímž zvolení se nastavuje provoz rovnoměrně na celé ulici.
 		- tlačítko "Show segment highlight" vykreslí zvýraznění pouze pro zvolený segment
 	- druhý řádek - slider nastavuje provoz, ten je znázorněn kategoriemi 1 - 5, při provozu 2 trvá vozidlu 2krát déle trasu projet než při provozu 1, při porovozu 3 to vozidlu trvá 3krát déle apod. 
- - tlačítko "Load map" vyvolá dialog pro zvolení souboru, ze kterého se načte nová mapa (stávající mapa je přemazána)
+ - tlačítko "Load map" vyvolá dialog pro zvolení souboru, ze kterého se načte nová mapa (stávající mapa je přemazána a ke smazána aktuální hromadná doprava, neboť na mapu nemusí sedět)
  - tlačítko "Save map" vyvolá dialog pro zvolení/vytvoření souboru, do kterého se aktuální mapa uloží (více o formátu ukládacích souborů níže)
 
 Poslední sekce "Lines" slouží pro nastavení, editaci a ukládání hromadné dopravy na mapě.
