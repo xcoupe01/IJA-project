@@ -155,7 +155,7 @@ public class Map implements iMap{
                             if(!this.streets.get(this.streets.size() - 1).addStop(new Stop(matchedName.group(1),
                                     Objects.requireNonNull(Coordinate.create(Integer.parseInt(matchedCoords.group(1))
                                             , Integer.parseInt(matchedCoords.group(2)))),this.mainPubTrans, this.informationPane, this))){
-                                System.out.println("WARNING - stop cannot be added because of position");
+                                System.out.println("WARNING - stop ".concat(matchedName.group(1)).concat(" cannot be added because of position"));
                             }
                         }
                     } else {

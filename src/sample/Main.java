@@ -494,7 +494,6 @@ public class Main extends Application {
             this.dragLocationX = (int) event.getX();
             this.dragLocationY = (int) event.getY();
         });
-
         // mapCanvas drag settings
         mapCanvas.setOnMouseDragged(event ->{
            if(!coordAdd.isSelected() && !stopAdd.isSelected() && !addLinePoint.isSelected()){
@@ -504,7 +503,6 @@ public class Main extends Application {
                this.dragLocationY = (int) event.getY();
            }
         });
-
         // mapCanvas listener - mouse move functions
         mapCanvas.setOnMouseMoved(event ->{
             // function - showing preview of add stop function
