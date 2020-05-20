@@ -84,6 +84,7 @@ public class Vehicle implements iVehicle {
      * @param vehicleNumber is the vehicle number (number 0 is reserved for application)
      * @param mainMap is connection to map
      * @param mainPubTrans is connection to public transport
+     * @param mapCanvas is connection to map pane
      */
     public Vehicle(PTLine line, Coordinate start, int vehicleNumber, Map mainMap, PublicTransport mainPubTrans, Pane mapCanvas){
         this.line = line;
@@ -431,7 +432,6 @@ public class Vehicle implements iVehicle {
      * @param pos is the list index to line route coordinate list
      * @return list where on zero index is amount in application seconds that the vehicle needs to get to position,
      * when error it returns -1 on position zero, when no error happen on second position is forward value at the stop
-     * (forward = true <=> .get(1) = 1).
      */
     public java.util.List<Integer> howMuchTimeToNext(int pos){
         int tmpSeconds = 0;

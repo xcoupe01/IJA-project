@@ -109,6 +109,7 @@ public class PublicTransport implements iPublicTransport {
                         Route tmpRoute = new Route(mainMap, tmpPTLine);
                         Coordinate tmpCoord = mainMap.getStreets().get(mainMap.getMapPointerById(matchedLineCoords.group(1))).getStreetRoute().get(Integer.parseInt(matchedLineCoords.group(2)));
                         if(!mainMap.getStreets().get(mainMap.getMapPointerById(matchedLineCoords.group(1))).getStreetRouteType().get(Integer.parseInt(matchedLineCoords.group(2))).equals("stop")){
+                            myReader.close();
                             return false;
                         } else {
                             tmpRoute.addStop(tmpCoord);
@@ -120,11 +121,13 @@ public class PublicTransport implements iPublicTransport {
                             } else if(mainMap.getStreets().get(mainMap.getMapPointerById(matchedLineCoords.group(1))).getStreetRouteType().get(Integer.parseInt(matchedLineCoords.group(2))).equals("point")){
                                 tmpRoute.addPoint(tmpCoord);
                             } else {
+                                myReader.close();
                                 return false;
                             }
                         }
                         this.addLine(tmpPTLine);
                     } else {
+                        myReader.close();
                         return false;
                     }
                 } else if(line.matches("^VEHICLE \\d+ \\w+ \\d+$")){
@@ -141,6 +144,7 @@ public class PublicTransport implements iPublicTransport {
                             this.lines.get(this.lines.size() - 1).getVehicles().get(this.lines.get(this.lines.size() - 1).getVehicles().size() - 1).ride();
                         }
                     } else {
+                        myReader.close();
                         return false;
                     }
                 } else if(line.matches("^TIME \\d+:\\d+:\\d+$")){
@@ -166,16 +170,18 @@ public class PublicTransport implements iPublicTransport {
                         }
                     }
                 } else if(!line.matches("") && !line.matches("^#")){
+                    myReader.close();
                     return false;
                 }
             }
+            myReader.close();
         } catch (FileNotFoundException e){
             System.out.println("Error - file ".concat(filePath).concat(" is not accesible or dont exist"));
             return false;
         }
-    this.drawAllVehicles();
+        this.drawAllVehicles();
         this.updateTimeDisplay();
-    return true;
+        return true;
     }
 
     /**

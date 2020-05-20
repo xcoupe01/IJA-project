@@ -159,6 +159,7 @@ public class Map implements iMap{
                             }
                         }
                     } else {
+                        myReader.close();
                         return false;
                     }
                 } else if(line.matches("^TRAFFIC [\\d+ ]+")){
@@ -168,16 +169,18 @@ public class Map implements iMap{
                                 this.streets.get(this.streets.size() - 1).setTraffic(i, Integer.parseInt(matchedTraffic.group(1)));
                             }
                     } else {
+                        myReader.close();
                         return false;
                     }
                 } else if(!line.matches("") && !line.matches("^#")){
                     System.out.println("unknown command - ".concat(line));
+                    myReader.close();
                     return false;
                 }
             }
             myReader.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Error - file ".concat(filePath).concat(" is not accesible or dont exist"));
+            System.out.println("Error - file ".concat(filePath).concat(" is not accessible or don't exist"));
             return false;
         }
         return true;

@@ -17,7 +17,6 @@ import map.maps.Stop;
 import map.maps.Street;
 import javafx.application.Application;
 import static java.lang.StrictMath.abs;
-import java.io.File;
 
 /**
  * IJA VUT FIT Project for year 2020
@@ -874,12 +873,12 @@ public class Main extends Application {
         primaryStage.show();
 
         // initial map load
-        if(!mainMap.loadMapFromFile("data/maps/sample3.map", mapCanvas)){
+        if(!mainMap.loadMapFromFile("data/maps/sample5.map", mapCanvas)){
             System.out.println("Warning - map file cannot be loaded properly, check the file!");
         }
 
         // initial line load
-        if(!mainPubTrans.loadPTFromFile(mapCanvas, "data/lines/sample3.line", mainMap, lineInformationPane)){
+        if(!mainPubTrans.loadPTFromFile(mapCanvas, "data/lines/sample5.line", mainMap, lineInformationPane)){
             System.out.println("Warning - line file cannot be loaded properly, check the file!");
         }
 

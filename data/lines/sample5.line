@@ -1,0 +1,59 @@
+TIME 12:0:0
+LINE 1 0x0000ffff [ulice1,1] [ulice1,2] [ulice1,3] [ulice1,4] [ulice4,5] [ulice3,4] [ulice3,3] [ulice3,2] [ulice3,1] [ulice3,0] [ulice6,6] [ulice6,7] [ulice10,4] [ulice10,3] [ulice10,2]
+VEHICLE 8 backward 0
+VEHICLE 10 forward 70
+VEHICLE 5 forward 0
+SCHEDULE 12:5:0 forward
+SCHEDULE 13:5:0 backward
+SCHEDULE 12:30:0 forward
+SCHEDULE 13:30:0 backward
+SCHEDULE 13:30:0 forward
+SCHEDULE 14:30:0 forward
+SCHEDULE 14:30:0 backward
+SCHEDULE 15:30:0 backward
+SCHEDULE 15:30:0 forward
+SCHEDULE 16:30:0 forward
+SCHEDULE 16:30:0 backward
+LINE 2 0x008000ff [ulice1,7] [ulice1,6] [ulice1,5] [ulice1,4] [ulice4,7] [ulice4,8] [ulice4,9]
+VEHICLE 0 forward 433
+VEHICLE 1 forward 51
+VEHICLE 4 forward 33
+SCHEDULE 12:15:0 backward
+SCHEDULE 12:20:0 forward
+SCHEDULE 12:30:0 backward
+SCHEDULE 13:30:0 backward
+SCHEDULE 13:30:0 forward
+SCHEDULE 14:30:0 backward
+SCHEDULE 14:30:0 forward
+SCHEDULE 15:30:0 backward
+SCHEDULE 15:30:0 forward
+SCHEDULE 16:30:0 forward
+SCHEDULE 16:30:0 backward
+LINE 3 0xffff00ff [ulice2,5] [ulice2,6] [ulice4,3] [ulice3,4] [ulice3,5] [ulice3,6] [ulice3,7]
+VEHICLE 6 backward 58
+VEHICLE 3 backward 26
+SCHEDULE 12:30:0 backward
+SCHEDULE 12:30:0 forward
+SCHEDULE 13:30:0 forward
+SCHEDULE 13:30:0 backward
+SCHEDULE 14:30:0 forward
+SCHEDULE 14:30:0 backward
+SCHEDULE 15:30:0 forward
+SCHEDULE 15:30:0 backward
+SCHEDULE 16:30:0 backward
+SCHEDULE 16:30:0 forward
+SCHEDULE 17:30:0 forward
+LINE 4 0xff0000ff [ulice3,7] [ulice3,6] [ulice3,5] [ulice3,4] [ulice3,3] [ulice3,2] [ulice3,1] [ulice3,0] [ulice6,4] [ulice6,3] [ulice6,2] [ulice5,0] [ulice4,0] [ulice5,2]
+VEHICLE 1 forward 44
+VEHICLE 3 backward 55
+VEHICLE 11 backward 78
+VEHICLE 2 forward 0
+LINE 5 0xcc6633ff [ulice7,2] [ulice7,3] [ulice7,4] [ulice7,5] [ulice7,6] [ulice6,11] [ulice6,10] [ulice2,0] [ulice2,1]
+VEHICLE 2 backward 49
+VEHICLE 4 forward 20
+LINE 6 0x00ff00ff [ulice5,5] [ulice1,0] [ulice5,3] [ulice5,2] [ulice4,0] [ulice4,1] [ulice2,6] [ulice2,5] [ulice2,4] [ulice8,4] [ulice9,3] [ulice9,4] [ulice9,5] [ulice9,6]
+VEHICLE 2 forward 54
+VEHICLE 8 backward 3
+LINE 7 0xff00ffff [ulice9,3] [ulice8,4] [ulice2,4] [ulice2,3] [ulice2,2] [ulice8,2] [ulice6,3] [ulice6,4] [ulice3,0] [ulice3,1]
+VEHICLE 3 forward 31
+VEHICLE 5 backward 25

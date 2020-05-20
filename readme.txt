@@ -4,6 +4,9 @@ Vypracovali:
  - Vojtěch Čoupek (xcoupe01) <xcoupe01@stud.fit.vutbr.cz> - Vedoucí
  - Tadeáš Jůza (xjuzat00) <xjuzat00@stud.fit.vutbr.cz>
 
+** Popis example files: **
+Ve složce data se nacházejí příkladové soubory pro aplikaci. Jelikož aplikace načítá zvlášť mapu a linky je potřeba načíst soubory ve správném pořadí. Nejdříve je nutno načíst mapu (složka /data/maps), tedy soubor končící ".map" poté je třeba načíst soubor hromadné dopravy (složka /data/lines), tedy soubor končící ".lines". Aplikace při spuštění načte soubory sample5, které splňují požadavky dané zadáním (tedy alespoň 20 ulic, alespoň 3 linky o 10 spojích - 10 spojů mají první tři linky, všechny linky mají navíc přidaná vozidla, která neustále pendlují). Soubory "brnoN.map" jsou ukázkou mapy Brna v aplikaci, nejsou k nim vytvořeny linky a nedaří se načíst všechny zastávky správně (jsou pouze pro ukázku).
+
 ** Ovládání a popis UI: ** 
 Po spuštění aplikace se objeví úvodní obrazovka. Na pravé straně se nachází podklad s mapou a na levé straně se nachází menu. Na mapovém podkladu se dá pohybovat táhnutím myši a přibližovat či oddalovat pomocí kolečka myši. Mapový podklad obsahuje vykreslení aktuální načtené mapy a aktuální načtené hromadné dopravy (kocept mapy a hromadné dopravy je vysvětlen v zadání a nebude tu opakován). Na mapovém podkladu se dále dá klikat na zastávky (žluté čtverečky) a vozidla (kolečka v barvě linky). Po kliknutí se v panelu menu zobrazí itinerář vozidla nebo itinerář zastávky podle toho, na co bylo kliknuto. Černá kolečka na mapě předsavují definiční souřadnice segmentů ulice (po kliknutí na ně je do konzole vypsána jejich aktuální poloha). 
 Nyní se přesuneme od mapy k popisu menu. V horní části menu jsou tři sekce. Po kliknutí na tlačítko nějaké sekce, menu se přepne na zvolenou volbu a zobrazí se volby korespondující s danou sekcí. 

@@ -171,6 +171,7 @@ public interface iPTLine{
 
     /**
      * Checks all line schedules for departures and arrivals
+     * @param index list index of connection to be removed
      */
     void removeScheduledConnection(int index);
 
